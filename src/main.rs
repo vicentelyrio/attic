@@ -1,7 +1,8 @@
 use axum::{
-    extract::{Query, State},
-    http::StatusCode,
-    response::Json,
+    body::Body,
+    extract::{Query, Request, State},
+    http::{header, StatusCode},
+    response::{IntoResponse, Json, Response},
     routing::get,
     Router,
 };
@@ -9,6 +10,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use tower::ServiceExt;
+use tower_http::services::ServeFile;
 use tower_http::trace::TraceLayer;
 
 // ---- Config -------------------------------------------------------------
@@ -36,6 +39,16 @@ struct ListQuery {
     root: String,
     #[serde(default)]
     path: String,
+}
+
+#[derive(Deserialize)]
+struct DownloadQuery {
+    root: String,
+    #[serde(default)]
+    path: String,
+    // ?dl=true forces a download dialog; default streams inline (for video/audio/images)
+    #[serde(default)]
+    dl: bool,
 }
 
 #[derive(Serialize)]
@@ -72,6 +85,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/list", get(list_dir))
+        .route("/api/download", get(download))
         .layer(TraceLayer::new_for_http())
         .with_state(state);
 
@@ -147,4 +161,46 @@ async fn list_dir(
     });
 
     Ok(Json(entries))
+}
+
+/// Download a file.
+async fn download(
+    State(state): State<AppState>,
+    Query(q): Query<DownloadQuery>,
+    req: Request<Body>,
+) -> Result<Response, StatusCode> {
+    // Same resolver, same security boundary as listing.
+    let path = resolve_within_root(&state.roots, &q.root, &q.path)
+        .ok_or(StatusCode::FORBIDDEN)?;
+
+    // This endpoint serves file bytes only — reject directories.
+    let meta = tokio::fs::metadata(&path)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    if meta.is_dir() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    // ServeFile does NO path resolution — it serves exactly the file we hand it.
+    // All safety already happened in resolve_within_root; ServeFile is purely an
+    // HTTP-semantics helper: Range, ETag, conditional GET, content-type sniffing.
+    // Clean division — our resolver owns security, ServeFile owns protocol.
+    let mut response = ServeFile::new(&path)
+        .oneshot(req)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .into_response();
+
+    // Optional: force "save as" instead of inline rendering.
+    if q.dl {
+        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+            if let Ok(value) = format!("attachment; filename=\"{}\"", name).parse() {
+                response
+                    .headers_mut()
+                    .insert(header::CONTENT_DISPOSITION, value);
+            }
+        }
+    }
+
+    Ok(response)
 }
