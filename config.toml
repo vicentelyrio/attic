@@ -1,5 +1,4 @@
 listen = "127.0.0.1:3000"
 
 [roots]
-home = "/Users/vicentelyrio/Documents"
-downloads = "/Users/vicentelyrio/Downloads"
+home = "/Users/vicentelyrio"

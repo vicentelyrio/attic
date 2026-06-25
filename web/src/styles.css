@@ -1,0 +1,63 @@
+:root {
+  --bg: #16181d;
+  --panel: #1d2026;
+  --border: #2a2e37;
+  --text: #e4e6eb;
+  --muted: #8b909a;
+  --accent: #6ea8fe;
+  --hover: #242830;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+.app { max-width: 880px; margin: 0 auto; padding: 24px 16px; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.topbar h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.04em; margin: 0; }
+
+.rootpicker {
+  background: var(--panel); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer;
+}
+
+.breadcrumbs {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+  padding: 8px 12px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px;
+}
+.crumb { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.crumb:hover { background: var(--hover); }
+.crumb.root { font-weight: 600; }
+.sep { color: var(--muted); padding: 0 2px; }
+
+.content { min-height: 200px; }
+
+.filelist { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.row { display: flex; align-items: center; gap: 8px; padding: 0 12px; border-bottom: 1px solid var(--border); }
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--hover); }
+
+.name {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  background: none; border: none; color: var(--text); font: inherit;
+  text-align: left; text-decoration: none; padding: 10px 0; cursor: pointer; min-width: 0;
+}
+.name .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.name.dir .label { color: var(--accent); }
+.icon { flex-shrink: 0; }
+
+.size { color: var(--muted); font-size: 12px; min-width: 72px; text-align: right; }
+
+.dl { color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 16px; }
+.dl:hover { color: var(--text); background: var(--hover); }
+
+.muted { color: var(--muted); padding: 24px 4px; }
+.error { color: #ff6b6b; padding: 24px 4px; }
