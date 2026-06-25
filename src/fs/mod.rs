@@ -1,0 +1,17 @@
+mod download;
+mod listing;
+mod resolve;
+
+use axum::{routing::get, Router};
+
+use crate::state::AppState;
+
+// Re-export so sibling handlers reach it as `crate::fs::resolve_within_root`.
+pub(crate) use resolve::resolve_within_root;
+
+/// All filesystem-facing routes, assembled here so main.rs stays pure wiring.
+pub fn routes() -> Router<AppState> {
+    Router::new()
+        .route("/api/list", get(listing::list_dir))
+        .route("/api/download", get(download::download))
+}
