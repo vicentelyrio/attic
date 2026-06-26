@@ -31,19 +31,34 @@ export function FileList({ entries, root, path, onOpen }: Props) {
         return (
           <li key={e.name} className="row">
             {e.is_dir ? (
-              <button className="name dir" onClick={() => onOpen(e.name)}>
+              <button
+                type="button"
+                className="name dir"
+                onClick={() => onOpen(e.name)}
+              >
                 <span className="icon">📁</span>
                 <span className="label">{e.name}</span>
               </button>
             ) : (
-              <a className="name file" href={downloadUrl(root, fullPath)} target="_blank" rel="noreferrer">
+              <a
+                className="name file"
+                href={downloadUrl(root, fullPath)}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <span className="icon">📄</span>
                 <span className="label">{e.name}</span>
               </a>
             )}
             <span className="size">{e.is_dir ? '' : formatSize(e.size)}</span>
             {!e.is_dir && (
-              <a className="dl" href={downloadUrl(root, fullPath, true)} title="Download">↓</a>
+              <a
+                className="dl"
+                href={downloadUrl(root, fullPath, true)}
+                title="Download"
+              >
+                ↓
+              </a>
             )}
           </li>
         )

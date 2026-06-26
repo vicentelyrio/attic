@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useRoots, useDirectory } from './hooks/queries'
-import { RootPicker } from './components/RootPicker'
 import { Breadcrumbs } from './components/Breadcrumbs'
 import { FileList } from './components/FileList'
+import { RootPicker } from './components/RootPicker'
+import { useDirectory, useRoots } from './hooks/queries'
 
 export function App() {
   const roots = useRoots()

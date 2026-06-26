@@ -8,7 +8,11 @@ export function Breadcrumbs({ root, path, onNavigate }: Props) {
   const segments = path ? path.split('/') : []
   return (
     <nav className="breadcrumbs">
-      <button className="crumb root" onClick={() => onNavigate('')}>
+      <button
+        type="button"
+        className="crumb root"
+        onClick={() => onNavigate('')}
+      >
         {root ?? '—'}
       </button>
       {segments.map((seg, i) => {
@@ -16,7 +20,11 @@ export function Breadcrumbs({ root, path, onNavigate }: Props) {
         return (
           <span key={target} className="crumb-group">
             <span className="sep">/</span>
-            <button className="crumb" onClick={() => onNavigate(target)}>
+            <button
+              type="button"
+              className="crumb"
+              onClick={() => onNavigate(target)}
+            >
               {seg}
             </button>
           </span>

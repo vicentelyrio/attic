@@ -8,7 +8,7 @@ export function useRoots() {
 export function useDirectory(root: string | null, path: string) {
   return useQuery({
     queryKey: ['list', root, path],
-    queryFn: () => listDir(root!, path),
-    enabled: root !== null, // don't fetch until a root is selected
+    queryFn: () => listDir(root as string, path),
+    enabled: root !== null,
   })
 }
