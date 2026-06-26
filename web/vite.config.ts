@@ -9,6 +9,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': src(''),
+      '@theme': src('theme'),
+      '@templates': src('templates'),
       '@components': src('components'),
       '@hooks': src('hooks'),
       '@api': src('api'),

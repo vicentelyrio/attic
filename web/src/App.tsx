@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+
+import { AppTemplate } from '@templates/app-template'
+
 import { Breadcrumbs } from './components/Breadcrumbs'
 import { FileList } from './components/FileList'
 import { RootPicker } from './components/RootPicker'
@@ -26,6 +29,10 @@ export function App() {
     setRoot(r)
     setPath('')
   }
+
+  return (
+    <AppTemplate />
+  )
 
   return (
     <div className="app">
