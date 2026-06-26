@@ -1,8 +1,19 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+const src = (p: string) => fileURLToPath(new URL(`src/${p}`, import.meta.url))
+
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': src(''),
+      '@components': src('components'),
+      '@hooks': src('hooks'),
+      '@api': src('api'),
+    },
+  },
   server: {
     // Forward API calls to the Rust backend in dev. The frontend always talks
     // to a same-origin "/api" — no CORS — which mirrors production, where the
