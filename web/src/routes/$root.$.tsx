@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { DataList, Stack } from '@mantine/core'
+import { Stack } from '@mantine/core'
 
 import { useDirectory, type Entry } from '@domain'
-import { Breadcrumbs } from '@components/breadcrumbs/breadcrumbs'
+import { Breadcrumbs, List } from '@components'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -26,14 +26,7 @@ function Index() {
   return (
     <Stack>
       <Breadcrumbs root={root} path={path} />
-      <DataList>
-        {data?.map((item) => (
-          <DataList.Item key={item.name} onClick={() => open(item)}>
-            <DataList.ItemLabel>{item.name}</DataList.ItemLabel>
-            <DataList.ItemValue>{item.size}</DataList.ItemValue>
-          </DataList.Item>
-        ))}
-      </DataList>
+      <List data={data as Entry[]} onOpen={open} />
     </Stack>
   )
 }
