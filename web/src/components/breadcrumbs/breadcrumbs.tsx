@@ -1,26 +1,42 @@
 import { useMemo } from 'react'
-import { Link, useLocation } from '@tanstack/react-router'
-import { Breadcrumbs as Bread, Anchor } from '@mantine/core'
+import { Breadcrumbs as Bread, Text } from '@mantine/core'
+import { AnchorLink } from '@components'
 
-export function Breadcrumbs() {
-  const location = useLocation()
+type BreadcrumbsProps = {
+  path: string
+  root: string
+}
 
-  const segments = useMemo(() => {
-    const parts = location.pathname ? location.pathname.split('/') : []
+export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
+  const crumbs = useMemo(() => {
+    const parts = path ? path.split('/') : []
 
-    return parts.map((seg, i) => {
-      const target = parts.slice(0, i + 1).join('/')
-      return (
-        <Anchor href={target} key={target} component={Link}>
-          {seg}
-        </Anchor>
-      )
-    })
-  }, [location.pathname])
+    return [
+      { label: root, target: '' },
+      ...parts.map((seg, i) => ({
+        label: seg,
+        target: parts.slice(0, i + 1).join('/'),
+      })),
+    ]
+  }, [path, root])
 
   return (
     <Bread separator="→" separatorMargin="md" mt="xs">
-      {segments}
+      {crumbs.map((crumb, i) =>
+        i === crumbs.length - 1 ? (
+          <Text key={crumb.target} c="dimmed">
+            {crumb.label}
+          </Text>
+        ) : (
+          <AnchorLink
+            key={crumb.target}
+            to="/$root/$"
+            params={{ root, _splat: crumb.target }}
+          >
+            {crumb.label}
+          </AnchorLink>
+        ),
+      )}
     </Bread>
   )
 }

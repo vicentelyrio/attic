@@ -6,8 +6,6 @@ import { MantineProvider } from '@mantine/core'
 
 import { theme } from '@theme'
 
-import { App } from './App'
-
 import '@mantine/core/styles.css'
 import { routeTree } from './routeTree.gen'
 
@@ -26,7 +24,6 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <MantineProvider defaultColorScheme="dark" theme={theme}>
         <RouterProvider router={router} />
-        <App />
       </MantineProvider>
     </QueryClientProvider>
   </StrictMode>,

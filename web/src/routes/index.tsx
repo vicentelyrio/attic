@@ -1,15 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Breadcrumbs } from '@components'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { fetchRoots } from '@domain'
 
 export const Route = createFileRoute('/')({
-  component: Index,
+  loader: async () => {
+    const roots = await fetchRoots()
+    throw redirect({ to: '/$root/$', params: { root: roots[0].name, _splat: '' } })
+  },
 })
-
-function Index() {
-  return (
-    <div>
-      <Breadcrumbs />
-      <h3>Welcome Home!</h3>
-    </div>
-  )
-}

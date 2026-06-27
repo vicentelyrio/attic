@@ -1,5 +1,7 @@
+import type { Root } from '@domain'
+
 interface Props {
-  roots: string[]
+  roots: Root[]
   current: string | null
   onChange: (root: string) => void
 }
@@ -12,8 +14,8 @@ export function RootPicker({ roots, current, onChange }: Props) {
       onChange={(e) => onChange(e.target.value)}
     >
       {roots.map((r) => (
-        <option key={r} value={r}>
-          {r}
+        <option key={r.name} value={r.name}>
+          {r.name}
         </option>
       ))}
     </select>

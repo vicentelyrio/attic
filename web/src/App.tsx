@@ -16,7 +16,7 @@ export function App() {
   // Default to the first root once the list arrives.
   useEffect(() => {
     if (root === null && roots.data && roots.data.length > 0) {
-      setRoot(roots.data[0])
+      setRoot(roots.data[0].name)
     }
   }, [root, roots.data])
 
