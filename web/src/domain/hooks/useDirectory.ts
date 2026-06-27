@@ -1,9 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchRoots, listDir } from '../api/files'
-
-export function useRoots() {
-  return useQuery({ queryKey: ['roots'], queryFn: fetchRoots })
-}
+import { listDir } from '@domain'
 
 export function useDirectory(root: string | null, path: string) {
   return useQuery({

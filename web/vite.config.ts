@@ -1,19 +1,25 @@
 import { fileURLToPath } from 'node:url'
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import react from '@vitejs/plugin-react'
 
 const src = (p: string) => fileURLToPath(new URL(`src/${p}`, import.meta.url))
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }),
+    react(),
+  ],
   resolve: {
     alias: {
       '@': src(''),
-      '@theme': src('theme'),
-      '@templates': src('templates'),
       '@components': src('components'),
-      '@hooks': src('hooks'),
-      '@api': src('api'),
+      '@domain': src('domain'),
+      '@templates': src('templates'),
+      '@theme': src('theme'),
     },
   },
   server: {

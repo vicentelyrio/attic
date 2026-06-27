@@ -1,5 +1,4 @@
-import type { Entry } from '../api/files'
-import { downloadUrl } from '../api/files'
+import { type Entry, downloadUrl } from '@domain'
 
 interface Props {
   entries: Entry[]
