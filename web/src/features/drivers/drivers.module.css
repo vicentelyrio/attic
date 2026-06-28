@@ -1,0 +1,14 @@
+.navItem {
+  border-radius: var(--mantine-radius-sm);
+}
+
+.navItemActive {
+  color: var(--mantine-color-dark-0);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

@@ -1,47 +1,50 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Box, NavLink, Stack, Text } from '@mantine/core'
+import { Link } from '@tanstack/react-router'
 
 import { useRoots, type Root } from '@domain'
 import { size } from '@infrastructure'
 
-import classes from './sidebar.module.css'
+import classes from './drivers.module.css'
 
-function dotClass(usedPercent: number) {
-  if (usedPercent > 90) return classes.dotRed
-  if (usedPercent > 70) return classes.dotOrange
-  return classes.dotGreen
+function dotColor(usedPercent: number) {
+  if (usedPercent > 90) return 'var(--mantine-color-red-5)'
+  if (usedPercent > 70) return 'var(--mantine-color-orange-5)'
+  return 'var(--mantine-color-green-5)'
 }
 
-function DriveItem({ root, active }: { root: Root; active: boolean }) {
+function DriveItem({ root }: { root: Root }) {
   const usedPercent = root.total > 0 ? (root.used / root.total) * 100 : 0
+
   return (
-    <Link
+    <NavLink
+      component={Link}
+      className={classes.navItem}
+      activeProps={{ className: classes.navItemActive }}
       to="/$root/$"
       params={{ root: root.name, _splat: '' }}
-      className={`${classes.driveItem} ${active ? classes.driveItemActive : ''}`}
-    >
-      <span className={`${classes.dot} ${dotClass(usedPercent)}`} />
-      <span className={classes.driveName}>{root.name}</span>
-      <span className={classes.driveCaption}>{size(root.total)}</span>
-    </Link>
+      label={root.name}
+      color="gray"
+      leftSection={
+        <Box className={classes.dot} style={{ backgroundColor: dotColor(usedPercent) }} />
+      }
+      rightSection={
+        <Text size="xs" c="dimmed">{size(root.total)}</Text>
+      }
+    />
   )
 }
 
 export function Drivers() {
   const { data: roots = [] } = useRoots()
-  const location = useLocation()
-
-  const firstSegment = decodeURIComponent(location.pathname.split('/').filter(Boolean)[0] ?? '')
 
   return (
-    <div className={classes.drivesSection}>
-      <div className={classes.sectionLabel}>DRIVES</div>
+    <Stack gap={4}>
+      <Text size="xs" fw={600} c="dimmed">
+        Drives
+      </Text>
       {roots.map((root) => (
-        <DriveItem
-          key={root.name}
-          root={root}
-          active={firstSegment === root.name}
-        />
+        <DriveItem key={root.name} root={root} />
       ))}
-    </div>
+    </Stack>
   )
 }
