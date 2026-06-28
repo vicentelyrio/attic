@@ -1,0 +1,39 @@
+.nav {
+  padding: 4px 8px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--mantine-color-dark-2);
+  font-size: 13px;
+  cursor: default;
+  user-select: none;
+}
+
+a.navItem {
+  cursor: pointer;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--mantine-color-dark-0);
+}
+
+.navItemActive {
+  background: rgba(255, 255, 255, 0.065);
+  color: var(--mantine-color-dark-0);
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
