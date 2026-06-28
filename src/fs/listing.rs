@@ -1,3 +1,6 @@
+use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -19,7 +22,25 @@ pub(super) struct ListQuery {
 pub(super) struct Entry {
     name: String,
     is_dir: bool,
-    size: u64,
+    size: u64,             // bytes; 0 for directories
+    items: Option<u64>,    // immediate child count for directories; None for files
+    modified: Option<i64>, // unix epoch seconds
+    created: Option<i64>,  // unix epoch seconds; None where the FS/OS doesn't track it
+}
+
+fn to_epoch(t: std::io::Result<SystemTime>) -> Option<i64> {
+    t.ok()
+        .and_then(|st| st.duration_since(UNIX_EPOCH).ok())
+        .map(|d| d.as_secs() as i64)
+}
+
+async fn count_children(path: &Path) -> Option<u64> {
+    let mut rd = tokio::fs::read_dir(path).await.ok()?;
+    let mut n = 0u64;
+    while let Ok(Some(_)) = rd.next_entry().await {
+        n += 1;
+    }
+    Some(n)
 }
 
 pub(super) async fn list_dir(
@@ -27,7 +48,6 @@ pub(super) async fn list_dir(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Vec<Entry>>, StatusCode> {
     let dir = resolve_within_root(&state.roots, &q.root, &q.path).ok_or(StatusCode::FORBIDDEN)?;
-
     let mut read_dir = tokio::fs::read_dir(&dir).await.map_err(|_| StatusCode::NOT_FOUND)?;
 
     let mut entries = Vec::new();
@@ -40,10 +60,16 @@ pub(super) async fn list_dir(
             Ok(m) => m,
             Err(_) => continue,
         };
+        let is_dir = meta.is_dir();
+        let items = if is_dir { count_children(&item.path()).await } else { None };
+
         entries.push(Entry {
             name: item.file_name().to_string_lossy().into_owned(),
-            is_dir: meta.is_dir(),
-            size: meta.len(),
+            is_dir,
+            size: if is_dir { 0 } else { meta.len() },
+            items,
+            modified: to_epoch(meta.modified()),
+            created: to_epoch(meta.created()),
         });
     }
 

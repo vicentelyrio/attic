@@ -1,5 +1,6 @@
 import { Table } from '@mantine/core'
 
+import { relativeTime, size } from '@infrastructure'
 import type { Entry } from '@domain'
 
 export type ListProps = {
@@ -10,8 +11,12 @@ export type ListProps = {
 export function List({ data, onOpen }: ListProps) {
   const rows = data?.map((element) => (
     <Table.Tr key={element.name} onClick={() => onOpen(element)}>
-      <Table.Td>{element.name}</Table.Td>
-      <Table.Td>{element.size}</Table.Td>
+      <Table.Td>
+        {element.name}
+      </Table.Td>
+      <Table.Td>{size(element.size)}</Table.Td>
+      <Table.Td>{relativeTime(element.created)}</Table.Td>
+      <Table.Td>{relativeTime(element.modified)}</Table.Td>
     </Table.Tr>
   ))
 
@@ -21,6 +26,8 @@ export function List({ data, onOpen }: ListProps) {
         <Table.Tr>
           <Table.Th>Name</Table.Th>
           <Table.Th>Size</Table.Th>
+          <Table.Th>Created</Table.Th>
+          <Table.Th>Modified</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>{rows}</Table.Tbody>

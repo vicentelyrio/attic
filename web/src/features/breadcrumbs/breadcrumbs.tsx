@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Breadcrumbs as Bread, Text } from '@mantine/core'
-import { AnchorLink } from '@components'
+import { AnchorLink } from '@features'
 
 type BreadcrumbsProps = {
   path: string

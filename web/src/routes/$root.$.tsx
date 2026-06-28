@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Stack } from '@mantine/core'
 
 import { useDirectory, type Entry } from '@domain'
-import { Breadcrumbs, List } from '@components'
+import { Breadcrumbs, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -26,7 +26,7 @@ function Index() {
   return (
     <Stack>
       <Breadcrumbs root={root} path={path} />
-      <List data={data as Entry[]} onOpen={open} />
+      <List data={data} onOpen={open} />
     </Stack>
   )
 }
