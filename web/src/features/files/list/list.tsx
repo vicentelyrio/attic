@@ -1,6 +1,6 @@
 import { Table } from '@mantine/core'
 
-import { relativeTime, size } from '@infrastructure'
+import { relativeTime, size, fileKind, FOLDER_KIND } from '@infrastructure'
 import type { Entry } from '@domain'
 
 export type ListProps = {
@@ -13,8 +13,10 @@ export function List({ data, onOpen }: ListProps) {
     <Table.Tr key={element.name} onClick={() => onOpen(element)}>
       <Table.Td>
         {element.name}
+        {element.is_dir && `(${element.items})`}
       </Table.Td>
       <Table.Td>{size(element.size)}</Table.Td>
+      <Table.Td>{element.is_dir ? FOLDER_KIND.label : fileKind(element.name).label}</Table.Td>
       <Table.Td>{relativeTime(element.created)}</Table.Td>
       <Table.Td>{relativeTime(element.modified)}</Table.Td>
     </Table.Tr>

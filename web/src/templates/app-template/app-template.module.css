@@ -1,4 +1,5 @@
 .container {
+  background-color: var(--mantine-color-dark-7);
   height: 100vh;
   display: grid;
   overflow: hidden;
@@ -7,8 +8,9 @@
 }
 
 .sidebar {
-  grid-area: sidebar;
   border-right: 1px solid var(--mantine-color-dark-9);
+  background-color: var(--mantine-color-dark-6);
+  grid-area: sidebar;
 }
 
 .workspace {
