@@ -1,5 +1,6 @@
 export interface FileKind {
   label: string
+  category: string
   color: string
 }
 
@@ -25,6 +26,7 @@ type Category = keyof typeof KIND_COLORS
 
 const k = (label: string, category: Category): FileKind => ({
   label,
+  category,
   color: KIND_COLORS[category],
 })
 
@@ -167,7 +169,11 @@ export const EXTENSION_KINDS: Record<string, FileKind> = {
   woff2: k('Font', 'font'),
 }
 
-export const FOLDER_KIND: FileKind = { label: 'Folder', color: '#6ea8fe' }
+export const FOLDER_KIND: FileKind = {
+  label: 'Folder',
+  category: 'folder',
+  color: '#6ea8fe',
+}
 
 export function fileExt(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -183,6 +189,7 @@ export function fileKind(name: string): FileKind {
   return (
     EXTENSION_KINDS[ext] ?? {
       label: ext ? `${ext.toUpperCase()} file` : 'File',
+      category: 'file',
       color: KIND_COLORS.text,
     }
   )

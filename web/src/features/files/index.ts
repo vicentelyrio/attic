@@ -1,4 +1,5 @@
 export * from './count-badge'
 export * from './entry-icon'
+export * from './grid'
 export * from './list'
 export * from './header'

@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Stack } from '@mantine/core'
-
-import { type Entry, useDirectory } from '@domain'
-import { Header, List } from '@features'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { type Entry, useDirectory, useViewMode } from '@domain'
+import { Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -14,6 +13,7 @@ function Index() {
   const path = _splat ?? ''
 
   const { data } = useDirectory(root, path)
+  const [view, setView] = useViewMode()
 
   const open = (item: Entry) => {
     if (!item.is_dir) return
@@ -25,8 +25,12 @@ function Index() {
 
   return (
     <Stack flex={1} mih={0}>
-      <Header root={root} path={path} />
-      <List data={data} onOpen={open} />
+      <Header root={root} path={path} view={view} onViewChange={setView} />
+      {view === 'grid' ? (
+        <Grid data={data} onOpen={open} />
+      ) : (
+        <List data={data} onOpen={open} />
+      )}
     </Stack>
   )
 }

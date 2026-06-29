@@ -1,0 +1,52 @@
+/* Hover / selection / dotfile states — driven by data attributes set in JSX. */
+.card {
+  cursor: default;
+  overflow: hidden;
+  transition:
+    background-color 100ms ease,
+    border-color 100ms ease;
+}
+
+.card:hover {
+  background-color: var(--mantine-color-dark-5);
+}
+
+.card[data-selected] {
+  border-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-5) 55%,
+    transparent
+  );
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 12%,
+    var(--mantine-color-dark-6)
+  );
+}
+
+.card[data-dimmed] {
+  opacity: 0.45;
+}
+
+/* Section label spacing (Mantine has no letter-spacing prop). */
+.label {
+  letter-spacing: 0.06em;
+}
+
+/* Preview surface — the slot for video players, image and code/text previews. */
+.preview {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.category {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+.size {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
