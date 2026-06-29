@@ -4,5 +4,6 @@
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  padding: var(--mantine-spacing-md);
+  padding-inline: var(--mantine-spacing-md);
+  padding-block: var(--mantine-spacing-sm);
 }

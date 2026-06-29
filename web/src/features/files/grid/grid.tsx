@@ -3,7 +3,6 @@ import {
   AspectRatio,
   Box,
   Card,
-  Center,
   Group,
   SimpleGrid,
   Stack,
@@ -11,21 +10,19 @@ import {
   ThemeIcon,
   UnstyledButton,
 } from '@mantine/core'
-import { FolderSimpleIcon, PlayIcon } from '@phosphor-icons/react'
+import { FolderSimpleIcon } from '@phosphor-icons/react'
 import { type ReactNode, useMemo, useState } from 'react'
-import type { Entry } from '@domain'
+import { downloadUrl, type Entry } from '@domain'
 import { EntryIcon } from '../entry-icon'
 import classes from './grid.module.css'
+import { ImagePreview } from './image-preview'
+import { FilePlaceholder } from './placeholder'
 
 export type GridProps = {
   data?: Entry[]
+  root: string
+  path: string
   onOpen: (item: Entry) => void
-  /**
-   * Render the preview surface for a file card. Return `undefined` to fall
-   * back to the tinted category placeholder. This is the slot for video
-   * players, image previews and code/text previews.
-   */
-  renderPreview?: (entry: Entry) => ReactNode
 }
 
 type CardProps = {
@@ -84,50 +81,33 @@ function FolderCard(props: CardProps) {
 
 function FilePreview({
   entry,
-  renderPreview,
+  root,
+  path,
 }: {
   entry: Entry
-  renderPreview?: (entry: Entry) => ReactNode
+  root: string
+  path: string
 }) {
-  const { category, color } = fileKind(entry.name)
-  const custom = renderPreview?.(entry)
+  const filePath = path ? `${path}/${entry.name}` : entry.name
 
-  return (
-    <AspectRatio ratio={16 / 10}>
-      {custom !== undefined && custom !== null && custom !== false ? (
-        custom
-      ) : (
-        <Center
-          className={classes.preview}
-          style={{
-            backgroundColor: `color-mix(in srgb, ${color} 9%, var(--mantine-color-dark-7))`,
-          }}
-        >
-          {category === 'video' ? (
-            <ThemeIcon variant="default" radius="xl" size={44}>
-              <PlayIcon weight="fill" size={18} />
-            </ThemeIcon>
-          ) : (
-            <Text className={classes.category} c={color}>
-              {category}
-            </Text>
-          )}
-        </Center>
-      )}
-    </AspectRatio>
-  )
+  const content =
+    fileKind(entry.name).category === 'image' ? (
+      <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
+    ) : (
+      <FilePlaceholder entry={entry} />
+    )
+
+  return <AspectRatio ratio={16 / 10}>{content}</AspectRatio>
 }
 
-function FileCard(
-  props: CardProps & { renderPreview?: GridProps['renderPreview'] },
-) {
-  const { entry, renderPreview } = props
+function FileCard(props: CardProps & { root: string; path: string }) {
+  const { entry, root, path } = props
   const { value, unit } = sizeParts(entry.size)
 
   return (
     <EntryCard {...props} padding={0}>
       <Card.Section className={classes.preview}>
-        <FilePreview entry={entry} renderPreview={renderPreview} />
+        <FilePreview entry={entry} root={root} path={path} />
       </Card.Section>
       <Group gap="sm" wrap="nowrap" px="md" py="sm">
         <EntryIcon name={entry.name} isDir={false} />
@@ -164,7 +144,7 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-export function Grid({ data, onOpen, renderPreview }: GridProps) {
+export function Grid({ data, root, path, onOpen }: GridProps) {
   const [selected, setSelected] = useState<string | null>(null)
 
   const { folders, files } = useMemo(() => {
@@ -184,7 +164,7 @@ export function Grid({ data, onOpen, renderPreview }: GridProps) {
   })
 
   return (
-    <Box flex={1} mih={0} p="md" style={{ overflowY: 'auto' }}>
+    <Box className={classes.scroll}>
       <Stack gap="xl">
         {folders.length > 0 && (
           <Section label="Folders">
@@ -200,7 +180,8 @@ export function Grid({ data, onOpen, renderPreview }: GridProps) {
               <FileCard
                 key={entry.name}
                 {...cardProps(entry)}
-                renderPreview={renderPreview}
+                root={root}
+                path={path}
               />
             ))}
           </Section>

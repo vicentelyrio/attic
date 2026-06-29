@@ -27,7 +27,7 @@ function Index() {
     <Stack flex={1} mih={0}>
       <Header root={root} path={path} view={view} onViewChange={setView} />
       {view === 'grid' ? (
-        <Grid data={data} onOpen={open} />
+        <Grid data={data} root={root} path={path} onOpen={open} />
       ) : (
         <List data={data} onOpen={open} />
       )}

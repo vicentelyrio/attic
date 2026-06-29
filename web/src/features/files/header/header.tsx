@@ -33,7 +33,7 @@ export type HeaderProps = {
 export function Header({ root, path, view, onViewChange }: HeaderProps) {
   return (
     <Stack className={classes.header}>
-      <Group gap="md" justify="space-between" p="md">
+      <Group gap="md" justify="space-between" py="sm" px="md">
         <Breadcrumbs root={root} path={path} />
         <SegmentedControl
           data={viewmode}

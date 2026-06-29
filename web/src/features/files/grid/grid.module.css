@@ -1,4 +1,10 @@
-/* Hover / selection / dotfile states — driven by data attributes set in JSX. */
+.scroll {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: var(--mantine-spacing-md);
+}
+
 .card {
   cursor: default;
   overflow: hidden;
@@ -28,12 +34,10 @@
   opacity: 0.45;
 }
 
-/* Section label spacing (Mantine has no letter-spacing prop). */
 .label {
   letter-spacing: 0.06em;
 }
 
-/* Preview surface — the slot for video players, image and code/text previews. */
 .preview {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
