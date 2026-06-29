@@ -29,7 +29,40 @@
     "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [":NODE:", ":BUN:"],
+              [
+                ":PACKAGE:",
+                "!@domain",
+                "!@domain/**",
+                "!@features",
+                "!@features/**",
+                "!@infraestructure",
+                "!@infraestructure/**",
+                "!@templates",
+                "!@templates/**",
+                "!@theme",
+                "!@theme/**"
+              ],
+              [
+                "@domain",
+                "@domain/**",
+                "@features",
+                "@features/**",
+                "@infraestructure",
+                "@infraestructure/**",
+                "@templates",
+                "@templates/**",
+                "@theme",
+                "@theme/**"
+              ],
+              [":PATH:"]
+            ]
+          }
+        }
       }
     }
   }

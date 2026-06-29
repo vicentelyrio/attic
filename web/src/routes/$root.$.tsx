@@ -1,12 +1,32 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Stack } from '@mantine/core'
+import { Center, Group, SegmentedControl, Stack } from '@mantine/core'
+import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
 
-import { useDirectory, type Entry } from '@domain'
+import { type Entry, useDirectory } from '@domain'
 import { Breadcrumbs, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
 })
+
+const viewmode = [
+  {
+    label: (
+      <Center>
+        <ListIcon />
+      </Center>
+    ),
+    value: 'list',
+  },
+  {
+    label: (
+      <Center>
+        <SquaresFourIcon />
+      </Center>
+    ),
+    value: 'grid',
+  },
+]
 
 function Index() {
   const navigate = useNavigate()
@@ -24,8 +44,11 @@ function Index() {
   }
 
   return (
-    <Stack>
-      <Breadcrumbs root={root} path={path} />
+    <Stack flex={1} mih={0}>
+      <Group gap="md" justify="space-between" p="md">
+        <Breadcrumbs root={root} path={path} />
+        <SegmentedControl data={viewmode} size="lg" />
+      </Group>
       <List data={data} onOpen={open} />
     </Stack>
   )

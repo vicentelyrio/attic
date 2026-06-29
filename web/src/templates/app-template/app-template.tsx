@@ -1,7 +1,6 @@
-import { Outlet } from '@tanstack/react-router'
-import { Box, Stack } from '@mantine/core'
-
 import { Sidebar } from '@features'
+import { Box, Stack } from '@mantine/core'
+import { Outlet } from '@tanstack/react-router'
 import classes from './app-template.module.css'
 
 export function AppTemplate() {

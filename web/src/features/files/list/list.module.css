@@ -1,0 +1,80 @@
+/* Only the rows scroll; the header stays pinned. */
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.table {
+  --table-border-color: var(--mantine-color-dark-6);
+}
+
+/* Keep the sticky header opaque so rows don't bleed through. */
+.thead {
+  background-color: var(--mantine-color-dark-7);
+}
+
+/* Column headers — uppercase, spaced, dimmed. */
+.head {
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--mantine-color-dark-3);
+  background-color: var(--mantine-color-dark-7);
+}
+
+/* Rows */
+.row,
+.selected {
+  cursor: default;
+  transition: background-color 100ms ease;
+}
+
+.row:hover {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.selected {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 12%,
+    transparent
+  );
+}
+
+.selected td:first-of-type {
+  box-shadow: inset 2px 0 0 0 var(--mantine-color-indigo-5);
+}
+
+/* Name cell */
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+}
+
+.label {
+  color: var(--mantine-color-dark-0);
+  font-weight: 500;
+}
+
+/* Size cell */
+.sizeCol {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  color: var(--mantine-color-dark-3);
+}
+
+.dash {
+  color: var(--mantine-color-dark-4);
+}
+
+/* Secondary columns */
+.muted {
+  color: var(--mantine-color-dark-2);
+}

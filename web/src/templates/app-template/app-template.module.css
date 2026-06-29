@@ -1,20 +1,21 @@
 .container {
-  background-color: var(--mantine-color-dark-7);
+  background-color: var(--mantine-color-dark-8);
   height: 100vh;
   display: grid;
   overflow: hidden;
   grid-template-columns: 300px 1fr;
-  grid-template-areas: 'sidebar workspace';
+  grid-template-areas: "sidebar workspace";
 }
 
 .sidebar {
-  border-right: 1px solid var(--mantine-color-dark-6);
-  background-color: var(--mantine-color-dark-7);
+  background-color: var(--mantine-color-dark-6);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   grid-area: sidebar;
   overflow: hidden;
 }
 
 .workspace {
   grid-area: workspace;
-  overflow-y: auto;
+  min-height: 0;
+  overflow: hidden;
 }

@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
-import { Breadcrumbs as Bread, Text } from '@mantine/core'
 import { AnchorLink } from '@features'
+import { Breadcrumbs as Bread, Text } from '@mantine/core'
+import { CaretRightIcon } from '@phosphor-icons/react'
+
+import classes from './breadcrumbs.module.css'
 
 type BreadcrumbsProps = {
   path: string
@@ -20,16 +23,21 @@ export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
     ]
   }, [path, root])
 
+  const separator = (
+    <CaretRightIcon className={classes.separator} size={12} weight="bold" />
+  )
+
   return (
-    <Bread separator="→" separatorMargin="md" mt="xs">
+    <Bread separator={separator} separatorMargin="xs">
       {crumbs.map((crumb, i) =>
         i === crumbs.length - 1 ? (
-          <Text key={crumb.target} c="dimmed">
+          <Text key={crumb.target} className={classes.current}>
             {crumb.label}
           </Text>
         ) : (
           <AnchorLink
             key={crumb.target}
+            className={classes.link}
             to="/$root/$"
             params={{ root, _splat: crumb.target }}
           >

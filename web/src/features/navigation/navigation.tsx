@@ -2,11 +2,11 @@ import type { ReactNode } from 'react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { NavLink } from '@mantine/core'
 import {
-  FolderSimpleIcon,
   ClockIcon,
+  FolderSimpleIcon,
   HeartIcon,
   ShareNetworkIcon,
-  TrashIcon
+  TrashIcon,
 } from '@phosphor-icons/react'
 
 import classes from './navigation.module.css'
@@ -45,4 +45,3 @@ export function Navigation({ navigation }: NavigationProps) {
     </nav>
   )
 }
-

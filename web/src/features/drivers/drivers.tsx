@@ -1,8 +1,7 @@
-import { Box, Stack, Text } from '@mantine/core'
-
-import { useRoots, type Root } from '@domain'
+import { type Root, useRoots } from '@domain'
 import { NavLink } from '@features'
 import { size } from '@infrastructure'
+import { Box, Stack, Text } from '@mantine/core'
 
 import classes from './drivers.module.css'
 
@@ -24,10 +23,15 @@ function DriveItem({ root }: { root: Root }) {
       label={root.name}
       color="gray"
       leftSection={
-        <Box className={classes.dot} style={{ backgroundColor: dotColor(usedPercent) }} />
+        <Box
+          className={classes.dot}
+          style={{ backgroundColor: dotColor(usedPercent) }}
+        />
       }
       rightSection={
-        <Text size="xs" c="dimmed">{size(root.total)}</Text>
+        <Text size="xs" c="dimmed">
+          {size(root.total)}
+        </Text>
       }
     />
   )
