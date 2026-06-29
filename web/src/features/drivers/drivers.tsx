@@ -1,7 +1,7 @@
-import { Box, NavLink, Stack, Text } from '@mantine/core'
-import { Link } from '@tanstack/react-router'
+import { Box, Stack, Text } from '@mantine/core'
 
 import { useRoots, type Root } from '@domain'
+import { NavLink } from '@features'
 import { size } from '@infrastructure'
 
 import classes from './drivers.module.css'
@@ -17,7 +17,6 @@ function DriveItem({ root }: { root: Root }) {
 
   return (
     <NavLink
-      component={Link}
       className={classes.navItem}
       activeProps={{ className: classes.navItemActive }}
       to="/$root/$"
