@@ -1,10 +1,9 @@
-import type { Entry } from '@domain'
 import { FOLDER_KIND, fileKind, relativeTime, sizeParts } from '@infrastructure'
 import { Table } from '@mantine/core'
 import { useState } from 'react'
+import type { Entry } from '@domain'
 import { CountBadge } from '../count-badge'
 import { EntryIcon } from '../entry-icon'
-
 import classes from './list.module.css'
 
 export type ListProps = {
@@ -29,7 +28,12 @@ export function List({ data, onOpen }: ListProps) {
   const rows = data?.map((entry) => (
     <Table.Tr
       key={entry.name}
-      className={selected === entry.name ? classes.selected : classes.row}
+      className={[
+        selected === entry.name ? classes.selected : classes.row,
+        entry.name.startsWith('.') && classes.dimmed,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       onClick={() => setSelected(entry.name)}
       onDoubleClick={() => onOpen(entry)}
     >

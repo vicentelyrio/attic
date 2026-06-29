@@ -47,6 +47,11 @@
   box-shadow: inset 2px 0 0 0 var(--mantine-color-indigo-5);
 }
 
+/* Dotfiles / hidden entries read as secondary. */
+.dimmed {
+  opacity: 0.45;
+}
+
 /* Name cell */
 .name {
   display: flex;

@@ -28,7 +28,7 @@ export default defineConfig({
     // to a same-origin "/api" — no CORS — which mirrors production, where the
     // SPA is embedded in the Rust binary and served from the same origin.
     proxy: {
-      '/api': 'http://127.0.0.1:3000',
+      '/api': 'http://127.0.0.1:4000',
     },
   },
 })

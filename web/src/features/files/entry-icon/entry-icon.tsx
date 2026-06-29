@@ -1,5 +1,5 @@
 import { fileBadge, fileKind } from '@infrastructure'
-import { FolderIcon } from '@phosphor-icons/react'
+import { FolderSimpleIcon } from '@phosphor-icons/react'
 
 import classes from './entry-icon.module.css'
 
@@ -12,7 +12,7 @@ export function EntryIcon({ name, isDir }: EntryIconProps) {
   if (isDir) {
     return (
       <span className={`${classes.icon} ${classes.folder}`}>
-        <FolderIcon weight="fill" size={18} />
+        <FolderSimpleIcon weight="fill" size={18} />
       </span>
     )
   }
