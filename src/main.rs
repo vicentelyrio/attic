@@ -1,5 +1,7 @@
 mod config;
+mod db;
 mod fs;
+mod jobs;
 mod state;
 
 use state::AppState;
@@ -11,9 +13,12 @@ async fn main() {
 
     let config = config::Config::load("config.toml");
     let listen = config.listen.clone();
-    let state = AppState::from_config(config);
+    let state = AppState::new(config).await;
+
+    tokio::spawn(jobs::worker::run(state.clone()));
 
     let app = fs::routes()
+        .merge(jobs::routes())
         .layer(TraceLayer::new_for_http())
         .with_state(state);
 

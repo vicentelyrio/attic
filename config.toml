@@ -1,4 +1,5 @@
 listen = "127.0.0.1:4000"
+db_path = "attic.db"
 
 [roots]
 root = "/"
