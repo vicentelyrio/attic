@@ -1,7 +1,6 @@
 import { FOLDER_KIND, fileKind, relativeTime, sizeParts } from '@infrastructure'
 import { Table } from '@mantine/core'
-import { useState } from 'react'
-import type { Entry } from '@domain'
+import type { Entry, SelectMods } from '@domain'
 import { CountBadge } from '../count-badge'
 import { EntryIcon } from '../entry-icon'
 import classes from './list.module.css'
@@ -9,6 +8,9 @@ import classes from './list.module.css'
 export type ListProps = {
   data?: Entry[]
   onOpen: (item: Entry) => void
+  selected: Set<string>
+  onSelect: (name: string, mods: SelectMods) => void
+  onClearSelection: () => void
 }
 
 function SizeCell({ entry }: { entry: Entry }) {
@@ -22,19 +24,29 @@ function SizeCell({ entry }: { entry: Entry }) {
   )
 }
 
-export function List({ data, onOpen }: ListProps) {
-  const [selected, setSelected] = useState<string | null>(null)
-
+export function List({
+  data,
+  onOpen,
+  selected,
+  onSelect,
+  onClearSelection,
+}: ListProps) {
   const rows = data?.map((entry) => (
     <Table.Tr
       key={entry.name}
       className={[
-        selected === entry.name ? classes.selected : classes.row,
+        selected.has(entry.name) ? classes.selected : classes.row,
         entry.name.startsWith('.') && classes.dimmed,
       ]
         .filter(Boolean)
         .join(' ')}
-      onClick={() => setSelected(entry.name)}
+      onClick={(e) => {
+        e.stopPropagation()
+        onSelect(entry.name, {
+          shift: e.shiftKey,
+          toggle: e.metaKey || e.ctrlKey,
+        })
+      }}
       onDoubleClick={() => onOpen(entry)}
     >
       <Table.Td>
@@ -59,7 +71,12 @@ export function List({ data, onOpen }: ListProps) {
   ))
 
   return (
-    <div className={classes.scroll}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area
+    <div
+      className={classes.scroll}
+      onClick={onClearSelection}
+      onKeyDown={(e) => e.key === 'Escape' && onClearSelection()}
+    >
       <Table
         className={classes.table}
         verticalSpacing={7}

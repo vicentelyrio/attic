@@ -1,0 +1,55 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  cancelJob,
+  type Job,
+  listJobs,
+  paste,
+  type ResolveReq,
+  resolveJob,
+} from '@domain'
+
+const ACTIVE: Job['status'][] = [
+  'planning',
+  'needs_resolution',
+  'queued',
+  'running',
+]
+
+function isActive(jobs: Job[] | undefined): boolean {
+  return jobs?.some((j) => ACTIVE.includes(j.status)) ?? false
+}
+
+/** Poll the job list, but only while something is in flight — idle transfers
+ *  panels don't hammer the backend. */
+export function useJobs() {
+  return useQuery({
+    queryKey: ['jobs'],
+    queryFn: listJobs,
+    refetchInterval: (query) => (isActive(query.state.data) ? 750 : false),
+  })
+}
+
+export function usePaste() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: paste,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
+  })
+}
+
+export function useResolveJob() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, req }: { id: string; req: ResolveReq }) =>
+      resolveJob(id, req),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
+  })
+}
+
+export function useCancelJob() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: cancelJob,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
+  })
+}

@@ -1,8 +1,14 @@
 import { Stack } from '@mantine/core'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo } from 'react'
-import { type Entry, useDirectory, useShowHidden, useViewMode } from '@domain'
-import { Grid, Header, List } from '@features'
+import {
+  type Entry,
+  useDirectory,
+  useSelection,
+  useShowHidden,
+  useViewMode,
+} from '@domain'
+import { ClipboardActions, Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -23,6 +29,10 @@ function Index() {
     [data, showHidden],
   )
 
+  const dirKey = path ? `${root}/${path}` : root
+  const order = useMemo(() => entries?.map((e) => e.name) ?? [], [entries])
+  const { selected, onSelect, clear } = useSelection(dirKey, order)
+
   const open = (item: Entry) => {
     if (!item.is_dir) return
     navigate({
@@ -40,11 +50,28 @@ function Index() {
         onViewChange={setView}
         showHidden={showHidden}
         onShowHiddenChange={setShowHidden}
+        actions={
+          <ClipboardActions root={root} path={path} selected={[...selected]} />
+        }
       />
       {view === 'grid' ? (
-        <Grid data={entries} root={root} path={path} onOpen={open} />
+        <Grid
+          data={entries}
+          root={root}
+          path={path}
+          onOpen={open}
+          selected={selected}
+          onSelect={onSelect}
+          onClearSelection={clear}
+        />
       ) : (
-        <List data={entries} onOpen={open} />
+        <List
+          data={entries}
+          onOpen={open}
+          selected={selected}
+          onSelect={onSelect}
+          onClearSelection={clear}
+        />
       )}
     </Stack>
   )

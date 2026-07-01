@@ -1,0 +1,8 @@
+.panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  z-index: 200;
+}

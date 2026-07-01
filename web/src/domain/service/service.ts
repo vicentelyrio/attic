@@ -1,9 +1,22 @@
-import { downloadUrl, type Entry, type Root } from '@domain'
+import {
+  downloadUrl,
+  type Entry,
+  type Job,
+  type JobView,
+  type Op,
+  type Policy,
+  type Resolution,
+  type Root,
+} from '@domain'
 
 const paths = {
   roots: '/api/roots',
   list: '/api/list',
+  paste: '/api/paste',
+  jobs: '/api/jobs',
 }
+
+const jsonHeaders = { 'content-type': 'application/json' }
 
 /** Bytes fetched for a card preview. The backend honours Range requests. */
 const PREVIEW_BYTES = 16 * 1024
@@ -37,4 +50,57 @@ export async function fetchTextPreview(
   }
   const text = await res.text()
   return text.split('\n').slice(0, PREVIEW_LINES).join('\n')
+}
+
+export interface PasteReq {
+  op: Op
+  src_root: string
+  src_path: string
+  dst_root: string
+  dst_dir: string
+}
+
+export interface ResolveReq {
+  policy?: Policy
+  overrides?: Record<string, Resolution>
+}
+
+/** Queue a copy/move. The returned job carries `files` with per-file conflict
+ *  flags; when `status === 'needs_resolution'` the UI prompts before it runs. */
+export async function paste(req: PasteReq): Promise<JobView> {
+  const res = await fetch(paths.paste, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify(req),
+  })
+  if (!res.ok) throw new Error(`paste failed: ${res.status}`)
+  return res.json()
+}
+
+export async function listJobs(): Promise<Job[]> {
+  const res = await fetch(paths.jobs)
+  if (!res.ok) throw new Error(`jobs failed: ${res.status}`)
+  return res.json()
+}
+
+export async function getJob(id: string): Promise<JobView> {
+  const res = await fetch(`${paths.jobs}/${id}`)
+  if (!res.ok) throw new Error(`job failed: ${res.status}`)
+  return res.json()
+}
+
+export async function resolveJob(id: string, req: ResolveReq): Promise<Job> {
+  const res = await fetch(`${paths.jobs}/${id}/resolve`, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify(req),
+  })
+  if (!res.ok) throw new Error(`resolve failed: ${res.status}`)
+  return res.json()
+}
+
+export async function cancelJob(id: string): Promise<Job> {
+  const res = await fetch(`${paths.jobs}/${id}/cancel`, { method: 'POST' })
+  if (!res.ok) throw new Error(`cancel failed: ${res.status}`)
+  return res.json()
 }

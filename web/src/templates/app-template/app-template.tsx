@@ -1,6 +1,6 @@
-import { Sidebar } from '@features'
 import { Box, Stack } from '@mantine/core'
 import { Outlet } from '@tanstack/react-router'
+import { Sidebar, Transfers } from '@features'
 import classes from './app-template.module.css'
 
 export function AppTemplate() {
@@ -12,6 +12,7 @@ export function AppTemplate() {
       <Stack className={classes.workspace}>
         <Outlet />
       </Stack>
+      <Transfers />
     </Box>
   )
 }

@@ -11,8 +11,8 @@ import {
   UnstyledButton,
 } from '@mantine/core'
 import { FolderSimpleIcon } from '@phosphor-icons/react'
-import { type ReactNode, useMemo, useState } from 'react'
-import type { Entry } from '@domain'
+import { type MouseEvent, type ReactNode, useMemo } from 'react'
+import type { Entry, SelectMods } from '@domain'
 import { EntryIcon } from '../entry-icon'
 import classes from './grid.module.css'
 import { LazyMount } from './lazy-mount'
@@ -24,12 +24,15 @@ export type GridProps = {
   root: string
   path: string
   onOpen: (item: Entry) => void
+  selected: Set<string>
+  onSelect: (name: string, mods: SelectMods) => void
+  onClearSelection: () => void
 }
 
 type CardProps = {
   entry: Entry
   selected: boolean
-  onSelect: () => void
+  onSelect: (event: MouseEvent) => void
   onOpen: () => void
 }
 
@@ -154,9 +157,15 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-export function Grid({ data, root, path, onOpen }: GridProps) {
-  const [selected, setSelected] = useState<string | null>(null)
-
+export function Grid({
+  data,
+  root,
+  path,
+  onOpen,
+  selected,
+  onSelect,
+  onClearSelection,
+}: GridProps) {
   const { folders, files } = useMemo(() => {
     const folders: Entry[] = []
     const files: Entry[] = []
@@ -168,13 +177,23 @@ export function Grid({ data, root, path, onOpen }: GridProps) {
 
   const cardProps = (entry: Entry): CardProps => ({
     entry,
-    selected: selected === entry.name,
-    onSelect: () => setSelected(entry.name),
+    selected: selected.has(entry.name),
+    onSelect: (event) => {
+      event.stopPropagation()
+      onSelect(entry.name, {
+        shift: event.shiftKey,
+        toggle: event.metaKey || event.ctrlKey,
+      })
+    },
     onOpen: () => onOpen(entry),
   })
 
   return (
-    <Box className={classes.scroll}>
+    <Box
+      className={classes.scroll}
+      onClick={onClearSelection}
+      onKeyDown={(e) => e.key === 'Escape' && onClearSelection()}
+    >
       <Stack gap="xl">
         {folders.length > 0 && (
           <Section label="Folders">
