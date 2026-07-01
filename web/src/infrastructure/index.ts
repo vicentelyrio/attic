@@ -1,5 +1,6 @@
 export * from './date'
 export * from './files'
 export * from './highlight'
+export * from './model'
 export * from './pdf'
 export * from './size'

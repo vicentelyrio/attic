@@ -19,6 +19,7 @@ const KIND_COLORS = {
   archive: '#a371f7',
   font: '#c77dff',
   binary: '#9aa0aa',
+  model: '#4db6ac',
   text: '#8b909a',
 } as const
 
@@ -161,6 +162,9 @@ export const EXTENSION_KINDS: Record<string, FileKind> = {
   dmg: k('Disk image', 'binary'),
   iso: k('Disk image', 'binary'),
   log: k('Log file', 'text'),
+
+  // 3D models
+  stl: k('STL model', 'model'),
 
   // Fonts
   ttf: k('Font', 'font'),

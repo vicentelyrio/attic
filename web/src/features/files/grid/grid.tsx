@@ -17,6 +17,7 @@ import { EntryIcon } from '../entry-icon'
 import { CodePreview } from './code-preview'
 import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
+import { ModelPreview } from './model-preview'
 import { PdfPreview } from './pdf-preview'
 import { FilePlaceholder } from './placeholder'
 import { VideoPreview } from './video-preview'
@@ -101,6 +102,8 @@ function FilePreview({
     content = <VideoPreview entry={entry} root={root} path={path} />
   } else if (category === 'pdf') {
     content = <PdfPreview entry={entry} root={root} path={path} />
+  } else if (category === 'model') {
+    content = <ModelPreview entry={entry} root={root} path={path} />
   } else if (isTextFile(entry.name)) {
     content = <CodePreview entry={entry} root={root} path={path} />
   } else {

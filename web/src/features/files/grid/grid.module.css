@@ -76,6 +76,34 @@
   padding: var(--mantine-spacing-sm);
 }
 
+/* 3D model preview ------------------------------------------------------ */
+
+/* STL rendered to a canvas thumbnail, centered in the card. Pointer events stay
+   enabled for hover-spin and drag-to-rotate; clicks still bubble to the card. */
+.model {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-7);
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.model:active {
+  cursor: grabbing;
+}
+
+.modelCanvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
 /* Video preview --------------------------------------------------------- */
 
 /* First frame shown as a cover thumbnail with a centered play badge. Pointer

@@ -90,6 +90,7 @@ const BINARY_CATEGORIES = new Set([
   'archive',
   'font',
   'binary',
+  'model',
 ])
 
 export function isTextFile(name: string): boolean {

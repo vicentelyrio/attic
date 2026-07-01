@@ -29,7 +29,8 @@
     "pretty-bytes": "^7.1.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "shiki": "^4.3.0"
+    "shiki": "^4.3.0",
+    "three": "^0.185.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.1",
@@ -37,6 +38,7 @@
     "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.185.0",
     "@vitejs/plugin-react": "^6.0.3",
     "postcss": "^8.5.15",
     "postcss-preset-mantine": "^1.18.0",
