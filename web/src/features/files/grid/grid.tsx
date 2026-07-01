@@ -19,6 +19,7 @@ import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
 import { PdfPreview } from './pdf-preview'
 import { FilePlaceholder } from './placeholder'
+import { VideoPreview } from './video-preview'
 
 export type GridProps = {
   data?: Entry[]
@@ -96,6 +97,8 @@ function FilePreview({
   let content: ReactNode
   if (category === 'image') {
     content = <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
+  } else if (category === 'video') {
+    content = <VideoPreview entry={entry} root={root} path={path} />
   } else if (category === 'pdf') {
     content = <PdfPreview entry={entry} root={root} path={path} />
   } else if (isTextFile(entry.name)) {
