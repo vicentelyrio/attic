@@ -1,4 +1,9 @@
-import { fileKind, isTextFile, sizeParts } from '@infrastructure'
+import {
+  fileKind,
+  isTextFile,
+  sizeParts,
+  tabularDelimiter,
+} from '@infrastructure'
 import {
   AspectRatio,
   Box,
@@ -14,7 +19,9 @@ import { FolderSimpleIcon } from '@phosphor-icons/react'
 import { type ReactNode, useMemo, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
 import { EntryIcon } from '../entry-icon'
+import { AudioPreview } from './audio-preview'
 import { CodePreview } from './code-preview'
+import { CsvPreview } from './csv-preview'
 import { FontPreview } from './font-preview'
 import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
@@ -101,12 +108,16 @@ function FilePreview({
     content = <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
   } else if (category === 'video') {
     content = <VideoPreview entry={entry} root={root} path={path} />
+  } else if (category === 'audio') {
+    content = <AudioPreview entry={entry} root={root} path={path} />
   } else if (category === 'pdf') {
     content = <PdfPreview entry={entry} root={root} path={path} />
   } else if (category === 'model') {
     content = <ModelPreview entry={entry} root={root} path={path} />
   } else if (category === 'font') {
     content = <FontPreview entry={entry} root={root} path={path} />
+  } else if (tabularDelimiter(entry.name)) {
+    content = <CsvPreview entry={entry} root={root} path={path} />
   } else if (isTextFile(entry.name)) {
     content = <CodePreview entry={entry} root={root} path={path} />
   } else {

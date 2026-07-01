@@ -191,6 +191,14 @@ export function fileBadge(name: string): string {
   return fileExt(name).toUpperCase() || 'FILE'
 }
 
+/** Delimiter-separated data files that can be previewed as a table. */
+export function tabularDelimiter(name: string): string | null {
+  const ext = fileExt(name)
+  if (ext === 'csv') return ','
+  if (ext === 'tsv') return '\t'
+  return null
+}
+
 export function fileKind(name: string): FileKind {
   const ext = fileExt(name)
   return (
