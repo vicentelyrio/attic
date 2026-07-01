@@ -1,9 +1,4 @@
-import {
-  fileKind,
-  isTextFile,
-  sizeParts,
-  tabularDelimiter,
-} from '@infrastructure'
+import { sizeParts } from '@infrastructure'
 import {
   AspectRatio,
   Box,
@@ -17,18 +12,12 @@ import {
 } from '@mantine/core'
 import { FolderSimpleIcon } from '@phosphor-icons/react'
 import { type ReactNode, useMemo, useState } from 'react'
-import { downloadUrl, type Entry } from '@domain'
+import type { Entry } from '@domain'
 import { EntryIcon } from '../entry-icon'
-import { AudioPreview } from './audio-preview'
-import { CodePreview } from './code-preview'
-import { CsvPreview } from './csv-preview'
-import { FontPreview } from './font-preview'
 import classes from './grid.module.css'
-import { ImagePreview } from './image-preview'
-import { ModelPreview } from './model-preview'
-import { PdfPreview } from './pdf-preview'
+import { LazyMount } from './lazy-mount'
 import { FilePlaceholder } from './placeholder'
-import { VideoPreview } from './video-preview'
+import { previewStrategies } from './preview-strategies'
 
 export type GridProps = {
   data?: Entry[]
@@ -100,31 +89,25 @@ function FilePreview({
   root: string
   path: string
 }) {
-  const filePath = path ? `${path}/${entry.name}` : entry.name
-  const category = fileKind(entry.name).category
+  const strategy = previewStrategies.find((s) => s.match(entry))
+  const placeholder = <FilePlaceholder entry={entry} />
+  const content = strategy
+    ? strategy.render({ entry, root, path })
+    : placeholder
 
-  let content: ReactNode
-  if (category === 'image') {
-    content = <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
-  } else if (category === 'video') {
-    content = <VideoPreview entry={entry} root={root} path={path} />
-  } else if (category === 'audio') {
-    content = <AudioPreview entry={entry} root={root} path={path} />
-  } else if (category === 'pdf') {
-    content = <PdfPreview entry={entry} root={root} path={path} />
-  } else if (category === 'model') {
-    content = <ModelPreview entry={entry} root={root} path={path} />
-  } else if (category === 'font') {
-    content = <FontPreview entry={entry} root={root} path={path} />
-  } else if (tabularDelimiter(entry.name)) {
-    content = <CsvPreview entry={entry} root={root} path={path} />
-  } else if (isTextFile(entry.name)) {
-    content = <CodePreview entry={entry} root={root} path={path} />
-  } else {
-    content = <FilePlaceholder entry={entry} />
-  }
+  // Heavy previews (everything that fetches or decodes) are deferred until
+  // scrolled near the viewport; the placeholder shows in the meantime.
+  const heavy = strategy ? strategy.heavy !== false : false
 
-  return <AspectRatio ratio={16 / 10}>{content}</AspectRatio>
+  return (
+    <AspectRatio ratio={16 / 10}>
+      {heavy ? (
+        <LazyMount fallback={placeholder}>{content}</LazyMount>
+      ) : (
+        content
+      )}
+    </AspectRatio>
+  )
 }
 
 function FileCard(props: CardProps & { root: string; path: string }) {

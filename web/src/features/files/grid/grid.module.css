@@ -42,6 +42,12 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Lazy mount wrapper fills the preview box so its child previews can too. */
+.lazy {
+  height: 100%;
+  width: 100%;
+}
+
 /* Code preview ---------------------------------------------------------- */
 
 /* Wrapper fills the AspectRatio box and clips overflow. pointer-events are
@@ -171,6 +177,99 @@
   color: var(--mantine-color-dark-1);
 }
 
+/* Markdown preview ------------------------------------------------------ */
+
+/* Rendered (not source) markdown, clipped to the card. */
+.markdown {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding: var(--mantine-spacing-md);
+  background-color: var(--mantine-color-dark-7);
+  color: var(--mantine-color-dark-1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.markdownBody {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.markdownBody :global(h1),
+.markdownBody :global(h2),
+.markdownBody :global(h3) {
+  margin: 0 0 6px;
+  color: var(--mantine-color-dark-0);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.markdownBody :global(h1) {
+  font-size: 17px;
+}
+
+.markdownBody :global(h2) {
+  font-size: 14px;
+}
+
+.markdownBody :global(h3) {
+  font-size: 12px;
+}
+
+.markdownBody :global(p),
+.markdownBody :global(ul),
+.markdownBody :global(ol),
+.markdownBody :global(blockquote) {
+  margin: 0 0 6px;
+}
+
+.markdownBody :global(ul),
+.markdownBody :global(ol) {
+  padding-left: 16px;
+}
+
+.markdownBody :global(a) {
+  color: var(--mantine-color-indigo-3);
+}
+
+.markdownBody :global(code) {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background-color: var(--mantine-color-dark-5);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+}
+
+.markdownBody :global(pre) {
+  margin: 0 0 6px;
+  padding: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-8);
+}
+
+.markdownBody :global(pre code) {
+  padding: 0;
+  background: none;
+}
+
+.markdownBody :global(blockquote) {
+  padding-left: 8px;
+  border-left: 2px solid var(--mantine-color-dark-4);
+  color: var(--mantine-color-dark-2);
+}
+
+.markdownBody :global(img) {
+  max-width: 100%;
+}
+
+.markdownBody :global(hr) {
+  border: none;
+  border-top: 1px solid var(--mantine-color-dark-5);
+  margin: 8px 0;
+}
+
 /* Font preview ---------------------------------------------------------- */
 
 /* Specimen rendered in the loaded font; the family is set inline once ready. */
@@ -258,7 +357,8 @@
 .code::after,
 .pdf::after,
 .font::after,
-.csv::after {
+.csv::after,
+.markdown::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
