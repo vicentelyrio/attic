@@ -165,6 +165,9 @@ export const EXTENSION_KINDS: Record<string, FileKind> = {
 
   // 3D models
   stl: k('STL model', 'model'),
+  obj: k('OBJ model', 'model'),
+  ply: k('PLY model', 'model'),
+  glb: k('glTF model', 'model'),
 
   // Fonts
   ttf: k('Font', 'font'),

@@ -34,7 +34,7 @@ export function ModelPreview({ entry, root, path }: ModelPreviewProps) {
 
     let disposed = false
     setFailed(false)
-    createModelViewer(canvas, url)
+    createModelViewer(canvas, url, entry.name)
       .then((viewer) => {
         if (disposed) viewer.dispose()
         else viewerRef.current = viewer
@@ -48,7 +48,7 @@ export function ModelPreview({ entry, root, path }: ModelPreviewProps) {
       viewerRef.current?.dispose()
       viewerRef.current = null
     }
-  }, [url])
+  }, [url, entry.name])
 
   if (failed) return <FilePlaceholder entry={entry} />
 
