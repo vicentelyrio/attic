@@ -15,6 +15,7 @@ import { type ReactNode, useMemo, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
 import { EntryIcon } from '../entry-icon'
 import { CodePreview } from './code-preview'
+import { FontPreview } from './font-preview'
 import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
 import { ModelPreview } from './model-preview'
@@ -104,6 +105,8 @@ function FilePreview({
     content = <PdfPreview entry={entry} root={root} path={path} />
   } else if (category === 'model') {
     content = <ModelPreview entry={entry} root={root} path={path} />
+  } else if (category === 'font') {
+    content = <FontPreview entry={entry} root={root} path={path} />
   } else if (isTextFile(entry.name)) {
     content = <CodePreview entry={entry} root={root} path={path} />
   } else {
