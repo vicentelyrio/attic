@@ -76,8 +76,27 @@
   padding: var(--mantine-spacing-sm);
 }
 
-/* Mask the bottom edge so clipped code fades out instead of cutting hard. */
-.code::after {
+/* PDF preview ----------------------------------------------------------- */
+
+/* First page rendered to a canvas, aligned to the top and clipped like code. */
+.pdf {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-7);
+  pointer-events: none;
+  user-select: none;
+}
+
+.pdfCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Mask the bottom edge so clipped content fades out instead of cutting hard. */
+.code::after,
+.pdf::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;

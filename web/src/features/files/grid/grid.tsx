@@ -17,6 +17,7 @@ import { EntryIcon } from '../entry-icon'
 import { CodePreview } from './code-preview'
 import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
+import { PdfPreview } from './pdf-preview'
 import { FilePlaceholder } from './placeholder'
 
 export type GridProps = {
@@ -90,10 +91,13 @@ function FilePreview({
   path: string
 }) {
   const filePath = path ? `${path}/${entry.name}` : entry.name
+  const category = fileKind(entry.name).category
 
   let content: ReactNode
-  if (fileKind(entry.name).category === 'image') {
+  if (category === 'image') {
     content = <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
+  } else if (category === 'pdf') {
+    content = <PdfPreview entry={entry} root={root} path={path} />
   } else if (isTextFile(entry.name)) {
     content = <CodePreview entry={entry} root={root} path={path} />
   } else {
