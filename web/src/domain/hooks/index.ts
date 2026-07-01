@@ -1,4 +1,5 @@
 export * from './useDirectory'
+export * from './useFilePreview'
 export * from './useRoots'
 export * from './useShowHidden'
 export * from './useViewMode'

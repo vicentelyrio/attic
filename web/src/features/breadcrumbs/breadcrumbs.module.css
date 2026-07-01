@@ -1,7 +1,27 @@
+.root {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
 .link {
   color: var(--mantine-color-dark-2);
   font-size: var(--mantine-font-size-md);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mantine-color-dark-2);
+  border-radius: var(--mantine-radius-sm);
+  padding: 2px 4px;
+}
+
+.ellipsis:hover {
+  color: var(--mantine-color-dark-0);
+  background-color: var(--mantine-color-dark-5);
 }
 
 .link:hover {
@@ -13,6 +33,7 @@
   color: var(--mantine-color-dark-0);
   font-size: var(--mantine-font-size-md);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .separator {

@@ -42,6 +42,54 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Code preview ---------------------------------------------------------- */
+
+/* Wrapper fills the AspectRatio box and clips overflow. pointer-events are
+   disabled so clicks fall through to the card (select / open) instead of the
+   code block's own scroll area. */
+/* Zoom level of the preview. Lower = more content shown (smaller code). */
+.code {
+  --preview-scale: 0.6;
+
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-7);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Scale the whole code block down like a thumbnail so more lines AND longer
+   lines fit. Width is grown by the inverse factor so it still fills the card
+   after scaling. */
+.codeRoot {
+  transform: scale(var(--preview-scale));
+  transform-origin: top left;
+  width: calc(100% / var(--preview-scale));
+  border-radius: 0;
+  background: transparent;
+}
+
+.codePre {
+  font-size: 12px;
+  line-height: 1.4;
+  padding: var(--mantine-spacing-sm);
+}
+
+/* Mask the bottom edge so clipped code fades out instead of cutting hard. */
+.code::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--mantine-color-dark-7)
+  );
+  pointer-events: none;
+}
+
 .category {
   text-transform: uppercase;
   font-weight: 700;

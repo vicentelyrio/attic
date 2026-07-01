@@ -1,4 +1,4 @@
-import { fileKind, sizeParts } from '@infrastructure'
+import { fileKind, isTextFile, sizeParts } from '@infrastructure'
 import {
   AspectRatio,
   Box,
@@ -14,6 +14,7 @@ import { FolderSimpleIcon } from '@phosphor-icons/react'
 import { type ReactNode, useMemo, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
 import { EntryIcon } from '../entry-icon'
+import { CodePreview } from './code-preview'
 import classes from './grid.module.css'
 import { ImagePreview } from './image-preview'
 import { FilePlaceholder } from './placeholder'
@@ -90,12 +91,14 @@ function FilePreview({
 }) {
   const filePath = path ? `${path}/${entry.name}` : entry.name
 
-  const content =
-    fileKind(entry.name).category === 'image' ? (
-      <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
-    ) : (
-      <FilePlaceholder entry={entry} />
-    )
+  let content: ReactNode
+  if (fileKind(entry.name).category === 'image') {
+    content = <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
+  } else if (isTextFile(entry.name)) {
+    content = <CodePreview entry={entry} root={root} path={path} />
+  } else {
+    content = <FilePlaceholder entry={entry} />
+  }
 
   return <AspectRatio ratio={16 / 10}>{content}</AspectRatio>
 }
