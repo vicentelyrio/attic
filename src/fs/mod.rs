@@ -2,8 +2,12 @@ mod download;
 mod listing;
 mod resolve;
 mod roots;
+mod upload;
 
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 
 use crate::state::AppState;
 
@@ -16,4 +20,5 @@ pub fn routes() -> Router<AppState> {
         .route("/api/roots", get(roots::list_roots))
         .route("/api/list", get(listing::list_dir))
         .route("/api/download", get(download::download))
+        .route("/api/upload", post(upload::upload))
 }
