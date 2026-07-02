@@ -3,7 +3,8 @@
   overflow: hidden;
   transition:
     background-color 100ms ease,
-    border-color 100ms ease;
+    border-color 100ms ease,
+    box-shadow 100ms ease;
 }
 
 .card:hover {
@@ -11,14 +12,19 @@
 }
 
 .card[data-selected] {
-  border-color: color-mix(
-    in srgb,
-    var(--mantine-color-indigo-5) 55%,
-    transparent
-  );
+  border-color: var(--mantine-color-indigo-5);
+  box-shadow: 0 0 0 2px var(--mantine-color-indigo-5);
   background-color: color-mix(
     in srgb,
     var(--mantine-color-indigo-6) 12%,
+    var(--mantine-color-dark-6)
+  );
+}
+
+.card[data-selected]:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 18%,
     var(--mantine-color-dark-6)
   );
 }
