@@ -1,0 +1,50 @@
+.panel {
+  width: 380px;
+  flex-shrink: 0;
+  height: 100%;
+  background-color: var(--mantine-color-dark-8);
+  border-left: 1px solid var(--mantine-color-dark-5);
+}
+
+.header {
+  padding: var(--mantine-spacing-md);
+  border-bottom: 1px solid var(--mantine-color-dark-5);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}
+
+.preview {
+  position: relative;
+  border: 1px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.previewBadge {
+  position: absolute;
+  right: var(--mantine-spacing-sm);
+  bottom: var(--mantine-spacing-sm);
+  font-family: var(--mantine-font-family-monospace);
+  letter-spacing: 0.02em;
+}
+
+.row {
+  padding-block: var(--mantine-spacing-xs);
+}
+
+.row + .row {
+  border-top: 1px solid var(--mantine-color-dark-5);
+}
+
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.footer {
+  padding: var(--mantine-spacing-md);
+  border-top: 1px solid var(--mantine-color-dark-5);
+}

@@ -1,14 +1,15 @@
-import { Stack } from '@mantine/core'
+import { Flex, Stack } from '@mantine/core'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import {
   type Entry,
+  useDetailPanel,
   useDirectory,
   useSelection,
   useShowHidden,
   useViewMode,
 } from '@domain'
-import { ClipboardActions, Grid, Header, List } from '@features'
+import { ClipboardActions, DetailPanel, Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -33,6 +34,8 @@ function Index() {
   const order = useMemo(() => entries?.map((e) => e.name) ?? [], [entries])
   const { selected, onSelect, clear } = useSelection(dirKey, order)
 
+  const detail = useDetailPanel(selected, entries)
+
   const open = (item: Entry) => {
     if (!item.is_dir) return
     navigate({
@@ -42,37 +45,51 @@ function Index() {
   }
 
   return (
-    <Stack flex={1} mih={0}>
-      <Header
-        root={root}
-        path={path}
-        view={view}
-        onViewChange={setView}
-        showHidden={showHidden}
-        onShowHiddenChange={setShowHidden}
-        actions={
-          <ClipboardActions root={root} path={path} selected={[...selected]} />
-        }
-      />
-      {view === 'grid' ? (
-        <Grid
-          data={entries}
+    <Flex flex={1} mih={0}>
+      <Stack flex={1} mih={0}>
+        <Header
           root={root}
           path={path}
-          onOpen={open}
-          selected={selected}
-          onSelect={onSelect}
-          onClearSelection={clear}
+          view={view}
+          onViewChange={setView}
+          showHidden={showHidden}
+          onShowHiddenChange={setShowHidden}
+          actions={
+            <ClipboardActions
+              root={root}
+              path={path}
+              selected={[...selected]}
+            />
+          }
         />
-      ) : (
-        <List
-          data={entries}
-          onOpen={open}
-          selected={selected}
-          onSelect={onSelect}
-          onClearSelection={clear}
+        {view === 'grid' ? (
+          <Grid
+            data={entries}
+            root={root}
+            path={path}
+            onOpen={open}
+            selected={selected}
+            onSelect={onSelect}
+            onClearSelection={clear}
+          />
+        ) : (
+          <List
+            data={entries}
+            onOpen={open}
+            selected={selected}
+            onSelect={onSelect}
+            onClearSelection={clear}
+          />
+        )}
+      </Stack>
+      {detail.entry && (
+        <DetailPanel
+          entry={detail.entry}
+          root={root}
+          path={path}
+          onClose={detail.close}
         />
       )}
-    </Stack>
+    </Flex>
   )
 }

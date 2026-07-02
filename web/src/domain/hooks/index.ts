@@ -1,4 +1,5 @@
 export * from './useClipboard'
+export * from './useDetailPanel'
 export * from './useDirectory'
 export * from './useFilePreview'
 export * from './useJobs'

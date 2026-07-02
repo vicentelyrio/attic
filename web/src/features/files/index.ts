@@ -1,5 +1,6 @@
 export * from './card'
 export * from './count-badge'
+export * from './detail-panel'
 export * from './entry-icon'
 export * from './grid'
 export * from './header'
