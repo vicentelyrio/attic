@@ -14,6 +14,7 @@ const paths = {
   list: '/api/list',
   paste: '/api/paste',
   jobs: '/api/jobs',
+  upload: '/api/upload',
 }
 
 const jsonHeaders = { 'content-type': 'application/json' }
@@ -108,4 +109,48 @@ export async function cancelJob(id: string): Promise<Job> {
 export async function clearJobs(): Promise<void> {
   const res = await fetch(paths.jobs, { method: 'DELETE' })
   if (!res.ok) throw new Error(`clear failed: ${res.status}`)
+}
+
+export interface UploadReq {
+  root: string
+  dir: string
+  name: string
+  file: File
+}
+
+export interface UploadOpts {
+  onProgress?: (loaded: number) => void
+  signal?: AbortSignal
+}
+
+/** Stream a single file to the backend. Uses XHR (not fetch) for upload
+ *  progress events, and honours an AbortSignal so a queued upload can be
+ *  cancelled mid-flight. */
+export function uploadFile(
+  { root, dir, name, file }: UploadReq,
+  { onProgress, signal }: UploadOpts = {},
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const params = new URLSearchParams({ root, dir, name })
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `${paths.upload}?${params}`)
+
+    xhr.upload.onprogress = (e) => onProgress?.(e.loaded)
+    xhr.onload = () =>
+      xhr.status >= 200 && xhr.status < 300
+        ? resolve()
+        : reject(new Error(`upload failed: ${xhr.status}`))
+    xhr.onerror = () => reject(new Error('upload failed'))
+    xhr.onabort = () => reject(new DOMException('aborted', 'AbortError'))
+
+    if (signal) {
+      if (signal.aborted) {
+        xhr.abort()
+        return
+      }
+      signal.addEventListener('abort', () => xhr.abort(), { once: true })
+    }
+
+    xhr.send(file)
+  })
 }
