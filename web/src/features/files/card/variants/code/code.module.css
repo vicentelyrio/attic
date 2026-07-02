@@ -16,7 +16,11 @@
 }
 
 .codePre {
-  font-size: 8px;
-  line-height: 1.4;
   padding: var(--mantine-spacing-sm);
+}
+
+.codePre code {
+  font-size: 9px;
+  overflow: hidden;
+  width: 100%;
 }
