@@ -2,8 +2,8 @@ import { looksBinary, shikiLang } from '@infrastructure'
 import { CodeHighlight } from '@mantine/code-highlight'
 import { Box } from '@mantine/core'
 import { type Entry, useFilePreview } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './code.module.css'
 
 export type CodePreviewProps = {
   entry: Entry

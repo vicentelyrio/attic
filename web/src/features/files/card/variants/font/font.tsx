@@ -1,8 +1,8 @@
 import { Box } from '@mantine/core'
 import { useEffect, useId, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './font.module.css'
 
 export type FontPreviewProps = {
   entry: Entry

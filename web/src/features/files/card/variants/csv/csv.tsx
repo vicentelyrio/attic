@@ -2,8 +2,8 @@ import { tabularDelimiter } from '@infrastructure'
 import { Box, Table } from '@mantine/core'
 import { useMemo } from 'react'
 import { type Entry, useFilePreview } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './csv.module.css'
 
 export type CsvPreviewProps = {
   entry: Entry

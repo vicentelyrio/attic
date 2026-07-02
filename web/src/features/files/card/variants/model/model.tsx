@@ -2,8 +2,8 @@ import { createModelViewer, type ModelViewer } from '@infrastructure'
 import { Box } from '@mantine/core'
 import { type PointerEvent, useEffect, useRef, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './model.module.css'
 
 export type ModelPreviewProps = {
   entry: Entry

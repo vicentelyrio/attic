@@ -3,8 +3,8 @@ import { Box, Center, ThemeIcon } from '@mantine/core'
 import { PlayIcon } from '@phosphor-icons/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './audio.module.css'
 
 export type AudioPreviewProps = {
   entry: Entry

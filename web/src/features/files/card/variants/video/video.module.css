@@ -1,0 +1,28 @@
+/* First frame shown as a cover thumbnail with a centered play badge. Pointer
+   events stay enabled so hover can trigger playback; clicks still bubble to the
+   card for select/open. */
+.video {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-7);
+  user-select: none;
+}
+
+.videoEl {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.videoBadge {
+  position: absolute;
+  inset: 0;
+  transition: opacity 150ms ease;
+}
+
+/* Fade the badge out while the clip is playing on hover. */
+.videoBadge[data-hidden] {
+  opacity: 0;
+}

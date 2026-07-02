@@ -1,15 +1,15 @@
 import { fileKind, isTextFile, tabularDelimiter } from '@infrastructure'
 import type { ReactNode } from 'react'
 import { downloadUrl, type Entry } from '@domain'
-import { AudioPreview } from './audio-preview'
-import { CodePreview } from './code-preview'
-import { CsvPreview } from './csv-preview'
-import { FontPreview } from './font-preview'
-import { ImagePreview } from './image-preview'
-import { MarkdownPreview } from './markdown-preview'
-import { ModelPreview } from './model-preview'
-import { PdfPreview } from './pdf-preview'
-import { VideoPreview } from './video-preview'
+import { AudioPreview } from './audio'
+import { CodePreview } from './code'
+import { CsvPreview } from './csv'
+import { FontPreview } from './font'
+import { ImagePreview } from './image'
+import { MarkdownPreview } from './markdown'
+import { ModelPreview } from './model'
+import { PdfPreview } from './pdf'
+import { VideoPreview } from './video'
 
 export type PreviewContext = {
   entry: Entry
@@ -33,9 +33,9 @@ const isCategory = (name: string, category: string) =>
   fileKind(name).category === category
 
 /**
- * Ordered registry mapping a file to its preview. To add a format, drop a new
- * strategy in here — order matters only where matchers overlap (tabular and
- * text both accept `.csv`, so tabular is listed first).
+ * Ordered registry mapping a file to its preview variant. To add a format, drop
+ * a new strategy in here — order matters only where matchers overlap (tabular
+ * and text both accept `.csv`, so tabular is listed first).
  */
 export const previewStrategies: PreviewStrategy[] = [
   {

@@ -1,6 +1,5 @@
 import { fileBadge, fileKind } from '@infrastructure'
 import { FolderSimpleIcon } from '@phosphor-icons/react'
-
 import classes from './entry-icon.module.css'
 
 export type EntryIconProps = {

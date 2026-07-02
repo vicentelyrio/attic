@@ -2,8 +2,8 @@ import { renderPdfThumbnail } from '@infrastructure'
 import { Box } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './pdf.module.css'
 
 export type PdfPreviewProps = {
   entry: Entry

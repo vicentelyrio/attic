@@ -1,0 +1,27 @@
+/* Decoded waveform on a canvas; hover plays the clip and sweeps a playhead. */
+.audio {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding: var(--mantine-spacing-md);
+  background-color: var(--mantine-color-dark-7);
+  user-select: none;
+}
+
+.audioCanvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.audioBadge {
+  position: absolute;
+  inset: 0;
+  transition: opacity 150ms ease;
+}
+
+.audioBadge[data-hidden] {
+  opacity: 0;
+}

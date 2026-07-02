@@ -2,8 +2,8 @@ import { renderMarkdown } from '@infrastructure'
 import { Box } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { type Entry, useFilePreview } from '@domain'
-import classes from './grid.module.css'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
+import classes from './markdown.module.css'
 
 export type MarkdownPreviewProps = {
   entry: Entry

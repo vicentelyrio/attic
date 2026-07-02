@@ -1,23 +1,8 @@
-import { sizeParts } from '@infrastructure'
-import {
-  AspectRatio,
-  Box,
-  Card,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-  UnstyledButton,
-} from '@mantine/core'
-import { FolderSimpleIcon } from '@phosphor-icons/react'
+import { Box, SimpleGrid, Stack, Text } from '@mantine/core'
 import { type MouseEvent, type ReactNode, useMemo } from 'react'
 import type { Entry, SelectMods } from '@domain'
-import { EntryIcon } from '../entry-icon'
+import { Card } from '../card'
 import classes from './grid.module.css'
-import { LazyMount } from './lazy-mount'
-import { FilePlaceholder } from './placeholder'
-import { previewStrategies } from './preview-strategies'
 
 export type GridProps = {
   data?: Entry[]
@@ -27,115 +12,6 @@ export type GridProps = {
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
-}
-
-type CardProps = {
-  entry: Entry
-  selected: boolean
-  onSelect: (event: MouseEvent) => void
-  onOpen: () => void
-}
-
-function EntryCard({
-  entry,
-  selected,
-  onSelect,
-  onOpen,
-  children,
-  padding,
-}: CardProps & { children: ReactNode; padding?: string | number }) {
-  return (
-    <Card
-      renderRoot={(props) => <UnstyledButton {...props} />}
-      className={classes.card}
-      data-selected={selected || undefined}
-      data-dimmed={entry.name.startsWith('.') || undefined}
-      onClick={onSelect}
-      onDoubleClick={onOpen}
-      padding={padding}
-      w="100%"
-    >
-      {children}
-    </Card>
-  )
-}
-
-function FolderCard(props: CardProps) {
-  const { entry } = props
-  const items = entry.items ?? 0
-
-  return (
-    <EntryCard {...props} padding="md">
-      <Group gap="md" wrap="nowrap">
-        <ThemeIcon variant="light" color="indigo" size={40} radius="md">
-          <FolderSimpleIcon weight="fill" size={22} />
-        </ThemeIcon>
-        <Stack gap={2} flex={1} miw={0}>
-          <Text fw={500} c="dark.0" truncate>
-            {entry.name}
-          </Text>
-          <Text size="sm" c="dark.2">
-            {items.toLocaleString()} {items === 1 ? 'item' : 'items'}
-          </Text>
-        </Stack>
-      </Group>
-    </EntryCard>
-  )
-}
-
-function FilePreview({
-  entry,
-  root,
-  path,
-}: {
-  entry: Entry
-  root: string
-  path: string
-}) {
-  const strategy = previewStrategies.find((s) => s.match(entry))
-  const placeholder = <FilePlaceholder entry={entry} />
-  const content = strategy
-    ? strategy.render({ entry, root, path })
-    : placeholder
-
-  // Heavy previews (everything that fetches or decodes) are deferred until
-  // scrolled near the viewport; the placeholder shows in the meantime.
-  const heavy = strategy ? strategy.heavy !== false : false
-
-  return (
-    <AspectRatio ratio={16 / 10}>
-      {heavy ? (
-        <LazyMount fallback={placeholder}>{content}</LazyMount>
-      ) : (
-        content
-      )}
-    </AspectRatio>
-  )
-}
-
-function FileCard(props: CardProps & { root: string; path: string }) {
-  const { entry, root, path } = props
-  const { value, unit } = sizeParts(entry.size)
-
-  return (
-    <EntryCard {...props} padding={0}>
-      <Card.Section className={classes.preview}>
-        <FilePreview entry={entry} root={root} path={path} />
-      </Card.Section>
-      <Group gap="sm" wrap="nowrap" px="md" py="sm">
-        <EntryIcon name={entry.name} isDir={false} />
-        <Text fw={500} c="dark.0" truncate flex={1} miw={0}>
-          {entry.name}
-        </Text>
-        <Text size="sm" c="dark.2" className={classes.size}>
-          {value}{' '}
-          <Text span inherit c="dark.3">
-            {unit}
-          </Text>
-        </Text>
-      </Group>
-    </EntryCard>
-  )
 }
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
@@ -175,10 +51,12 @@ export function Grid({
     return { folders, files }
   }, [data])
 
-  const cardProps = (entry: Entry): CardProps => ({
+  const cardProps = (entry: Entry) => ({
     entry,
+    root,
+    path,
     selected: selected.has(entry.name),
-    onSelect: (event) => {
+    onSelect: (event: MouseEvent) => {
       event.stopPropagation()
       onSelect(entry.name, {
         shift: event.shiftKey,
@@ -198,7 +76,7 @@ export function Grid({
         {folders.length > 0 && (
           <Section label="Folders">
             {folders.map((entry) => (
-              <FolderCard key={entry.name} {...cardProps(entry)} />
+              <Card key={entry.name} {...cardProps(entry)} />
             ))}
           </Section>
         )}
@@ -206,12 +84,7 @@ export function Grid({
         {files.length > 0 && (
           <Section label="Files">
             {files.map((entry) => (
-              <FileCard
-                key={entry.name}
-                {...cardProps(entry)}
-                root={root}
-                path={path}
-              />
+              <Card key={entry.name} {...cardProps(entry)} />
             ))}
           </Section>
         )}

@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
-import classes from './grid.module.css'
+import classes from './card.module.css'
 
 export type LazyMountProps = {
   /** Shown until the element scrolls near the viewport. */

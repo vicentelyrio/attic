@@ -1,0 +1,25 @@
+/* STL rendered to a canvas thumbnail, centered in the card. Pointer events stay
+   enabled for hover-spin and drag-to-rotate; clicks still bubble to the card. */
+.model {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--mantine-color-dark-7);
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.model:active {
+  cursor: grabbing;
+}
+
+.modelCanvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}

@@ -1,7 +1,7 @@
 import { Image } from '@mantine/core'
 import { useState } from 'react'
 import type { Entry } from '@domain'
-import { FilePlaceholder } from './placeholder'
+import { FilePlaceholder } from '../../placeholder'
 
 export type ImagePreviewProps = {
   entry: Entry

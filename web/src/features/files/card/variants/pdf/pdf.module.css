@@ -1,0 +1,14 @@
+/* First page rendered to a canvas, aligned to the top and scrollable. */
+.pdf {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  background-color: var(--mantine-color-dark-7);
+  user-select: none;
+}
+
+.pdfCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}

@@ -1,0 +1,45 @@
+/* Specimen rendered in the loaded font; the family is set inline once ready. */
+.font {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding: var(--mantine-spacing-md);
+  background-color: var(--mantine-color-dark-7);
+  color: var(--mantine-color-dark-0);
+  pointer-events: none;
+  user-select: none;
+}
+
+.fontHero {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.fontPangram {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.fontGlyphs {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--mantine-color-dark-2);
+  word-break: break-all;
+}
+
+/* Mask the bottom edge so clipped content fades out instead of cutting hard. */
+.font::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--mantine-color-dark-7)
+  );
+  pointer-events: none;
+}
