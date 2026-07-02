@@ -1,0 +1,65 @@
+.dropdown {
+  background-color: var(--mantine-color-dark-6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-lg);
+}
+
+/* Preview header — layout comes from the Group; this only adds the divider. */
+.header {
+  border-bottom: 1px solid var(--mantine-color-dark-5);
+}
+
+/* Items */
+.item {
+  border-radius: var(--mantine-radius-sm);
+  font-size: var(--mantine-font-size-md);
+  color: var(--mantine-color-dark-0);
+}
+
+.item:hover,
+.item[data-hovered] {
+  background-color: var(--mantine-color-indigo-6);
+  color: var(--mantine-color-white);
+}
+
+.item[data-disabled] {
+  color: var(--mantine-color-dark-4);
+}
+
+/* Destructive item */
+.danger {
+  color: var(--mantine-color-red-6);
+}
+
+.danger:hover,
+.danger[data-hovered] {
+  background-color: var(--mantine-color-red-8);
+  color: var(--mantine-color-white);
+}
+
+/* Right-aligned shortcut hint */
+.shortcut {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-3);
+  letter-spacing: 0.02em;
+}
+
+.item:hover .shortcut,
+.item[data-hovered] .shortcut {
+  color: var(--mantine-color-indigo-1);
+}
+
+.chevron {
+  color: var(--mantine-color-dark-3);
+}
+
+.item:hover .chevron,
+.item[data-hovered] .chevron {
+  color: var(--mantine-color-indigo-1);
+}
+
+.divider {
+  border-color: var(--mantine-color-dark-5);
+}

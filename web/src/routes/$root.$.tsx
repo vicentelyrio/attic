@@ -6,9 +6,16 @@ import {
 } from '@infrastructure'
 import { Flex, Stack } from '@mantine/core'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { type Entry, useDirectory } from '@domain'
-import { ClipboardActions, DetailPanel, Grid, Header, List } from '@features'
+import {
+  ClipboardActions,
+  ContextMenu,
+  DetailPanel,
+  Grid,
+  Header,
+  List,
+} from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -35,12 +42,19 @@ function Index() {
 
   const detail = useDetailPanel(selected, entries)
 
+  const [menuEntry, setMenuEntry] = useState<Entry | null>(null)
+
   const open = (item: Entry) => {
     if (!item.is_dir) return
     navigate({
       to: '/$root/$',
       params: { root, _splat: path ? `${path}/${item.name}` : item.name },
     })
+  }
+
+  const onContextEntry = (item: Entry) => {
+    onSelect(item.name, { shift: false, toggle: false })
+    setMenuEntry(item)
   }
 
   return (
@@ -61,25 +75,36 @@ function Index() {
             />
           }
         />
-        {view === 'grid' ? (
-          <Grid
-            data={entries}
-            root={root}
-            path={path}
-            onOpen={open}
-            selected={selected}
-            onSelect={onSelect}
-            onClearSelection={clear}
-          />
-        ) : (
-          <List
-            data={entries}
-            onOpen={open}
-            selected={selected}
-            onSelect={onSelect}
-            onClearSelection={clear}
-          />
-        )}
+        <ContextMenu
+          entry={menuEntry}
+          root={root}
+          path={path}
+          onOpen={open}
+          onGetInfo={detail.open}
+          onClose={() => setMenuEntry(null)}
+        >
+          {view === 'grid' ? (
+            <Grid
+              data={entries}
+              root={root}
+              path={path}
+              onOpen={open}
+              selected={selected}
+              onSelect={onSelect}
+              onClearSelection={clear}
+              onContextEntry={onContextEntry}
+            />
+          ) : (
+            <List
+              data={entries}
+              onOpen={open}
+              selected={selected}
+              onSelect={onSelect}
+              onClearSelection={clear}
+              onContextEntry={onContextEntry}
+            />
+          )}
+        </ContextMenu>
       </Stack>
       {detail.entry && (
         <DetailPanel

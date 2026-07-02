@@ -1,7 +1,6 @@
+import { looksBinary, shikiLang } from '@infrastructure'
 import { CodeHighlight } from '@mantine/code-highlight'
 import { Box } from '@mantine/core'
-
-import { looksBinary, shikiLang } from '@infrastructure'
 import { type Entry, useFilePreview } from '@domain'
 import { FilePlaceholder } from '@features'
 import classes from './code.module.css'

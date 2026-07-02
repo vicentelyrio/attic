@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { computeWaveform } from '@infrastructure'
 import { Box, Center, ThemeIcon } from '@mantine/core'
 import { PlayIcon } from '@phosphor-icons/react'
-
-import { computeWaveform } from '@infrastructure'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { downloadUrl, type Entry } from '@domain'
 import { FilePlaceholder } from '@features'
-
 import classes from './audio.module.css'
 
 export type AudioPreviewProps = {

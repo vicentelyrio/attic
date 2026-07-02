@@ -24,6 +24,7 @@ export type CardProps = {
   selected: boolean
   onSelect: (event: MouseEvent) => void
   onOpen: () => void
+  onContext: () => void
 }
 
 /** Shared clickable shell: click selects, double-click opens. */
@@ -32,6 +33,7 @@ function Shell({
   selected,
   onSelect,
   onOpen,
+  onContext,
   children,
   padding,
 }: Omit<CardProps, 'root' | 'path'> & {
@@ -46,6 +48,7 @@ function Shell({
       data-dimmed={entry.name.startsWith('.') || undefined}
       onClick={onSelect}
       onDoubleClick={onOpen}
+      onContextMenu={onContext}
       padding={padding}
       w="100%"
     >

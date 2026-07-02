@@ -13,6 +13,7 @@ export type GridProps = {
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
+  onContextEntry: (item: Entry) => void
 }
 
 function Section({ label, children }: { label: string; children: ReactNode }) {
@@ -42,6 +43,7 @@ export function Grid({
   selected,
   onSelect,
   onClearSelection,
+  onContextEntry,
 }: GridProps) {
   const { folders, files } = useMemo(() => {
     const folders: Entry[] = []
@@ -65,6 +67,7 @@ export function Grid({
       })
     },
     onOpen: () => onOpen(entry),
+    onContext: () => onContextEntry(entry),
   })
 
   return (

@@ -35,6 +35,7 @@ export function useDetailPanel(selected: Set<string>, entries?: Entry[]) {
 
   return {
     entry: open ? selectedFile : undefined,
+    open: () => setOpen(true),
     close: () => setOpen(false),
   }
 }
