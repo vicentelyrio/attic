@@ -1,14 +1,13 @@
-import { Flex, Stack } from '@mantine/core'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMemo } from 'react'
 import {
-  type Entry,
   useDetailPanel,
-  useDirectory,
   useSelection,
   useShowHidden,
   useViewMode,
-} from '@domain'
+} from '@infrastructure'
+import { Flex, Stack } from '@mantine/core'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useMemo } from 'react'
+import { type Entry, useDirectory } from '@domain'
 import { ClipboardActions, DetailPanel, Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({

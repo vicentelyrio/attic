@@ -1,6 +1,7 @@
+import type { SelectMods } from '@infrastructure'
 import { Box, SimpleGrid, Stack, Text } from '@mantine/core'
 import { type MouseEvent, type ReactNode, useMemo } from 'react'
-import type { Entry, SelectMods } from '@domain'
+import type { Entry } from '@domain'
 import { Card } from '../card'
 import classes from './grid.module.css'
 

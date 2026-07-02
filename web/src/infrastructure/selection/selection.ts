@@ -4,11 +4,6 @@ export type SelectMods = { shift: boolean; toggle: boolean }
 
 type State = { key: string; names: Set<string>; anchor: string | null }
 
-/**
- * Multi-select for a single directory. Tagged with `dirKey` so navigating away
- * resets it during render; `order` (the displayed entry names) drives shift
- * range selection.
- */
 export function useSelection(dirKey: string, order: string[]) {
   const [sel, setSel] = useState<State>({
     key: dirKey,
