@@ -1,6 +1,8 @@
 import { Button, Group } from '@mantine/core'
 import { useHotkeys } from '@mantine/hooks'
+
 import { ClipboardIcon, CopyIcon, ScissorsIcon } from '@phosphor-icons/react'
+
 import { type ClipboardRef, useClipboard, usePaste } from '@domain'
 
 export type ClipboardActionsProps = {

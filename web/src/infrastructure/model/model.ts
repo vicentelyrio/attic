@@ -1,4 +1,5 @@
 import type * as THREE from 'three'
+
 import { fileExt } from '../files'
 
 /** Cap the backing-store resolution so thumbnails stay cheap on hi-dpi screens. */

@@ -1,7 +1,11 @@
 import { fileKind } from '@infrastructure'
+
 import { Center, Text, ThemeIcon } from '@mantine/core'
+
 import { PlayIcon } from '@phosphor-icons/react'
+
 import type { Entry } from '@domain'
+
 import classes from './card.module.css'
 
 export function FilePlaceholder({ entry }: { entry: Entry }) {

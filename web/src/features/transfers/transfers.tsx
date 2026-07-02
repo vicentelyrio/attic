@@ -1,4 +1,8 @@
+import { useEffect, useRef, useState } from 'react'
+
 import { size } from '@infrastructure'
+import { useQueryClient } from '@tanstack/react-query'
+
 import {
   ActionIcon,
   Badge,
@@ -13,6 +17,7 @@ import {
   ThemeIcon,
   UnstyledButton,
 } from '@mantine/core'
+
 import {
   ArrowsDownUpIcon,
   CaretDownIcon,
@@ -20,8 +25,7 @@ import {
   CheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+
 import {
   getJob,
   type Job,
@@ -32,6 +36,7 @@ import {
   useJobs,
   useResolveJob,
 } from '@domain'
+
 import { ConflictDialog } from '../conflict-dialog'
 import { EntryIcon } from '../files/entry-icon'
 import classes from './transfers.module.css'

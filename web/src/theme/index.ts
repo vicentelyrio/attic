@@ -1,4 +1,4 @@
-import { createTheme, type MantineColorsTuple, rem } from '@mantine/core';
+import { createTheme, type MantineColorsTuple, rem } from '@mantine/core'
 
 /* ------------------------------------------------------------------ */
 /* Color tuples (index 0 = lightest, 9 = darkest)                     */
@@ -16,7 +16,7 @@ const indigo: MantineColorsTuple = [
   '#4f5ac0',
   '#444ea8',
   '#373f8c',
-];
+]
 
 // Override Mantine's built-in `dark` to match the layered surfaces.
 // 0 = primary text … 9 = deepest background.
@@ -31,32 +31,72 @@ const dark: MantineColorsTuple = [
   '#0a0b0d', // body / canvas background
   '#0c0d10', // side panels, inspector
   '#08090a', // deepest (auth / modal backdrop)
-];
+]
 
 const green: MantineColorsTuple = [
-  '#e7f8f1', '#cdeee2', '#a2e1cb', '#73d4b2', '#50caa0',
-  '#3fc296', '#57b894', '#2f9a78', '#247f62', '#19654d',
-];
+  '#e7f8f1',
+  '#cdeee2',
+  '#a2e1cb',
+  '#73d4b2',
+  '#50caa0',
+  '#3fc296',
+  '#57b894',
+  '#2f9a78',
+  '#247f62',
+  '#19654d',
+]
 
 const red: MantineColorsTuple = [
-  '#fdecf0', '#f7d4dc', '#eea7b6', '#e57b90', '#df5b75',
-  '#dc4868', '#e0697f', '#c73f5a', '#a8324a', '#8a273b',
-];
+  '#fdecf0',
+  '#f7d4dc',
+  '#eea7b6',
+  '#e57b90',
+  '#df5b75',
+  '#dc4868',
+  '#e0697f',
+  '#c73f5a',
+  '#a8324a',
+  '#8a273b',
+]
 
 const orange: MantineColorsTuple = [
-  '#fdf1e6', '#f7dcc3', '#efbf90', '#e8a35f', '#e08f3f',
-  '#dd842c', '#e0894b', '#c06d20', '#9e591a', '#7d4514',
-];
+  '#fdf1e6',
+  '#f7dcc3',
+  '#efbf90',
+  '#e8a35f',
+  '#e08f3f',
+  '#dd842c',
+  '#e0894b',
+  '#c06d20',
+  '#9e591a',
+  '#7d4514',
+]
 
 const blue: MantineColorsTuple = [
-  '#e9f2fe', '#cddffb', '#9dc1f6', '#6ba2f2', '#4b8def',
-  '#3a82ee', '#5b9bf0', '#2f6dcb', '#2659a8', '#1d4585',
-];
+  '#e9f2fe',
+  '#cddffb',
+  '#9dc1f6',
+  '#6ba2f2',
+  '#4b8def',
+  '#3a82ee',
+  '#5b9bf0',
+  '#2f6dcb',
+  '#2659a8',
+  '#1d4585',
+]
 
 const violet: MantineColorsTuple = [
-  '#f3eefb', '#e0d4f4', '#c2a9e8', '#a78bda', '#9170d0',
-  '#8763cb', '#a78bda', '#6f4cb0', '#5b3f91', '#473174',
-];
+  '#f3eefb',
+  '#e0d4f4',
+  '#c2a9e8',
+  '#a78bda',
+  '#9170d0',
+  '#8763cb',
+  '#a78bda',
+  '#6f4cb0',
+  '#5b3f91',
+  '#473174',
+]
 
 /* ------------------------------------------------------------------ */
 /* Theme                                                              */
@@ -73,8 +113,10 @@ export const theme = createTheme({
   white: '#ededf0',
   black: '#08090a',
 
-  fontFamily: "'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-  fontFamilyMonospace: "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+  fontFamily:
+    "'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+  fontFamilyMonospace:
+    "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
   headings: {
     fontFamily: "'Geist', system-ui, sans-serif",
     fontWeight: '600',
@@ -198,4 +240,4 @@ export const theme = createTheme({
       },
     },
   },
-});
+})

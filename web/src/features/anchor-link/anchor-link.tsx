@@ -1,6 +1,8 @@
-import { Anchor, type AnchorProps } from '@mantine/core'
-import { createLink, type LinkComponent } from '@tanstack/react-router'
 import { forwardRef } from 'react'
+
+import { createLink, type LinkComponent } from '@tanstack/react-router'
+
+import { Anchor, type AnchorProps } from '@mantine/core'
 
 interface MantineAnchorProps extends Omit<AnchorProps, 'href'> {}
 

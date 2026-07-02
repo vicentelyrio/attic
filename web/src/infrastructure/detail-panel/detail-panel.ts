@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+
 import type { Entry } from '@domain'
 
 function isTypingTarget(target: EventTarget | null) {

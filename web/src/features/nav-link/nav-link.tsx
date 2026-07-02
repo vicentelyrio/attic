@@ -1,5 +1,7 @@
 import { forwardRef } from 'react'
+
 import { createLink, type LinkComponent } from '@tanstack/react-router'
+
 import { NavLink as NavLinkComponent, type NavLinkProps } from '@mantine/core'
 
 interface MantineNavLinkProps extends Omit<NavLinkProps, 'href'> {}

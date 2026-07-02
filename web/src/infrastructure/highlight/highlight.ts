@@ -1,4 +1,5 @@
 import { createShikiAdapter } from '@mantine/code-highlight'
+
 import { fileExt, fileKind } from '../files'
 
 /**

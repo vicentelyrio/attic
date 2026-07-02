@@ -1,8 +1,13 @@
-import type { ViewMode } from '@infrastructure'
-import { Center, Group, SegmentedControl, Stack, Switch } from '@mantine/core'
-import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
+
+import type { ViewMode } from '@infrastructure'
+
+import { Center, Group, SegmentedControl, Stack, Switch } from '@mantine/core'
+
+import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
+
 import { Breadcrumbs } from '@features'
+
 import { Transfers } from '../../transfers'
 import classes from './header.module.css'
 

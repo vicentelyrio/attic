@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
+
 import { Link, type LinkProps } from '@tanstack/react-router'
+
 import { NavLink } from '@mantine/core'
+
 import {
   ClockIcon,
   FolderSimpleIcon,

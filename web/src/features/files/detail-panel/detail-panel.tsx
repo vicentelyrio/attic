@@ -1,4 +1,7 @@
+import { useEffect, useMemo, useState } from 'react'
+
 import { dayjs, fileBadge, fileKind, relativeTime, size } from '@infrastructure'
+
 import {
   ActionIcon,
   AspectRatio,
@@ -11,13 +14,15 @@ import {
   Text,
 } from '@mantine/core'
 import { useClipboard } from '@mantine/hooks'
+
 import {
   DownloadSimpleIcon,
   ShareNetworkIcon,
   XIcon,
 } from '@phosphor-icons/react'
-import { useEffect, useMemo, useState } from 'react'
+
 import { downloadUrl, type Entry } from '@domain'
+
 import { FilePlaceholder, previewStrategies } from '../card'
 import { EntryIcon } from '../entry-icon'
 import classes from './detail-panel.module.css'

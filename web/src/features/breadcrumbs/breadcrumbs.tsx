@@ -1,7 +1,11 @@
-import { Breadcrumbs as Bread, Menu, Text, UnstyledButton } from '@mantine/core'
-import { CaretRightIcon, DotsThreeIcon } from '@phosphor-icons/react'
 import { type ReactNode, useMemo } from 'react'
+
+import { Breadcrumbs as Bread, Menu, Text, UnstyledButton } from '@mantine/core'
+
+import { CaretRightIcon, DotsThreeIcon } from '@phosphor-icons/react'
+
 import { AnchorLink } from '@features'
+
 import classes from './breadcrumbs.module.css'
 
 type BreadcrumbsProps = {

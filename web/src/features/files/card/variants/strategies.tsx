@@ -1,6 +1,9 @@
-import { fileKind, isTextFile, tabularDelimiter } from '@infrastructure'
 import type { ReactNode } from 'react'
+
+import { fileKind, isTextFile, tabularDelimiter } from '@infrastructure'
+
 import { downloadUrl, type Entry } from '@domain'
+
 import { AudioPreview } from './audio'
 import { CodePreview } from './code'
 import { CsvPreview } from './csv'

@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@mantine/hooks'
+
 import type { Clipboard, ClipboardRef } from '@domain'
 
 /** The copy/cut clipboard. Pure intent (refs + operation) persisted in

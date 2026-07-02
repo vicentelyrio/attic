@@ -1,6 +1,9 @@
-import { Image } from '@mantine/core'
 import { useState } from 'react'
+
+import { Image } from '@mantine/core'
+
 import type { Entry } from '@domain'
+
 import { FilePlaceholder } from '@features'
 
 export type ImagePreviewProps = {

@@ -1,21 +1,18 @@
+import { useMemo, useState } from 'react'
+
 import {
   useDetailPanel,
   useSelection,
   useShowHidden,
   useViewMode,
 } from '@infrastructure'
-import { Flex, Stack } from '@mantine/core'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+
+import { Flex, Stack } from '@mantine/core'
+
 import { type Entry, useDirectory } from '@domain'
-import {
-  ClipboardActions,
-  ContextMenu,
-  DetailPanel,
-  Grid,
-  Header,
-  List,
-} from '@features'
+
+import { ContextMenu, DetailPanel, Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -67,13 +64,6 @@ function Index() {
           onViewChange={setView}
           showHidden={showHidden}
           onShowHiddenChange={setShowHidden}
-          actions={
-            <ClipboardActions
-              root={root}
-              path={path}
-              selected={[...selected]}
-            />
-          }
         />
         <ContextMenu
           entry={menuEntry}

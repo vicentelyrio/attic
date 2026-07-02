@@ -1,8 +1,13 @@
-import { renderMarkdown } from '@infrastructure'
-import { Box } from '@mantine/core'
 import { useEffect, useState } from 'react'
+
+import { renderMarkdown } from '@infrastructure'
+
+import { Box } from '@mantine/core'
+
 import { type Entry, useFilePreview } from '@domain'
+
 import { FilePlaceholder } from '@features'
+
 import classes from './markdown.module.css'
 
 export type MarkdownPreviewProps = {

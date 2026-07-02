@@ -1,10 +1,14 @@
+import { StrictMode } from 'react'
+
+import { createRoot } from 'react-dom/client'
+
 import { shikiAdapter } from '@infrastructure'
-import { CodeHighlightAdapterProvider } from '@mantine/code-highlight'
-import { MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+
+import { CodeHighlightAdapterProvider } from '@mantine/code-highlight'
+import { MantineProvider } from '@mantine/core'
+
 import { theme } from '@theme'
 
 import '@mantine/core/styles.css'

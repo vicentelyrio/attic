@@ -1,4 +1,7 @@
+import type { MouseEvent, ReactNode } from 'react'
+
 import { sizeParts } from '@infrastructure'
+
 import {
   AspectRatio,
   Group,
@@ -8,9 +11,11 @@ import {
   ThemeIcon,
   UnstyledButton,
 } from '@mantine/core'
+
 import { FolderSimpleIcon } from '@phosphor-icons/react'
-import type { MouseEvent, ReactNode } from 'react'
+
 import type { Entry } from '@domain'
+
 import { EntryIcon } from '../entry-icon'
 import classes from './card.module.css'
 import { LazyMount } from './lazy-mount'

@@ -1,8 +1,13 @@
-import { Box, Center, ThemeIcon } from '@mantine/core'
-import { PlayIcon } from '@phosphor-icons/react'
 import { useRef, useState } from 'react'
+
+import { Box, Center, ThemeIcon } from '@mantine/core'
+
+import { PlayIcon } from '@phosphor-icons/react'
+
 import { downloadUrl, type Entry } from '@domain'
+
 import { FilePlaceholder } from '@features'
+
 import classes from './video.module.css'
 
 export type VideoPreviewProps = {

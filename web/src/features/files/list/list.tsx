@@ -5,8 +5,11 @@ import {
   type SelectMods,
   sizeParts,
 } from '@infrastructure'
+
 import { Table } from '@mantine/core'
+
 import type { Entry } from '@domain'
+
 import { CountBadge } from '../count-badge'
 import { EntryIcon } from '../entry-icon'
 import classes from './list.module.css'

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+
 import { listDir } from '@domain'
 
 export function useDirectory(root: string | null, path: string) {

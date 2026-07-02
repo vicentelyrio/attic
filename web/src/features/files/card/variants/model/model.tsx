@@ -1,8 +1,13 @@
-import { createModelViewer, type ModelViewer } from '@infrastructure'
-import { Box } from '@mantine/core'
 import { type PointerEvent, useEffect, useRef, useState } from 'react'
+
+import { createModelViewer, type ModelViewer } from '@infrastructure'
+
+import { Box } from '@mantine/core'
+
 import { downloadUrl, type Entry } from '@domain'
+
 import { FilePlaceholder } from '@features'
+
 import classes from './model.module.css'
 
 export type ModelPreviewProps = {

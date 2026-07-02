@@ -1,7 +1,8 @@
+import { size } from '@infrastructure'
+
 import { Group, Paper, Progress, Stack, Text } from '@mantine/core'
 
 import { useRoots } from '@domain'
-import { size } from '@infrastructure'
 
 export function Storage() {
   const { data: roots = [] } = useRoots()

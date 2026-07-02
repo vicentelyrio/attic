@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   Button,
   Group,
@@ -7,7 +9,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core'
-import { useState } from 'react'
+
 import type { JobView, Policy, Resolution, ResolveReq } from '@domain'
 
 export type ConflictDialogProps = {

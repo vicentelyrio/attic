@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+
 import { fetchTextPreview } from '@domain'
 
 export function useFilePreview(root: string, path: string, enabled: boolean) {

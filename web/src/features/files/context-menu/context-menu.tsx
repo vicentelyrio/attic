@@ -1,8 +1,12 @@
+import type { ReactNode } from 'react'
+
 import { FOLDER_KIND, fileKind, size } from '@infrastructure'
+
 import { Group, Menu, Stack, Text } from '@mantine/core'
 import { useClipboard as useCopyToClipboard } from '@mantine/hooks'
+
 import { CaretRightIcon } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+
 import {
   type ClipboardRef,
   downloadUrl,
@@ -10,6 +14,7 @@ import {
   useClipboard,
   usePaste,
 } from '@domain'
+
 import { EntryIcon } from '../entry-icon'
 import classes from './context-menu.module.css'
 

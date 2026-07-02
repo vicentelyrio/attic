@@ -1,7 +1,10 @@
-import { type Root, useRoots } from '@domain'
-import { NavLink } from '@features'
 import { size } from '@infrastructure'
+
 import { Box, Stack, Text } from '@mantine/core'
+
+import { type Root, useRoots } from '@domain'
+
+import { NavLink } from '@features'
 
 import classes from './drivers.module.css'
 
