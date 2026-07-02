@@ -3,6 +3,7 @@ import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import type { ViewMode } from '@domain'
 import { Breadcrumbs } from '@features'
+import { Transfers } from '../../transfers'
 import classes from './header.module.css'
 
 const viewmode = [
@@ -64,6 +65,7 @@ export function Header({
             value={view}
             onChange={(value) => onViewChange(value as ViewMode)}
           />
+          <Transfers />
         </Group>
       </Group>
     </Stack>

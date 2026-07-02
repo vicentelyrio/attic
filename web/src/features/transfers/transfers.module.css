@@ -1,8 +1,52 @@
-.panel {
+.dock {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 22px;
+  bottom: 22px;
   width: 340px;
-  max-width: calc(100vw - 40px);
-  z-index: 200;
+  max-width: calc(100vw - 44px);
+  z-index: 300;
+}
+
+.collapsedDock {
+  composes: dock;
+  width: 300px;
+}
+
+.panel {
+  background: #141519;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.row + .row {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.pillTrack {
+  height: 2.5px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pillFill {
+  height: 100%;
+  background: linear-gradient(90deg, #5e6ad2, #8b95e8);
+  transition: width 0.3s ease;
+}
+
+.bar {
+  height: 4px;
+}
+
+.iconBtn {
+  color: var(--mantine-color-dark-3);
 }

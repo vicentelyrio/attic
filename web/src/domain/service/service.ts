@@ -104,3 +104,8 @@ export async function cancelJob(id: string): Promise<Job> {
   if (!res.ok) throw new Error(`cancel failed: ${res.status}`)
   return res.json()
 }
+
+export async function clearJobs(): Promise<void> {
+  const res = await fetch(paths.jobs, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`clear failed: ${res.status}`)
+}

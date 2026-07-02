@@ -169,6 +169,11 @@ pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<Job>>, ApiEr
     Ok(Json(jobs))
 }
 
+pub async fn clear(State(state): State<AppState>) -> Result<StatusCode, ApiError> {
+    store::clear_finished(&state.pool).await.map_err(internal)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
 /// A single job with its file manifest.
 pub async fn get(
     State(state): State<AppState>,

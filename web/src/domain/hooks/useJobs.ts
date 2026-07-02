@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   cancelJob,
+  clearJobs,
   type Job,
   listJobs,
   paste,
@@ -50,6 +51,14 @@ export function useCancelJob() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: cancelJob,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
+  })
+}
+
+export function useClearJobs() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: clearJobs,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
   })
 }

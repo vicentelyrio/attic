@@ -114,6 +114,24 @@ pub async fn list_jobs(pool: &SqlitePool, limit: i64) -> Result<Vec<Job>, sqlx::
     Ok(rows.iter().map(row_to_job).collect())
 }
 
+pub async fn clear_finished(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query(
+        "DELETE FROM job_files WHERE job_id IN \
+         (SELECT id FROM jobs WHERE status IN ('done', 'failed', 'canceled'))",
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let res = sqlx::query("DELETE FROM jobs WHERE status IN ('done', 'failed', 'canceled')")
+        .execute(&mut *tx)
+        .await?;
+
+    tx.commit().await?;
+    Ok(res.rows_affected())
+}
+
 /// The oldest runnable job, if any. Drives the worker loop.
 pub async fn next_queued(pool: &SqlitePool) -> Result<Option<Job>, sqlx::Error> {
     let row = sqlx::query("SELECT * FROM jobs WHERE status = 'queued' ORDER BY created_at LIMIT 1")

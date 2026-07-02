@@ -60,10 +60,7 @@
 
   height: 100%;
   width: 100%;
-  overflow: hidden;
   background-color: var(--mantine-color-dark-7);
-  pointer-events: none;
-  user-select: none;
 }
 
 /* Scale the whole code block down like a thumbnail so more lines AND longer
@@ -184,11 +181,10 @@
 .markdown {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
   padding: var(--mantine-spacing-md);
   background-color: var(--mantine-color-dark-7);
   color: var(--mantine-color-dark-1);
-  pointer-events: none;
   user-select: none;
 }
 
@@ -342,9 +338,8 @@
 .pdf {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
   background-color: var(--mantine-color-dark-7);
-  pointer-events: none;
   user-select: none;
 }
 
@@ -355,11 +350,8 @@
 }
 
 /* Mask the bottom edge so clipped content fades out instead of cutting hard. */
-.code::after,
-.pdf::after,
 .font::after,
-.csv::after,
-.markdown::after {
+.csv::after {
   content: "";
   position: absolute;
   inset: auto 0 0 0;
