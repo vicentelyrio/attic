@@ -1,26 +1,22 @@
-/* Zoom level of the preview. Lower = more content shown (smaller code). */
 .code {
-  --preview-scale: 0.6;
-
+  background-color: var(--mantine-color-dark-7);
   height: 100%;
   width: 100%;
-  overflow-y: auto;
-  background-color: var(--mantine-color-dark-7);
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.code::-webkit-scrollbar {
+  display: none;
 }
 
-/* Scale the whole code block down like a thumbnail so more lines AND longer
-   lines fit. Width is grown by the inverse factor so it still fills the card
-   after scaling. */
 .codeRoot {
-  transform: scale(var(--preview-scale));
-  transform-origin: top left;
-  width: calc(100% / var(--preview-scale));
   border-radius: 0;
   background: transparent;
 }
 
 .codePre {
-  font-size: 12px;
+  font-size: 8px;
   line-height: 1.4;
   padding: var(--mantine-spacing-sm);
 }

@@ -1,7 +1,9 @@
-import { Box } from '@mantine/core'
 import { useEffect, useId, useState } from 'react'
+import { Box } from '@mantine/core'
+
 import { downloadUrl, type Entry } from '@domain'
-import { FilePlaceholder } from '../../placeholder'
+import { FilePlaceholder } from '@features'
+
 import classes from './font.module.css'
 
 export type FontPreviewProps = {
