@@ -1,0 +1,8 @@
+.footer {
+  flex-wrap: nowrap;
+  border-top: 1px solid var(--mantine-color-dark-5);
+}
+
+.count {
+  flex-shrink: 0;
+}

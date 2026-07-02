@@ -12,7 +12,14 @@ import { Flex, Stack } from '@mantine/core'
 
 import { type Entry, useDirectory } from '@domain'
 
-import { ContextMenu, DetailPanel, Grid, Header, List } from '@features'
+import {
+  ContextMenu,
+  DetailPanel,
+  Footer,
+  Grid,
+  Header,
+  List,
+} from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -31,6 +38,11 @@ function Index() {
     () =>
       showHidden ? data : data?.filter((entry) => !entry.name.startsWith('.')),
     [data, showHidden],
+  )
+
+  const hiddenCount = useMemo(
+    () => data?.filter((entry) => entry.name.startsWith('.')).length ?? 0,
+    [data],
   )
 
   const dirKey = path ? `${root}/${path}` : root
@@ -57,14 +69,7 @@ function Index() {
   return (
     <Flex flex={1} mih={0}>
       <Stack flex={1} mih={0}>
-        <Header
-          root={root}
-          path={path}
-          view={view}
-          onViewChange={setView}
-          showHidden={showHidden}
-          onShowHiddenChange={setShowHidden}
-        />
+        <Header root={root} path={path} view={view} onViewChange={setView} />
         <ContextMenu
           entry={menuEntry}
           root={root}
@@ -95,6 +100,14 @@ function Index() {
             />
           )}
         </ContextMenu>
+        <Footer
+          root={root}
+          path={path}
+          count={data?.length ?? 0}
+          hidden={hiddenCount}
+          showHidden={showHidden}
+          onShowHiddenChange={setShowHidden}
+        />
       </Stack>
       {detail.entry && (
         <DetailPanel

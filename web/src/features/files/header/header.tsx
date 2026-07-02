@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { ViewMode } from '@infrastructure'
 
-import { Center, Group, SegmentedControl, Stack, Switch } from '@mantine/core'
+import { Center, Group, SegmentedControl, Stack } from '@mantine/core'
 
 import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
 
@@ -36,8 +36,6 @@ export type HeaderProps = {
   path: string
   view: ViewMode
   onViewChange: (view: ViewMode) => void
-  showHidden: boolean
-  onShowHiddenChange: (showHidden: boolean) => void
   /** Clipboard actions (copy/cut/paste), rendered on the right. */
   actions?: ReactNode
 }
@@ -47,8 +45,6 @@ export function Header({
   path,
   view,
   onViewChange,
-  showHidden,
-  onShowHiddenChange,
   actions,
 }: HeaderProps) {
   return (
@@ -57,14 +53,6 @@ export function Header({
         <Breadcrumbs root={root} path={path} />
         <Group gap="md">
           {actions}
-          <Switch
-            checked={showHidden}
-            withThumbIndicator={false}
-            onChange={(event) =>
-              onShowHiddenChange(event.currentTarget.checked)
-            }
-            label="Hidden files"
-          />
           <SegmentedControl
             data={viewmode}
             size="lg"
