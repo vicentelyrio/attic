@@ -2,6 +2,7 @@ mod download;
 mod listing;
 mod resolve;
 mod roots;
+mod search;
 mod upload;
 
 use axum::{
@@ -19,6 +20,7 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/api/roots", get(roots::list_roots))
         .route("/api/list", get(listing::list_dir))
+        .route("/api/search", get(search::search))
         .route("/api/download", get(download::download))
         .route("/api/upload", post(upload::upload))
 }
