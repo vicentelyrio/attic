@@ -1,4 +1,5 @@
 export * from './useClipboard'
+export * from './useClipboardActions'
 export * from './useClipboardShortcuts'
 export * from './useDirectory'
 export * from './useFilePreview'

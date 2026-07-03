@@ -1,6 +1,6 @@
 import { useHotkeys } from '@mantine/hooks'
 
-import { type ClipboardRef, useClipboard, usePaste } from '@domain'
+import { type ClipboardRef, useClipboardActions } from '@domain'
 
 /** Registers ⌘C / ⌘X / ⌘V for the current directory and selection. Mirrors the
  *  context-menu actions so the keyboard and the menu drive the same clipboard.
@@ -12,26 +12,10 @@ export function useClipboardShortcuts(
   path: string,
   selected: string[],
 ) {
-  const { clipboard, copy, cut, clear } = useClipboard()
-  const paste = usePaste()
+  const { hasClipboard, copy, cut, paste } = useClipboardActions(root, path)
 
   const refs = (): ClipboardRef[] =>
     selected.map((name) => ({ root, path: path ? `${path}/${name}` : name }))
-
-  const doPaste = async () => {
-    if (!clipboard || clipboard.items.length === 0) return
-    const op = clipboard.op === 'cut' ? 'move' : 'copy'
-    for (const item of clipboard.items) {
-      await paste.mutateAsync({
-        op,
-        src_root: item.root,
-        src_path: item.path,
-        dst_root: root,
-        dst_dir: path,
-      })
-    }
-    if (clipboard.op === 'cut') clear()
-  }
 
   useHotkeys([
     [
@@ -55,9 +39,9 @@ export function useClipboardShortcuts(
     [
       'mod+V',
       (e) => {
-        if (!clipboard || clipboard.items.length === 0) return
+        if (!hasClipboard) return
         e.preventDefault()
-        doPaste()
+        paste()
       },
       { preventDefault: false },
     ],

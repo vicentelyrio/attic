@@ -1,41 +1,43 @@
-import type { ReactNode } from 'react'
+import { type MouseEvent, type ReactNode, useState } from 'react'
 
-import { FOLDER_KIND, fileKind, size } from '@infrastructure'
+import { FOLDER_KIND, fileKind, type SelectMods, size } from '@infrastructure'
 
 import { Group, Menu, Stack, Text } from '@mantine/core'
 import { useClipboard as useCopyToClipboard } from '@mantine/hooks'
-
-import { CaretRightIcon } from '@phosphor-icons/react'
 
 import {
   type ClipboardRef,
   downloadUrl,
   type Entry,
-  useClipboard,
-  usePaste,
+  useClipboardActions,
 } from '@domain'
 
 import { EntryIcon } from '../entry-icon'
 import classes from './context-menu.module.css'
 
 export type ContextMenuProps = {
-  /** The right-clicked entry, or `null` when the menu is closed. */
-  entry: Entry | null
+  /** The entries currently shown, used to resolve the right-clicked row. */
+  entries: Entry[]
   root: string
   path: string
-  /** Open a folder (navigate); files are opened via their view URL. */
+  selected: Set<string>
+  /** Fix the selection when right-clicking a row outside the current one. */
+  onSelect: (name: string, mods: SelectMods) => void
+  /** Open a folder (navigate); files open via their view URL. */
   onOpen: (entry: Entry) => void
   /** Reveal the detail panel for the current selection. */
-  onGetInfo: () => void
-  onClose: () => void
+  onQuickLook: () => void
   children: ReactNode
 }
+
+/** What the menu acts on: one or more entries, or the empty listing space. */
+type Target = { kind: 'entries'; entries: Entry[] } | { kind: 'empty' } | null
 
 function Shortcut({ children }: { children: ReactNode }) {
   return <Text className={classes.shortcut}>{children}</Text>
 }
 
-function Header({ entry }: { entry: Entry }) {
+function EntryHeader({ entry }: { entry: Entry }) {
   const kind = entry.is_dir ? FOLDER_KIND : fileKind(entry.name)
   const meta = entry.is_dir
     ? `Folder · ${entry.items} ${entry.items === 1 ? 'item' : 'items'}`
@@ -56,52 +58,66 @@ function Header({ entry }: { entry: Entry }) {
   )
 }
 
-/** Right-click menu for a directory entry. Rendered once around the listing;
- *  `Menu.ContextMenu` anchors the dropdown to the cursor, and the active entry
- *  is supplied by whichever row/card was right-clicked. */
+function CountHeader({ count }: { count: number }) {
+  return (
+    <Group gap="sm" wrap="nowrap" p="xs" className={classes.header}>
+      <Text size="sm" fw={600} c="dark.0">
+        {count} items selected
+      </Text>
+    </Group>
+  )
+}
+
+/** Right-click menu for the directory listing. Rendered once around the
+ *  listing; `Menu.ContextMenu` anchors the dropdown to the cursor, and the
+ *  right-clicked row (or the empty space) is resolved from the event target. */
 export function ContextMenu({
-  entry,
+  entries,
   root,
   path,
+  selected,
+  onSelect,
   onOpen,
-  onGetInfo,
-  onClose,
+  onQuickLook,
   children,
 }: ContextMenuProps) {
-  const { clipboard, copy, cut, clear } = useClipboard()
-  const paste = usePaste()
+  const { hasClipboard, copy, cut, paste } = useClipboardActions(root, path)
   const link = useCopyToClipboard({ timeout: 1200 })
 
-  const hasClipboard = !!clipboard && clipboard.items.length > 0
+  const [target, setTarget] = useState<Target>(null)
 
   const rel = (e: Entry) => (path ? `${path}/${e.name}` : e.name)
   const ref = (e: Entry): ClipboardRef => ({ root, path: rel(e) })
-
-  const doPaste = async () => {
-    if (!clipboard || clipboard.items.length === 0) return
-    const op = clipboard.op === 'cut' ? 'move' : 'copy'
-    for (const item of clipboard.items) {
-      await paste.mutateAsync({
-        op,
-        src_root: item.root,
-        src_path: item.path,
-        dst_root: root,
-        dst_dir: path,
-      })
-    }
-    if (clipboard.op === 'cut') clear()
-  }
+  const refs = (list: Entry[]) => list.map(ref)
 
   const doShare = (e: Entry) =>
     link.copy(`${location.origin}${downloadUrl(root, rel(e))}`)
 
-  const isDir = entry?.is_dir ?? false
-  const viewUrl = entry && !isDir ? downloadUrl(root, rel(entry)) : undefined
+  const onContextMenu = (event: MouseEvent) => {
+    const el = (event.target as HTMLElement).closest('[data-name]')
+    const name = el?.getAttribute('data-name')
+
+    if (!name) {
+      setTarget({ kind: 'empty' })
+      return
+    }
+
+    const names = selected.has(name) ? selected : new Set([name])
+    if (!selected.has(name)) onSelect(name, { shift: false, toggle: false })
+
+    setTarget({
+      kind: 'entries',
+      entries: entries.filter((e) => names.has(e.name)),
+    })
+  }
+
+  const list = target?.kind === 'entries' ? target.entries : []
+  const single = list.length === 1 ? list[0] : null
 
   return (
     <Menu
-      opened={!!entry}
-      onClose={onClose}
+      opened={!!target}
+      onClose={() => setTarget(null)}
       position="bottom-start"
       offset={4}
       width={244}
@@ -115,19 +131,34 @@ export function ContextMenu({
       }}
     >
       <Menu.ContextMenu>
-        <Stack flex={1} mih={0} gap={0}>
+        <Stack flex={1} mih={0} gap={0} onContextMenu={onContextMenu}>
           {children}
         </Stack>
       </Menu.ContextMenu>
 
       <Menu.Dropdown>
-        {entry && (
+        {target?.kind === 'empty' && (
           <>
-            <Header entry={entry} />
+            <Menu.Item
+              disabled={!hasClipboard}
+              onClick={paste}
+              rightSection={<Shortcut>⌘V</Shortcut>}
+            >
+              Paste
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item disabled>New Folder</Menu.Item>
+            <Menu.Item disabled>New File</Menu.Item>
+          </>
+        )}
 
-            {isDir ? (
+        {single && (
+          <>
+            <EntryHeader entry={single} />
+
+            {single.is_dir ? (
               <Menu.Item
-                onClick={() => onOpen(entry)}
+                onClick={() => onOpen(single)}
                 rightSection={<Shortcut>↵</Shortcut>}
               >
                 Open
@@ -135,49 +166,18 @@ export function ContextMenu({
             ) : (
               <Menu.Item
                 component="a"
-                href={viewUrl}
+                href={downloadUrl(root, rel(single))}
                 target="_blank"
                 rel="noreferrer"
                 rightSection={<Shortcut>↵</Shortcut>}
               >
-                Open
+                Open in New Tab
               </Menu.Item>
             )}
 
-            <Menu.Sub disabled={isDir}>
-              <Menu.Sub.Target>
-                <Menu.Sub.Item
-                  className={classes.item}
-                  rightSection={
-                    <CaretRightIcon size={14} className={classes.chevron} />
-                  }
-                >
-                  Open With
-                </Menu.Sub.Item>
-              </Menu.Sub.Target>
-              <Menu.Sub.Dropdown classNames={{ dropdown: classes.dropdown }}>
-                <Menu.Item
-                  className={classes.item}
-                  component="a"
-                  href={viewUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  New Tab
-                </Menu.Item>
-                <Menu.Item
-                  className={classes.item}
-                  component="a"
-                  href={entry && downloadUrl(root, rel(entry), true)}
-                >
-                  Download
-                </Menu.Item>
-              </Menu.Sub.Dropdown>
-            </Menu.Sub>
-
             <Menu.Item
-              disabled={isDir}
-              onClick={onGetInfo}
+              disabled={single.is_dir}
+              onClick={onQuickLook}
               rightSection={<Shortcut>Space</Shortcut>}
             >
               Quick Look
@@ -186,20 +186,20 @@ export function ContextMenu({
             <Menu.Divider />
 
             <Menu.Item
-              onClick={() => copy([ref(entry)])}
+              onClick={() => copy(refs([single]))}
               rightSection={<Shortcut>⌘C</Shortcut>}
             >
               Copy
             </Menu.Item>
             <Menu.Item
-              onClick={() => cut([ref(entry)])}
+              onClick={() => cut(refs([single]))}
               rightSection={<Shortcut>⌘X</Shortcut>}
             >
               Cut
             </Menu.Item>
             <Menu.Item
               disabled={!hasClipboard}
-              onClick={doPaste}
+              onClick={paste}
               rightSection={<Shortcut>⌘V</Shortcut>}
             >
               Paste
@@ -213,21 +213,53 @@ export function ContextMenu({
             <Menu.Item disabled>Rename</Menu.Item>
             <Menu.Item
               component="a"
-              href={entry && downloadUrl(root, rel(entry), true)}
-              disabled={isDir}
+              href={downloadUrl(root, rel(single), true)}
+              disabled={single.is_dir}
               rightSection={<Shortcut>⌘↓</Shortcut>}
             >
               Download
             </Menu.Item>
-            <Menu.Item disabled={isDir} onClick={() => doShare(entry)}>
+            <Menu.Item disabled={single.is_dir} onClick={() => doShare(single)}>
               {link.copied ? 'Link copied' : 'Share…'}
             </Menu.Item>
+
+            <Menu.Divider />
+
             <Menu.Item
-              disabled={isDir}
-              onClick={onGetInfo}
-              rightSection={<Shortcut>⌘I</Shortcut>}
+              disabled
+              className={classes.danger}
+              rightSection={<Shortcut>⌘⌫</Shortcut>}
             >
-              Get Info
+              Move to Trash
+            </Menu.Item>
+          </>
+        )}
+
+        {list.length > 1 && (
+          <>
+            <CountHeader count={list.length} />
+
+            <Menu.Item
+              onClick={() => copy(refs(list))}
+              rightSection={<Shortcut>⌘C</Shortcut>}
+            >
+              Copy
+            </Menu.Item>
+            <Menu.Item
+              onClick={() => cut(refs(list))}
+              rightSection={<Shortcut>⌘X</Shortcut>}
+            >
+              Cut
+            </Menu.Item>
+            <Menu.Item
+              disabled={!hasClipboard}
+              onClick={paste}
+              rightSection={<Shortcut>⌘V</Shortcut>}
+            >
+              Paste
+            </Menu.Item>
+            <Menu.Item disabled rightSection={<Shortcut>⌘D</Shortcut>}>
+              Duplicate
             </Menu.Item>
 
             <Menu.Divider />

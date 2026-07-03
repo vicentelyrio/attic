@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import {
   useDetailPanel,
@@ -50,8 +50,6 @@ function Index() {
 
   const detail = useDetailPanel(selected, entries)
 
-  const [menuEntry, setMenuEntry] = useState<Entry | null>(null)
-
   const open = (item: Entry) => {
     if (!item.is_dir) return
     navigate({
@@ -60,22 +58,18 @@ function Index() {
     })
   }
 
-  const onContextEntry = (item: Entry) => {
-    onSelect(item.name, { shift: false, toggle: false })
-    setMenuEntry(item)
-  }
-
   return (
     <Flex flex={1} mih={0}>
       <Stack flex={1} mih={0}>
         <Header root={root} path={path} view={view} onViewChange={setView} />
         <ContextMenu
-          entry={menuEntry}
+          entries={entries ?? []}
           root={root}
           path={path}
+          selected={selected}
+          onSelect={onSelect}
           onOpen={open}
-          onGetInfo={detail.open}
-          onClose={() => setMenuEntry(null)}
+          onQuickLook={detail.open}
         >
           {view === 'grid' ? (
             <Grid
@@ -86,7 +80,6 @@ function Index() {
               selected={selected}
               onSelect={onSelect}
               onClearSelection={clear}
-              onContextEntry={onContextEntry}
             />
           ) : (
             <List
@@ -95,7 +88,6 @@ function Index() {
               selected={selected}
               onSelect={onSelect}
               onClearSelection={clear}
-              onContextEntry={onContextEntry}
             />
           )}
         </ContextMenu>

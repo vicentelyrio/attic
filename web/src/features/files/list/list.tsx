@@ -20,7 +20,6 @@ export type ListProps = {
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
-  onContextEntry: (item: Entry) => void
 }
 
 function SizeCell({ entry }: { entry: Entry }) {
@@ -40,11 +39,11 @@ export function List({
   selected,
   onSelect,
   onClearSelection,
-  onContextEntry,
 }: ListProps) {
   const rows = data?.map((entry) => (
     <Table.Tr
       key={entry.name}
+      data-name={entry.name}
       className={[
         selected.has(entry.name) ? classes.selected : classes.row,
         entry.name.startsWith('.') && classes.dimmed,
@@ -59,7 +58,6 @@ export function List({
         })
       }}
       onDoubleClick={() => onOpen(entry)}
-      onContextMenu={() => onContextEntry(entry)}
     >
       <Table.Td>
         <span className={classes.name}>
