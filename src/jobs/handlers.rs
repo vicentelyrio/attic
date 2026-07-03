@@ -1,3 +1,5 @@
+use std::path::Path as FsPath;
+
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::Json;
@@ -20,6 +22,35 @@ fn bad_request(msg: &str) -> ApiError {
 
 fn internal(e: impl std::fmt::Display) -> ApiError {
     (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+}
+
+/// Finder-style unique name for duplicating `name` inside `dir`:
+/// "report.pdf" → "report copy.pdf" → "report copy 2.pdf" … picking the first
+/// that doesn't already exist. Directories (and extension-less names) get the
+/// suffix appended whole.
+fn unique_copy_name(dir: &FsPath, name: &str, is_dir: bool) -> String {
+    let p = FsPath::new(name);
+    let (stem, ext) = match (p.file_stem().and_then(|s| s.to_str()), p.extension()) {
+        (Some(stem), Some(ext)) if !is_dir => (stem, ext.to_str()),
+        _ => (name, None),
+    };
+    let build = |suffix: &str| match ext {
+        Some(ext) => format!("{stem}{suffix}.{ext}"),
+        None => format!("{stem}{suffix}"),
+    };
+
+    let first = build(" copy");
+    if !dir.join(&first).exists() {
+        return first;
+    }
+    let mut n = 2;
+    loop {
+        let candidate = build(&format!(" copy {n}"));
+        if !dir.join(&candidate).exists() {
+            return candidate;
+        }
+        n += 1;
+    }
 }
 
 #[derive(Deserialize)]
@@ -62,18 +93,27 @@ pub async fn paste(
         .map(String::from)
         .ok_or_else(|| bad_request("source has no name"))?;
 
-    // Guard: pasting onto itself, or a directory into its own subtree.
-    let target = dst_dir.join(&base_name);
-    if target == src {
-        return Err(bad_request("source and destination are the same"));
-    }
     if src.is_dir() && dst_dir.starts_with(&src) {
         return Err(bad_request("cannot paste a folder into itself"));
     }
 
+    // Pasting onto itself: a copy duplicates as "name copy.ext" (Finder-style);
+    // a move onto itself is a no-op we reject. `dst_name` is `None` whenever the
+    // destination keeps the source's own name.
+    let dst_name = if dst_dir.join(&base_name) == src {
+        match req.op {
+            Op::Copy => Some(unique_copy_name(&dst_dir, &base_name, src.is_dir())),
+            Op::Move => return Err(bad_request("source and destination are the same")),
+        }
+    } else {
+        None
+    };
+    let dst_base = dst_name.clone().unwrap_or_else(|| base_name.clone());
+
     let manifest = {
-        let (src, dst_dir, base) = (src.clone(), dst_dir.clone(), base_name.clone());
-        tokio::task::spawn_blocking(move || plan::build(&src, &dst_dir, &base))
+        let (src, dst_dir, src_base, dst_base) =
+            (src.clone(), dst_dir.clone(), base_name.clone(), dst_base.clone());
+        tokio::task::spawn_blocking(move || plan::build(&src, &dst_dir, &src_base, &dst_base))
             .await
             .map_err(internal)?
             .map_err(internal)?
@@ -93,6 +133,7 @@ pub async fn paste(
         src_path: req.src_path,
         dst_root: req.dst_root,
         dst_dir: req.dst_dir,
+        dst_name,
         status,
         policy: None,
         bytes_total: manifest.bytes_total,

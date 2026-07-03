@@ -142,6 +142,9 @@ pub struct Job {
     pub src_path: String,
     pub dst_root: String,
     pub dst_dir: String,
+    /// Destination top-level name when it differs from the source's name (e.g.
+    /// duplicating into the same folder as "name copy.ext"). `None` = same name.
+    pub dst_name: Option<String>,
     pub status: Status,
     pub policy: Option<Policy>,
     pub bytes_total: i64,

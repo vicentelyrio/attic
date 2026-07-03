@@ -10,16 +10,9 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { Flex, Stack } from '@mantine/core'
 
-import { type Entry, useDirectory } from '@domain'
+import { type Entry, useClipboardShortcuts, useDirectory } from '@domain'
 
-import {
-  ContextMenu,
-  DetailPanel,
-  Footer,
-  Grid,
-  Header,
-  List,
-} from '@features'
+import { ContextMenu, DetailPanel, Footer, Grid, Header, List } from '@features'
 
 export const Route = createFileRoute('/$root/$')({
   component: Index,
@@ -48,6 +41,12 @@ function Index() {
   const dirKey = path ? `${root}/${path}` : root
   const order = useMemo(() => entries?.map((e) => e.name) ?? [], [entries])
   const { selected, onSelect, clear } = useSelection(dirKey, order)
+
+  useClipboardShortcuts(
+    root,
+    path,
+    useMemo(() => [...selected], [selected]),
+  )
 
   const detail = useDetailPanel(selected, entries)
 

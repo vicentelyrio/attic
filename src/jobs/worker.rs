@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Duration;
 
 use super::model::{Job, JobFile, Op, Policy, Resolution, Status};
-use super::{copy, store};
+use super::{copy, plan, store};
 use crate::state::AppState;
 
 /// Background worker: reconcile interrupted jobs, then drain the queue one job
@@ -114,10 +114,14 @@ async fn process(
         .parent()
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("/"));
-    let base_name = src_top
+    let src_base = src_top
         .file_name()
+        .and_then(|s| s.to_str())
         .ok_or_else(|| JobError::Path("source has no name".into()))?;
-    let target = dst_dir.join(base_name);
+    // Destination top-level name: an explicit override (duplicate-into-folder)
+    // or the source's own name. Files map source→dest by swapping this segment.
+    let dst_base = job.dst_name.as_deref().unwrap_or(src_base);
+    let target = dst_dir.join(dst_base);
 
     let files = store::get_job_files(&state.pool, &job.id).await?;
 
@@ -152,7 +156,7 @@ async fn process(
         }
 
         let source = src_parent.join(&f.rel_path);
-        let dest = dst_dir.join(&f.rel_path);
+        let dest = dst_dir.join(plan::replace_top(&f.rel_path, src_base, dst_base));
 
         // TOCTOU: a file unplanned-for now exists at the destination. Pause the
         // whole job for a fresh decision rather than guessing.

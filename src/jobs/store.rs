@@ -11,6 +11,7 @@ fn row_to_job(row: &SqliteRow) -> Job {
         src_path: row.get("src_path"),
         dst_root: row.get("dst_root"),
         dst_dir: row.get("dst_dir"),
+        dst_name: row.get("dst_name"),
         status: Status::parse(&row.get::<String, _>("status")).unwrap_or(Status::Failed),
         policy: row
             .get::<Option<String>, _>("policy")
@@ -47,9 +48,9 @@ pub async fn create_job(
 
     sqlx::query(
         "INSERT INTO jobs \
-         (id, user_id, op, src_root, src_path, dst_root, dst_dir, status, policy, \
+         (id, user_id, op, src_root, src_path, dst_root, dst_dir, dst_name, status, policy, \
           bytes_total, bytes_done, current_file, error, created_at, updated_at) \
-         VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&job.id)
     .bind(job.op.as_str())
@@ -57,6 +58,7 @@ pub async fn create_job(
     .bind(&job.src_path)
     .bind(&job.dst_root)
     .bind(&job.dst_dir)
+    .bind(&job.dst_name)
     .bind(job.status.as_str())
     .bind(job.policy.map(|p| p.as_str()))
     .bind(job.bytes_total)
