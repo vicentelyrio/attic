@@ -12,8 +12,9 @@ import { MantineProvider } from '@mantine/core'
 import { theme } from '@theme'
 
 import '@mantine/core/styles.css'
-// ‼️ code-highlight styles must come after core styles
+// ‼️ code-highlight and spotlight styles must come after core styles
 import '@mantine/code-highlight/styles.css'
+import '@mantine/spotlight/styles.css'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({ routeTree })

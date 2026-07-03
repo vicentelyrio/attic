@@ -7,11 +7,13 @@ import {
   type Policy,
   type Resolution,
   type Root,
+  type SearchHit,
 } from '@domain'
 
 const paths = {
   roots: '/api/roots',
   list: '/api/list',
+  search: '/api/search',
   paste: '/api/paste',
   jobs: '/api/jobs',
   upload: '/api/upload',
@@ -34,6 +36,25 @@ export async function listDir(root: string, path: string): Promise<Entry[]> {
   const params = new URLSearchParams({ root, path })
   const res = await fetch(`${paths.list}?${params}`)
   if (!res.ok) throw new Error(`list failed: ${res.status}`)
+  return res.json()
+}
+
+export interface SearchOpts {
+  /** Restrict to a single root; omit to search every root (global). */
+  root?: string
+  limit?: number
+}
+
+/** Filename search. Scoped to `root` when given, otherwise across all roots. */
+export async function search(
+  q: string,
+  { root, limit }: SearchOpts = {},
+): Promise<SearchHit[]> {
+  const params = new URLSearchParams({ q })
+  if (root) params.set('root', root)
+  if (limit) params.set('limit', String(limit))
+  const res = await fetch(`${paths.search}?${params}`)
+  if (!res.ok) throw new Error(`search failed: ${res.status}`)
   return res.json()
 }
 

@@ -1,0 +1,90 @@
+.trigger {
+  color: var(--mantine-color-dark-3);
+}
+
+/* Search input already renders at size="lg"; just add a little breathing room. */
+.search {
+  padding-top: var(--mantine-spacing-xs);
+  padding-bottom: var(--mantine-spacing-xs);
+}
+
+.list {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm)
+    var(--mantine-spacing-sm);
+}
+
+.group {
+  margin-top: var(--mantine-spacing-lg);
+}
+
+.group::before {
+  padding-bottom: var(--mantine-spacing-xs);
+  letter-spacing: 0.08em;
+}
+
+.empty {
+  padding: var(--mantine-spacing-xl);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.footer {
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+}
+
+/* Result rows: taller, with a hairline that turns indigo when selected. */
+.action {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  margin-block: calc(var(--mantine-spacing-xs) / 2);
+  border: 1px solid transparent;
+  border-radius: var(--mantine-radius-md);
+}
+
+.action[data-selected] {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 14%,
+    transparent
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 35%,
+    transparent
+  );
+  color: var(--mantine-color-dark-0);
+}
+
+.row {
+  width: 100%;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mantine-spacing-xs) / 2);
+  flex: 1;
+  min-width: 0;
+}
+
+.openHint {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  flex-shrink: 0;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--mantine-color-indigo-6);
+  color: var(--mantine-color-white);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  opacity: 0;
+}
+
+.action[data-selected] .openHint {
+  opacity: 1;
+}
+
+.hintKeys {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--mantine-spacing-xs) / 2);
+}
