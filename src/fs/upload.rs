@@ -11,7 +11,7 @@ use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
 
-use crate::fs::resolve_within_root;
+use crate::fs::{resolve_within_root, safe_name};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -27,19 +27,6 @@ pub(super) struct UploadQuery {
 pub(super) struct Uploaded {
     name: String,
     size: u64,
-}
-
-/// Accept a filename only if it's a single, ordinary path component — so a
-/// client can't escape the resolved directory through the name itself.
-fn safe_name(name: &str) -> Option<&str> {
-    let name = name.trim();
-    if name.is_empty() || name == "." || name == ".." {
-        return None;
-    }
-    if name.contains('/') || name.contains('\\') || name.contains('\0') {
-        return None;
-    }
-    Some(name)
 }
 
 fn part_path(dst: &std::path::Path) -> PathBuf {

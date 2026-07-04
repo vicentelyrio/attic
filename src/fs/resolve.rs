@@ -18,6 +18,18 @@ pub(crate) fn resolve_within_root(
         return None;
     }
 
+    // Reject any `..` (or other non-normal) component outright. Canonicalize +
+    // prefix-check alone is not enough when a root is `/` — there every path
+    // resolves "within root", so `../../etc/hosts` would be accepted. Refusing
+    // traversal components keeps a relative path strictly descendant.
+    use std::path::Component;
+    if candidate
+        .components()
+        .any(|c| !matches!(c, Component::Normal(_) | Component::CurDir))
+    {
+        return None;
+    }
+
     let joined = root.join(candidate);
     let resolved = std::fs::canonicalize(&joined).ok()?;
 
