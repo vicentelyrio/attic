@@ -17,6 +17,9 @@ const paths = {
   paste: '/api/paste',
   jobs: '/api/jobs',
   upload: '/api/upload',
+  mkdir: '/api/mkdir',
+  file: '/api/file',
+  delete: '/api/delete',
 }
 
 const jsonHeaders = { 'content-type': 'application/json' }
@@ -97,6 +100,47 @@ export async function paste(req: PasteReq): Promise<JobView> {
   })
   if (!res.ok) throw new Error(`paste failed: ${res.status}`)
   return res.json()
+}
+
+export interface NewItemReq {
+  root: string
+  dir: string
+  name: string
+}
+
+/** The name actually created — may carry a numeric suffix if the requested
+ *  name was already taken. */
+export interface Created {
+  name: string
+}
+
+async function newItem(url: string, req: NewItemReq): Promise<Created> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify(req),
+  })
+  if (!res.ok) throw new Error(`create failed: ${res.status}`)
+  return res.json()
+}
+
+/** Create an empty folder inside `dir`. */
+export const createFolder = (req: NewItemReq) => newItem(paths.mkdir, req)
+
+/** Create an empty file inside `dir`. */
+export const createFile = (req: NewItemReq) => newItem(paths.file, req)
+
+/** Move one or more entries (relative paths within `root`) to the trash. */
+export async function trashEntries(
+  root: string,
+  relPaths: string[],
+): Promise<void> {
+  const res = await fetch(paths.delete, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ root, paths: relPaths }),
+  })
+  if (!res.ok) throw new Error(`delete failed: ${res.status}`)
 }
 
 export async function listJobs(): Promise<Job[]> {
