@@ -24,9 +24,7 @@ const paths = {
 
 const jsonHeaders = { 'content-type': 'application/json' }
 
-/** Bytes fetched for a card preview. The backend honours Range requests. */
 const PREVIEW_BYTES = 16 * 1024
-/** Lines kept after truncation — the card clips the rest anyway. */
 const PREVIEW_LINES = 80
 
 export async function fetchRoots(): Promise<Root[]> {
@@ -43,12 +41,10 @@ export async function listDir(root: string, path: string): Promise<Entry[]> {
 }
 
 export interface SearchOpts {
-  /** Restrict to a single root; omit to search every root (global). */
   root?: string
   limit?: number
 }
 
-/** Filename search. Scoped to `root` when given, otherwise across all roots. */
 export async function search(
   q: string,
   { root, limit }: SearchOpts = {},
@@ -61,7 +57,6 @@ export async function search(
   return res.json()
 }
 
-/** Fetch the leading slice of a text file for a syntax-highlighted preview. */
 export async function fetchTextPreview(
   root: string,
   path: string,
@@ -69,7 +64,6 @@ export async function fetchTextPreview(
   const res = await fetch(downloadUrl(root, path), {
     headers: { Range: `bytes=0-${PREVIEW_BYTES - 1}` },
   })
-  // 206 = partial content (Range honoured), 200 = full (file smaller than range).
   if (!res.ok && res.status !== 206) {
     throw new Error(`preview failed: ${res.status}`)
   }
@@ -90,8 +84,6 @@ export interface ResolveReq {
   overrides?: Record<string, Resolution>
 }
 
-/** Queue a copy/move. The returned job carries `files` with per-file conflict
- *  flags; when `status === 'needs_resolution'` the UI prompts before it runs. */
 export async function paste(req: PasteReq): Promise<JobView> {
   const res = await fetch(paths.paste, {
     method: 'POST',
@@ -108,8 +100,6 @@ export interface NewItemReq {
   name: string
 }
 
-/** The name actually created — may carry a numeric suffix if the requested
- *  name was already taken. */
 export interface Created {
   name: string
 }
@@ -124,13 +114,10 @@ async function newItem(url: string, req: NewItemReq): Promise<Created> {
   return res.json()
 }
 
-/** Create an empty folder inside `dir`. */
 export const createFolder = (req: NewItemReq) => newItem(paths.mkdir, req)
 
-/** Create an empty file inside `dir`. */
 export const createFile = (req: NewItemReq) => newItem(paths.file, req)
 
-/** Move one or more entries (relative paths within `root`) to the trash. */
 export async function trashEntries(
   root: string,
   relPaths: string[],
@@ -188,9 +175,6 @@ export interface UploadOpts {
   signal?: AbortSignal
 }
 
-/** Stream a single file to the backend. Uses XHR (not fetch) for upload
- *  progress events, and honours an AbortSignal so a queued upload can be
- *  cancelled mid-flight. */
 export function uploadFile(
   { root, dir, name, file }: UploadReq,
   { onProgress, signal }: UploadOpts = {},

@@ -3,11 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   cancelJob,
   clearJobs,
-  type Job,
   listJobs,
   paste,
-  type ResolveReq,
   resolveJob,
+  type ResolveReq,
+  type Job,
 } from '@domain'
 
 const ACTIVE: Job['status'][] = [
@@ -21,8 +21,6 @@ function isActive(jobs: Job[] | undefined): boolean {
   return jobs?.some((j) => ACTIVE.includes(j.status)) ?? false
 }
 
-/** Poll the job list, but only while something is in flight — idle transfers
- *  panels don't hammer the backend. */
 export function useJobs() {
   return useQuery({
     queryKey: ['jobs'],

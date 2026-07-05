@@ -8,11 +8,6 @@ import {
   trashEntries,
 } from '@domain'
 
-/** Filesystem mutations for the current directory: create a folder/file,
- *  duplicate entries, and move entries to the trash. Each refreshes the
- *  directory listing on success so the change shows without waiting for the
- *  poll. Duplicate reuses the copy-job pipeline (a copy onto the same folder
- *  lands as "name copy"), so it surfaces in the transfers panel like any paste. */
 export function useFileOps(root: string, path: string) {
   const qc = useQueryClient()
   const refresh = () => qc.invalidateQueries({ queryKey: ['list', root, path] })

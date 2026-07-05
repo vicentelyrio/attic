@@ -3,9 +3,6 @@ import type { ClipboardRef } from '@domain'
 import { useClipboard } from './useClipboard'
 import { usePaste } from './useJobs'
 
-/** The clipboard, plus the operations that act on it for a given destination
- *  directory. Shared by the context menu and the keyboard shortcuts so both
- *  drive the exact same copy/cut/paste behaviour. */
 export function useClipboardActions(root: string, path: string) {
   const { clipboard, copy, cut, clear } = useClipboard()
   const pasteMut = usePaste()

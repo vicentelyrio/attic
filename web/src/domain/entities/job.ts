@@ -1,8 +1,4 @@
-/** Server-side operation. A clipboard "cut" maps to a `move`. */
 export type Op = 'copy' | 'move'
-
-/** What the user pressed. Kept distinct from the backend `Op`. */
-export type ClipOp = 'copy' | 'cut'
 
 export type JobStatus =
   | 'planning'
@@ -42,16 +38,16 @@ export interface JobFile {
   done: boolean
 }
 
-/** `/api/paste` and `/api/jobs/:id` return the job flattened with its files. */
 export interface JobView extends Job {
   files: JobFile[]
 }
 
-/** A source reference on the clipboard — metadata only, no file bytes. */
 export interface ClipboardRef {
   root: string
   path: string
 }
+
+export type ClipOp = 'copy' | 'cut'
 
 export interface Clipboard {
   op: ClipOp

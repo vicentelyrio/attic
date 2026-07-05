@@ -1,12 +1,13 @@
-export type UploadStatus =
-  | 'waiting'
-  | 'uploading'
-  | 'done'
-  | 'error'
-  | 'canceled'
+export const UploadStatusMap = {
+  waiting: 'waiting',
+  uploading: 'uploading',
+  done: 'done',
+  error: 'error',
+  canceled: 'canceled',
+} as const
 
-/** A single queued file upload, tracked client-side. Progress and abort live
- *  entirely in the browser — the backend just receives the streamed bytes. */
+export type UploadStatus = keyof typeof UploadStatusMap
+
 export interface Upload {
   id: string
   file: File
