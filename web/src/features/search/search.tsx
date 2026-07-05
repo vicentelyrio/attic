@@ -9,7 +9,6 @@ import {
   Loader,
   SegmentedControl,
   Text,
-  ThemeIcon,
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Spotlight, spotlight } from '@mantine/spotlight'
@@ -27,12 +26,17 @@ import classes from './search.module.css'
 
 type Scope = 'root' | 'all'
 
-/** Breadcrumb shown under a hit. In root scope the root is implied and hidden;
- *  in global scope it is prefixed so results across roots stay distinguishable. */
+const HEAD = 2
+const TAIL = 2
+
 function crumb(hit: SearchHit, scope: Scope): string {
-  const segments = hit.parent ? hit.parent.split('/') : []
+  const segments = hit.parent ? hit.parent.split('/').filter(Boolean) : []
   const parts = scope === 'all' ? [hit.root, ...segments] : segments
-  return parts.length ? parts.join(' / ') : hit.root
+
+  if (!parts.length) return hit.root
+  if (parts.length <= HEAD + TAIL + 1) return parts.join('/')
+
+  return [...parts.slice(0, HEAD), '…', ...parts.slice(-TAIL)].join('/')
 }
 
 function Hint({ keys, label }: { keys: ReactNode[]; label: string }) {
@@ -95,7 +99,7 @@ export function Search() {
       <Spotlight.Root
         query={query}
         onQueryChange={setQuery}
-        size={640}
+        size={720}
         radius="lg"
         scrollable
         maxHeight={440}
@@ -110,8 +114,7 @@ export function Search() {
       >
         <Spotlight.Search
           placeholder="Search files…"
-          leftSection={<MagnifyingGlassIcon size={22} />}
-          rightSection={<Kbd>esc</Kbd>}
+          leftSection={<MagnifyingGlassIcon size={26} />}
         />
 
         <Spotlight.ActionsList>
@@ -133,13 +136,13 @@ export function Search() {
                   key={`${hit.root}/${hit.path}`}
                   onClick={() => reveal(hit)}
                 >
-                  <Group gap="md" wrap="nowrap" className={classes.row}>
-                    <EntryIcon name={hit.name} isDir={hit.is_dir} size={34} />
+                  <Group gap="sm" wrap="nowrap" className={classes.row}>
+                    <EntryIcon name={hit.name} isDir={hit.is_dir} size={36} />
                     <div className={classes.meta}>
                       <Text size="md" fw={600} truncate>
                         {hit.name}
                       </Text>
-                      <Text size="sm" c="dimmed" ff="monospace" truncate>
+                      <Text size="xs" c="dimmed" ff="monospace" truncate>
                         {crumb(hit, scope)}
                       </Text>
                     </div>
@@ -171,23 +174,14 @@ export function Search() {
               <Hint keys={['↵']} label="open" />
               <Hint keys={['esc']} label="close" />
             </Group>
-            <Group gap="md" wrap="nowrap">
-              <SegmentedControl
-                size="xs"
-                value={scope}
-                onChange={(v) => setScope(v as Scope)}
-                data={[
-                  { label: 'This root', value: 'root' },
-                  { label: 'All roots', value: 'all' },
-                ]}
-              />
-              <Group gap="xs" wrap="nowrap">
-                <ThemeIcon size="sm" radius="sm" color="indigo" />
-                <Text size="xs" c="dimmed" fw={600}>
-                  Vault
-                </Text>
-              </Group>
-            </Group>
+            <SegmentedControl
+              value={scope}
+              onChange={(v) => setScope(v as Scope)}
+              data={[
+                { label: 'This root', value: 'root' },
+                { label: 'All roots', value: 'all' },
+              ]}
+            />
           </Group>
         </Spotlight.Footer>
       </Spotlight.Root>

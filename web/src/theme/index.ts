@@ -178,8 +178,24 @@ export const theme = createTheme({
                   'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 10px rgba(94, 106, 210, 0.35)',
                 fontWeight: 600,
               }
-            : { fontWeight: 500 },
+            : {
+                // Outlined controls (Transfers, Name…) use the hairline border
+                // token so the stroke stays subtle instead of a bright gray.
+                fontWeight: 500,
+                borderColor: 'var(--mantine-color-dark-5)',
+              },
       }),
+    },
+
+    SegmentedControl: {
+      styles: {
+        // Track sits on the same elevated surface as the outlined buttons; a
+        // hairline defines it as a pill and the lighter indicator reads raised.
+        root: {
+          backgroundColor: 'var(--mantine-color-dark-6)',
+          boxShadow: 'inset 0 0 0 1px var(--mantine-color-dark-5)',
+        },
+      },
     },
 
     Paper: {
@@ -187,7 +203,7 @@ export const theme = createTheme({
       styles: {
         root: {
           backgroundColor: 'var(--mantine-color-dark-6)',
-          borderColor: 'rgba(255, 255, 255, 0.06)',
+          borderColor: 'var(--mantine-color-dark-5)',
         },
       },
     },
@@ -197,7 +213,7 @@ export const theme = createTheme({
       styles: {
         root: {
           backgroundColor: 'var(--mantine-color-dark-6)',
-          borderColor: 'rgba(255, 255, 255, 0.06)',
+          borderColor: 'var(--mantine-color-dark-5)',
         },
       },
     },
@@ -205,8 +221,8 @@ export const theme = createTheme({
     Input: {
       styles: {
         input: {
-          backgroundColor: 'rgba(255, 255, 255, 0.035)',
-          borderColor: 'rgba(255, 255, 255, 0.09)',
+          backgroundColor: 'transparent',
+          borderColor: 'var(--mantine-color-dark-5)',
         },
       },
     },
@@ -215,8 +231,8 @@ export const theme = createTheme({
       styles: {
         root: {
           fontFamily: "'Geist Mono', ui-monospace, monospace",
-          backgroundColor: 'rgba(255, 255, 255, 0.06)',
-          borderColor: 'rgba(255, 255, 255, 0.06)',
+          backgroundColor: 'var(--mantine-color-dark-6)',
+          borderColor: 'var(--mantine-color-dark-5)',
           color: 'var(--mantine-color-dark-4)',
         },
       },

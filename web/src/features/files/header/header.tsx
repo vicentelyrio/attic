@@ -58,6 +58,7 @@ export function Header({
             size="lg"
             value={view}
             onChange={(value) => onViewChange(value as ViewMode)}
+            classNames={{ label: classes.viewLabel }}
           />
           <Transfers />
           <Uploads root={root} path={path} />
