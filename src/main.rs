@@ -1,6 +1,7 @@
 mod auth;
 mod config;
 mod db;
+mod favorites;
 mod fs;
 mod jobs;
 mod state;
@@ -25,6 +26,7 @@ async fn main() {
 
     let protected = fs::routes()
         .merge(jobs::routes())
+        .merge(favorites::routes())
         .merge(auth::authed_routes())
         .merge(auth::admin_routes())
         .route_layer(middleware::from_fn_with_state(

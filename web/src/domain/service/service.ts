@@ -1,6 +1,7 @@
 import {
   downloadUrl,
   type Entry,
+  type Favorite,
   type Job,
   type JobView,
   type Op,
@@ -21,6 +22,7 @@ const paths = {
   mkdir: '/api/mkdir',
   file: '/api/file',
   delete: '/api/delete',
+  favorites: '/api/favorites',
   login: '/api/auth/login',
   logout: '/api/auth/logout',
   register: '/api/auth/register',
@@ -147,6 +149,23 @@ export async function trashEntries(
   relPaths: string[],
 ): Promise<void> {
   await postJson(paths.delete, { root, paths: relPaths })
+}
+
+export async function fetchFavorites(): Promise<Favorite[]> {
+  return getJson(paths.favorites)
+}
+
+export interface AddFavoriteReq {
+  root: string
+  path: string
+}
+
+export async function addFavorite(req: AddFavoriteReq): Promise<Favorite> {
+  return postJson(paths.favorites, req)
+}
+
+export async function removeFavorite(id: string): Promise<void> {
+  await apiFetch(`${paths.favorites}/${id}`, { method: 'DELETE' })
 }
 
 export async function listJobs(): Promise<Job[]> {

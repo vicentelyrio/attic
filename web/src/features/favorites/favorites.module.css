@@ -1,0 +1,16 @@
+.navItem {
+  border-radius: var(--mantine-radius-sm);
+}
+
+.navItemActive {
+  color: var(--mantine-color-dark-0);
+}
+
+.remove {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.navItem:hover .remove {
+  opacity: 1;
+}

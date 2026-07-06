@@ -1,6 +1,6 @@
 import { Stack } from '@mantine/core'
 
-import { Drivers, Logo, Profile, Search, Storage } from '@features'
+import { Drivers, Favorites, Logo, Profile, Search, Storage } from '@features'
 
 import classes from './sidebar.module.css'
 
@@ -10,6 +10,7 @@ export function Sidebar() {
       <Stack gap="xl">
         <Logo />
         <Search />
+        <Favorites />
         <Drivers />
         <Storage />
       </Stack>

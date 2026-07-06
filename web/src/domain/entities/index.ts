@@ -1,4 +1,5 @@
 export * from './entry'
+export * from './favorite'
 export * from './job'
 export * from './root'
 export * from './search'

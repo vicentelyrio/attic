@@ -10,6 +10,7 @@ import {
   downloadUrl,
   type Entry,
   useClipboardActions,
+  useFavorites,
   useFileOps,
 } from '@domain'
 
@@ -86,6 +87,7 @@ export function ContextMenu({
 }: ContextMenuProps) {
   const { hasClipboard, copy, cut, paste } = useClipboardActions(root, path)
   const { mkdir, touch, duplicate, remove } = useFileOps(root, path)
+  const favorites = useFavorites()
   const link = useCopyToClipboard({ timeout: 1200 })
 
   const [target, setTarget] = useState<Target>(null)
@@ -98,6 +100,12 @@ export function ContextMenu({
 
   const doShare = (e: Entry) =>
     link.copy(`${location.origin}${downloadUrl(root, rel(e))}`)
+
+  const toggleFavorite = (e: Entry) => {
+    const existing = favorites.find(root, rel(e))
+    if (existing) favorites.remove.mutate(existing.id)
+    else favorites.add.mutate({ root, path: rel(e) })
+  }
 
   const createEntry = (name: string) => {
     const op = newEntry === 'folder' ? mkdir : touch
@@ -245,6 +253,13 @@ export function ContextMenu({
 
               <Menu.Divider />
 
+              {single.is_dir && (
+                <Menu.Item onClick={() => toggleFavorite(single)}>
+                  {favorites.find(root, rel(single))
+                    ? 'Remove from Favorites'
+                    : 'Add to Favorites'}
+                </Menu.Item>
+              )}
               <Menu.Item disabled>Rename</Menu.Item>
               <Menu.Item
                 component="a"
