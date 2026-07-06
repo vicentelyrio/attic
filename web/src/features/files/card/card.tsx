@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactNode } from 'react'
+import { type MouseEvent, type ReactNode, memo } from 'react'
 
 import { sizeParts } from '@infrastructure'
 
@@ -27,8 +27,8 @@ export type CardProps = {
   root: string
   path: string
   selected: boolean
-  onSelect: (event: MouseEvent) => void
-  onOpen: () => void
+  onSelect: (entry: Entry, event: MouseEvent) => void
+  onOpen: (entry: Entry) => void
 }
 
 /** Shared clickable shell: click selects, double-click opens. */
@@ -50,8 +50,8 @@ function Shell({
       data-name={entry.name}
       data-selected={selected || undefined}
       data-dimmed={entry.name.startsWith('.') || undefined}
-      onClick={onSelect}
-      onDoubleClick={onOpen}
+      onClick={(event) => onSelect(entry, event)}
+      onDoubleClick={() => onOpen(entry)}
       padding={padding}
       w="100%"
     >
@@ -136,10 +136,10 @@ function FileCard(props: CardProps) {
 }
 
 /** Entry card — renders a folder or a file (with its preview variant). */
-export function Card(props: CardProps) {
+export const Card = memo(function Card(props: CardProps) {
   return props.entry.is_dir ? (
     <FolderCard {...props} />
   ) : (
     <FileCard {...props} />
   )
-}
+})

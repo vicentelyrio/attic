@@ -1,4 +1,4 @@
-import { type MouseEvent, type ReactNode, useMemo } from 'react'
+import { type MouseEvent, type ReactNode, useCallback, useMemo, useRef } from 'react'
 
 import type { SelectMods } from '@infrastructure'
 
@@ -56,20 +56,22 @@ export function Grid({
     return { folders, files }
   }, [data])
 
-  const cardProps = (entry: Entry) => ({
-    entry,
-    root,
-    path,
-    selected: selected.has(entry.name),
-    onSelect: (event: MouseEvent) => {
-      event.stopPropagation()
-      onSelect(entry.name, {
-        shift: event.shiftKey,
-        toggle: event.metaKey || event.ctrlKey,
-      })
-    },
-    onOpen: () => onOpen(entry),
-  })
+  const onSelectRef = useRef(onSelect)
+  onSelectRef.current = onSelect
+  const onOpenRef = useRef(onOpen)
+  onOpenRef.current = onOpen
+
+  const handleSelect = useCallback((entry: Entry, event: MouseEvent) => {
+    event.stopPropagation()
+    onSelectRef.current(entry.name, {
+      shift: event.shiftKey,
+      toggle: event.metaKey || event.ctrlKey,
+    })
+  }, [])
+
+  const handleOpen = useCallback((entry: Entry) => {
+    onOpenRef.current(entry)
+  }, [])
 
   return (
     <Box
@@ -81,7 +83,15 @@ export function Grid({
         {folders.length > 0 && (
           <Section label="Folders">
             {folders.map((entry) => (
-              <Card key={entry.name} {...cardProps(entry)} />
+              <Card
+                key={entry.name}
+                entry={entry}
+                root={root}
+                path={path}
+                selected={selected.has(entry.name)}
+                onSelect={handleSelect}
+                onOpen={handleOpen}
+              />
             ))}
           </Section>
         )}
@@ -89,7 +99,15 @@ export function Grid({
         {files.length > 0 && (
           <Section label="Files">
             {files.map((entry) => (
-              <Card key={entry.name} {...cardProps(entry)} />
+              <Card
+                key={entry.name}
+                entry={entry}
+                root={root}
+                path={path}
+                selected={selected.has(entry.name)}
+                onSelect={handleSelect}
+                onOpen={handleOpen}
+              />
             ))}
           </Section>
         )}
