@@ -1,6 +1,10 @@
 listen = "127.0.0.1:4000"
 db_path = "attic.db"
 
+# Reject a single upload once its streamed body exceeds this many bytes.
+# Defaults to 50 GiB when omitted.
+max_upload_bytes = 53687091200
+
 [roots]
 root = "/"
 

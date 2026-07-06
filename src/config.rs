@@ -8,6 +8,8 @@ pub struct Config {
     pub roots: HashMap<String, PathBuf>,
     #[serde(default = "default_db_path")]
     pub db_path: PathBuf,
+    #[serde(default = "default_max_upload_bytes")]
+    pub max_upload_bytes: u64,
     pub auth: Option<AuthConfig>,
 }
 
@@ -31,6 +33,10 @@ impl AuthConfig {
 
 fn default_db_path() -> PathBuf {
     PathBuf::from("attic.db")
+}
+
+fn default_max_upload_bytes() -> u64 {
+    50 * 1024 * 1024 * 1024
 }
 
 fn default_secure_cookies() -> bool {

@@ -26,6 +26,7 @@ pub struct AppState {
     pub auth: Arc<AuthConfig>,
     pub login_limiter: Arc<RateLimiter>,
     pub register_limiter: Arc<RateLimiter>,
+    pub max_upload_bytes: u64,
 }
 
 impl AppState {
@@ -59,6 +60,7 @@ impl AppState {
                 REGISTRATIONS_PER_WINDOW,
                 REGISTRATION_WINDOW,
             )),
+            max_upload_bytes: config.max_upload_bytes,
         }
     }
 }

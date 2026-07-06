@@ -64,11 +64,15 @@ pub(super) async fn upload(
                 return Err(StatusCode::BAD_REQUEST);
             }
         };
+        written += chunk.len() as u64;
+        if written > state.max_upload_bytes {
+            let _ = tokio::fs::remove_file(&part).await;
+            return Err(StatusCode::PAYLOAD_TOO_LARGE);
+        }
         if file.write_all(&chunk).await.is_err() {
             let _ = tokio::fs::remove_file(&part).await;
             return Err(StatusCode::INTERNAL_SERVER_ERROR);
         }
-        written += chunk.len() as u64;
     }
 
     if file.sync_all().await.is_err() {
