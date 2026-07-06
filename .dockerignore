@@ -1,0 +1,10 @@
+target
+web/node_modules
+web/dist
+web/.tanstack
+**/*.db
+**/*.db-wal
+**/*.db-shm
+.env
+.git
+.github
