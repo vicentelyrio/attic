@@ -12,17 +12,6 @@
   max-width: rem(420px);
 }
 
-.icon {
-  width: rem(56px);
-  height: rem(56px);
-  border-radius: var(--mantine-radius-lg);
-  background: linear-gradient(
-    180deg,
-    var(--mantine-color-indigo-4),
-    var(--mantine-color-indigo-7)
-  );
-}
-
 .showToggle {
   color: var(--mantine-color-dark-3);
   font-weight: 500;
@@ -30,4 +19,9 @@
 
 .showToggle:hover {
   color: var(--mantine-color-dark-1);
+}
+
+.divider {
+  width: 100%;
+  margin-bottom: var(--mantine-spacing-md);
 }

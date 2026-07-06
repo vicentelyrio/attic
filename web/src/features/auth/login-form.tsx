@@ -10,6 +10,7 @@ import {
   Divider,
   Group,
   Modal,
+  PasswordInput,
   Stack,
   Text,
   TextInput,
@@ -51,9 +52,8 @@ export function LoginForm() {
         remember: values.remember,
       })
       navigate({ to: '/' })
-    } catch {
-      // Surfaced via loginMut.error below.
     }
+    catch {}
   })
 
   const error =
@@ -64,7 +64,7 @@ export function LoginForm() {
         : null
 
   return (
-    <AuthShell title="Sign in to Vault" subtitle="Self-hosted · your files, on your server">
+    <AuthShell title="Sign in" subtitle="Self-hosted · your files, on your server">
       <form onSubmit={submit}>
         <Stack gap="md">
           {error && (
@@ -81,22 +81,11 @@ export function LoginForm() {
             {...form.getInputProps('username')}
           />
 
-          <TextInput
+          <PasswordInput
             size="md"
-            type={visible ? 'text' : 'password'}
             placeholder="Password"
             autoComplete="current-password"
             leftSection={<LockIcon size={16} />}
-            rightSectionWidth={60}
-            rightSection={
-              <UnstyledButton
-                type="button"
-                className={classes.showToggle}
-                onClick={() => setVisible((v) => !v)}
-              >
-                <Text size="sm">{visible ? 'Hide' : 'Show'}</Text>
-              </UnstyledButton>
-            }
             {...form.getInputProps('password')}
           />
 
@@ -115,7 +104,7 @@ export function LoginForm() {
             Sign in
           </Button>
 
-          <Divider label="OR" labelPosition="center" />
+          <Divider label="OR" labelPosition="center" color="dark.5" />
 
           <Button
             variant="default"

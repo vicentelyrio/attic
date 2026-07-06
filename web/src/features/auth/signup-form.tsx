@@ -24,11 +24,9 @@ export function SignupForm() {
   const form = useForm({
     initialValues: { username: '', password: '', confirm: '' },
     validate: {
-      username: (v) =>
-        v.trim().length >= 3 ? null : 'At least 3 characters',
+      username: (v) => v.trim().length >= 3 ? null : 'At least 3 characters',
       password: (v) => (v.length >= 8 ? null : 'At least 8 characters'),
-      confirm: (v, values) =>
-        v === values.password ? null : 'Passwords do not match',
+      confirm: (v, values) => v === values.password ? null : 'Passwords do not match',
     },
   })
 
@@ -38,9 +36,8 @@ export function SignupForm() {
         username: values.username.trim(),
         password: values.password,
       })
-    } catch {
-      // Surfaced via registerMut.error below.
     }
+    catch {}
   })
 
   const error =
