@@ -382,24 +382,34 @@ function UploadRow({ item, onCancel }: UploadRowProps) {
         )}
       </div>
 
-      {isDone ? (
-        <ThemeIcon color="green" radius="xl" size={16} variant="filled">
-          <CheckIcon size={9} weight="bold" color="#08120d" />
-        </ThemeIcon>
-      ) : isUploading ? (
-        <Loader color="indigo" size={16} type="oval" />
-      ) : isWaiting ? (
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          size="sm"
-          className={classes.iconBtn}
-          onClick={onCancel}
-          aria-label="Remove from queue"
-        >
-          <XIcon />
-        </ActionIcon>
-      ) : null}
+      <div className={classes.status}>
+        {isDone ? (
+          <ThemeIcon color="green" radius="xl" size={20} variant="filled">
+            <CheckIcon
+              size={11}
+              weight="bold"
+              color="var(--mantine-color-white)"
+            />
+          </ThemeIcon>
+        ) : isUploading ? (
+          <Loader color="indigo" size={20} type="oval" />
+        ) : isWaiting ? (
+          <>
+            <span className={classes.waitCircle} aria-hidden />
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size={22}
+              radius="xl"
+              className={`${classes.iconBtn} ${classes.waitCancel}`}
+              onClick={onCancel}
+              aria-label="Remove from queue"
+            >
+              <XIcon />
+            </ActionIcon>
+          </>
+        ) : null}
+      </div>
     </Group>
   )
 }
