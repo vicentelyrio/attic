@@ -1,6 +1,7 @@
 pub mod handlers;
 pub mod model;
 mod password;
+pub mod rate_limit;
 mod session;
 pub mod store;
 
@@ -16,9 +17,6 @@ use axum_extra::extract::CookieJar;
 use crate::state::AppState;
 use model::{AccountStatus, User};
 
-/// The authenticated user for the current request, inserted by `require_auth`
-/// and pulled from request extensions. Handlers behind the auth middleware can
-/// take this as an argument.
 #[derive(Clone)]
 pub struct CurrentUser(pub User);
 
@@ -37,7 +35,6 @@ where
     }
 }
 
-/// Public auth endpoints — the only routes reachable without a session.
 pub fn public_routes() -> Router<AppState> {
     Router::new()
         .route("/api/auth/register", post(handlers::register))
@@ -45,7 +42,6 @@ pub fn public_routes() -> Router<AppState> {
         .route("/api/auth/logout", post(handlers::logout))
 }
 
-/// Admin endpoints, gated on an admin/owner role in addition to `require_auth`.
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
         .route("/api/admin/users", get(handlers::list_users))
@@ -59,14 +55,10 @@ pub fn admin_routes() -> Router<AppState> {
         .route_layer(middleware::from_fn(require_admin))
 }
 
-/// Authenticated routes that every signed-in user gets (e.g. `/api/auth/me`),
-/// so they're behind `require_auth` but not `require_admin`.
 pub fn authed_routes() -> Router<AppState> {
     Router::new().route("/api/auth/me", get(handlers::me))
 }
 
-/// Default-deny gate: resolve the session cookie to an active user and stash it
-/// in extensions, or reject with 401. Applied to every non-public route.
 pub async fn require_auth(
     State(state): State<AppState>,
     jar: CookieJar,
@@ -91,8 +83,6 @@ pub async fn require_auth(
     Ok(next.run(req).await)
 }
 
-/// Require the request's `CurrentUser` to be an owner/admin. Runs after
-/// `require_auth`, which populates the extension.
 pub async fn require_admin(req: Request, next: Next) -> Result<Response, StatusCode> {
     let is_admin = req
         .extensions()

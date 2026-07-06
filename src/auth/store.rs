@@ -1,18 +1,10 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use sqlx::sqlite::SqliteRow;
 use sqlx::{Row, SqlitePool};
 use uuid::Uuid;
 
 use super::model::{AccountStatus, Role, User};
 use crate::config::AuthConfig;
-
-fn now() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
-        .unwrap_or(0)
-}
+use crate::util::now;
 
 fn row_to_user(row: &SqliteRow) -> User {
     User {
@@ -46,8 +38,7 @@ pub async fn find_by_id(pool: &SqlitePool, id: &str) -> Result<Option<User>, sql
     Ok(row.as_ref().map(row_to_user))
 }
 
-/// Create a `pending` user. Returns `Ok(None)` when the username is already
-/// taken (unique violation) so the caller can answer 409 without leaking detail.
+/// Returns `Ok(None)` when the username is already taken.
 pub async fn create_pending(
     pool: &SqlitePool,
     username: &str,
@@ -130,16 +121,11 @@ pub async fn delete_user(pool: &SqlitePool, id: &str) -> Result<(), sqlx::Error>
     Ok(())
 }
 
-/// Number of remaining owners — used to refuse removing/disabling the last one.
 pub async fn owner_count(pool: &SqlitePool) -> Result<i64, sqlx::Error> {
     sqlx::query_scalar("SELECT COUNT(*) FROM users WHERE role = 'owner' AND status = 'active'")
         .fetch_one(pool)
         .await
 }
-
-/* ---------------------------------------------------------------- */
-/* Sessions                                                         */
-/* ---------------------------------------------------------------- */
 
 pub async fn create_session(
     pool: &SqlitePool,
@@ -160,8 +146,6 @@ pub async fn create_session(
     Ok(())
 }
 
-/// Resolve a session token hash to its (unexpired) user. Expired sessions are
-/// treated as absent and swept.
 pub async fn session_user(
     pool: &SqlitePool,
     token_hash: &str,
@@ -185,8 +169,6 @@ pub async fn delete_session(pool: &SqlitePool, token_hash: &str) -> Result<(), s
     Ok(())
 }
 
-/// Revoke every live session for a user (logout everywhere) — used on disable,
-/// remove, and password reset.
 pub async fn delete_user_sessions(pool: &SqlitePool, user_id: &str) -> Result<(), sqlx::Error> {
     sqlx::query("DELETE FROM sessions WHERE user_id = ?")
         .bind(user_id)
@@ -195,13 +177,15 @@ pub async fn delete_user_sessions(pool: &SqlitePool, user_id: &str) -> Result<()
     Ok(())
 }
 
-/* ---------------------------------------------------------------- */
-/* Owner bootstrap                                                  */
-/* ---------------------------------------------------------------- */
+pub async fn sweep_expired_sessions(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query("DELETE FROM sessions WHERE expires_at <= ?")
+        .bind(now())
+        .execute(pool)
+        .await?;
+    Ok(res.rows_affected())
+}
 
-/// Seed the owner from config when the users table is empty. Called once at
-/// startup; panics loudly on a missing/invalid owner hash so a fresh deploy
-/// can't come up with no way in.
+/// Panics on a missing owner hash so a fresh deploy can't boot with no way in.
 pub async fn seed_owner_if_empty(pool: &SqlitePool, cfg: &AuthConfig) {
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
         .fetch_one(pool)
@@ -234,4 +218,73 @@ pub async fn seed_owner_if_empty(pool: &SqlitePool, cfg: &AuthConfig) {
     .expect("failed to seed owner account");
 
     tracing::info!("seeded owner account '{}'", cfg.owner_username);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqlx::sqlite::SqlitePoolOptions;
+
+    // One connection max: each :memory: connection is its own empty database.
+    async fn pool() -> SqlitePool {
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn create_pending_rejects_duplicate_username() {
+        let pool = pool().await;
+        assert!(create_pending(&pool, "alice", "hash").await.unwrap().is_some());
+        assert!(create_pending(&pool, "alice", "hash").await.unwrap().is_none());
+        assert!(create_pending(&pool, "ALICE", "hash").await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn expired_sessions_are_invisible_and_swept() {
+        let pool = pool().await;
+        let user = create_pending(&pool, "bob", "hash").await.unwrap().unwrap();
+
+        create_session(&pool, "live", &user.id, 3600).await.unwrap();
+        create_session(&pool, "stale", &user.id, -10).await.unwrap();
+
+        assert!(session_user(&pool, "live").await.unwrap().is_some());
+        assert!(session_user(&pool, "stale").await.unwrap().is_none());
+
+        assert_eq!(sweep_expired_sessions(&pool).await.unwrap(), 1);
+        assert!(session_user(&pool, "live").await.unwrap().is_some());
+    }
+
+    #[tokio::test]
+    async fn deleting_a_user_cascades_their_sessions() {
+        let pool = pool().await;
+        let user = create_pending(&pool, "carol", "hash").await.unwrap().unwrap();
+        create_session(&pool, "tok", &user.id, 3600).await.unwrap();
+
+        delete_user(&pool, &user.id).await.unwrap();
+        assert!(session_user(&pool, "tok").await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn seed_owner_runs_once_and_counts() {
+        let pool = pool().await;
+        let cfg = AuthConfig {
+            owner_username: "owner".to_string(),
+            owner_password_hash: "phc-hash".to_string(),
+            secure_cookies: true,
+            session_ttl_days: 7,
+        };
+
+        seed_owner_if_empty(&pool, &cfg).await;
+        assert_eq!(owner_count(&pool).await.unwrap(), 1);
+
+        seed_owner_if_empty(&pool, &cfg).await;
+        let owner = find_by_username(&pool, "owner").await.unwrap().unwrap();
+        assert_eq!(owner.role, Role::Owner);
+        assert_eq!(owner.status, AccountStatus::Active);
+    }
 }

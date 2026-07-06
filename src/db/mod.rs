@@ -4,10 +4,8 @@ use std::time::Duration;
 use sqlx::SqlitePool;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 
-/// Open (creating if needed) the SQLite job database and run migrations.
-///
-/// WAL mode keeps the worker's frequent progress writes from blocking reads by
-/// the API handlers; a busy timeout absorbs the brief contention between them.
+// WAL keeps the worker's progress writes from blocking handler reads; the busy
+// timeout absorbs the brief contention between them.
 pub async fn connect(db_path: &Path) -> SqlitePool {
     let options = SqliteConnectOptions::new()
         .filename(db_path)

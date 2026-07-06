@@ -1,11 +1,9 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-/// Resolve a (root_name, relative_path) pair to a real filesystem path,
-/// refusing anything that escapes the named root.
-///
-/// Security boundary: canonicalize-then-check-prefix. The resolved real path
-/// (with `..` and symlinks collapsed) must still live under the canonical root.
+/// Security boundary: canonicalize, then require the result to stay under the
+/// named root. `..` components are rejected outright because the prefix check
+/// alone is not enough when a root is `/`.
 pub(crate) fn resolve_within_root(
     roots: &HashMap<String, PathBuf>,
     root_name: &str,
@@ -18,10 +16,6 @@ pub(crate) fn resolve_within_root(
         return None;
     }
 
-    // Reject any `..` (or other non-normal) component outright. Canonicalize +
-    // prefix-check alone is not enough when a root is `/` — there every path
-    // resolves "within root", so `../../etc/hosts` would be accepted. Refusing
-    // traversal components keeps a relative path strictly descendant.
     use std::path::Component;
     if candidate
         .components()

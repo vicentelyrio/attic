@@ -1,8 +1,6 @@
 use std::fs;
 use std::path::Path;
 
-/// One file to be copied. `rel_path` is relative to the destination directory
-/// and includes the pasted item's top-level name (e.g. `movies/clip.mp4`).
 pub struct PlannedFile {
     pub rel_path: String,
     pub size: i64,
@@ -20,24 +18,21 @@ impl Plan {
     }
 }
 
-/// Rewrite the first path segment of `rel` from `from` to `to`. Used to map a
-/// source-relative path to its destination when the top-level name differs
-/// (duplicate-into-same-folder); a no-op when `from == to`.
+/// Rewrites the first path segment of `rel` from `from` to `to`; a no-op when
+/// they match.
 pub(super) fn replace_top(rel: &str, from: &str, to: &str) -> String {
     if from == to {
         return rel.to_string();
     }
     match rel.strip_prefix(from) {
-        // `rest` is "" (the top item itself) or "/child/…".
         Some(rest) if rest.is_empty() || rest.starts_with('/') => format!("{to}{rest}"),
         _ => rel.to_string(),
     }
 }
 
-/// Walk `src` into a flat file manifest. `rel_path` is source-relative (its top
-/// segment is `src_base`); each file is flagged when its *destination* — the
-/// same path with the top rewritten to `dst_base` — already exists. Empty
-/// directories, symlinks, and other special files are not carried over.
+/// Walks `src` into a flat file manifest, flagging files whose destination
+/// already exists. Empty directories, symlinks, and other special files are
+/// not carried over.
 pub fn build(
     src: &Path,
     dst_dir: &Path,
@@ -110,8 +105,6 @@ mod tests {
         let dir = tmp();
         fs::write(dir.join("a.txt"), b"hi").unwrap();
 
-        // Pasting a.txt back into its own dir as "a copy.txt": the manifest keeps
-        // the source-relative name, and the (non-existent) copy target is clear.
         let plan = build(&dir.join("a.txt"), &dir, "a.txt", "a copy.txt").unwrap();
 
         assert_eq!(plan.files.len(), 1);
@@ -135,7 +128,6 @@ mod tests {
         fs::write(src.join("clip.mp4"), b"aaaa").unwrap();
         fs::write(src.join("sub/deep.mp4"), b"bb").unwrap();
 
-        // Destination already holds movies/clip.mp4 → that one conflicts.
         let dst = dir.join("dest");
         fs::create_dir_all(dst.join("movies")).unwrap();
         fs::write(dst.join("movies/clip.mp4"), b"old").unwrap();

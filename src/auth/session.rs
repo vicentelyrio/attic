@@ -4,21 +4,14 @@ use rand::RngCore;
 use sha2::{Digest, Sha256};
 
 pub const COOKIE_NAME: &str = "vault_session";
-
-/// TTL for a plain sign-in (no "keep me signed in"): the session dies fairly
-/// soon. "Keep me signed in" uses `AuthConfig::session_ttl_days` instead.
 pub const SHORT_TTL_HOURS: i64 = 12;
 
-/// A fresh opaque session token (256 bits, hex). This is the value that goes in
-/// the cookie; only its hash is ever persisted.
 pub fn generate_token() -> String {
     let mut bytes = [0u8; 32];
     OsRng.fill_bytes(&mut bytes);
     hex::encode(bytes)
 }
 
-/// sha256 of a token, hex-encoded — the primary key in the `sessions` table. A
-/// leaked database therefore can't be replayed as live cookies.
 pub fn hash_token(token: &str) -> String {
     hex::encode(Sha256::digest(token.as_bytes()))
 }
@@ -29,16 +22,61 @@ fn cookie_value(body: String, secure: bool) -> HeaderValue {
     if secure {
         s.push_str("; Secure");
     }
-    // Values are hex/fixed text, always valid header bytes.
     HeaderValue::from_str(&s).expect("session cookie is valid ascii")
 }
 
-/// A `Set-Cookie` value that installs the session for `ttl_secs`.
-pub fn set_cookie(token: &str, ttl_secs: i64, secure: bool) -> HeaderValue {
-    cookie_value(format!("{COOKIE_NAME}={token}; Max-Age={ttl_secs}"), secure)
+pub fn set_cookie(token: &str, max_age: Option<i64>, secure: bool) -> HeaderValue {
+    let mut body = format!("{COOKIE_NAME}={token}");
+    if let Some(secs) = max_age {
+        body.push_str(&format!("; Max-Age={secs}"));
+    }
+    cookie_value(body, secure)
 }
 
-/// A `Set-Cookie` value that immediately clears the session cookie.
 pub fn clear_cookie(secure: bool) -> HeaderValue {
     cookie_value(format!("{COOKIE_NAME}=; Max-Age=0"), secure)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tokens_are_long_and_unique() {
+        let a = generate_token();
+        assert_eq!(a.len(), 64);
+        assert_ne!(a, generate_token());
+    }
+
+    #[test]
+    fn hash_token_is_deterministic_and_not_identity() {
+        let t = generate_token();
+        assert_eq!(hash_token(&t), hash_token(&t));
+        assert_ne!(hash_token(&t), t);
+    }
+
+    #[test]
+    fn remembered_cookie_carries_max_age() {
+        let v = set_cookie("tok", Some(3600), true);
+        let s = v.to_str().unwrap();
+        assert!(s.contains("Max-Age=3600"));
+        assert!(s.contains("HttpOnly"));
+        assert!(s.contains("SameSite=Lax"));
+        assert!(s.contains("Secure"));
+    }
+
+    #[test]
+    fn session_cookie_has_no_max_age_and_respects_insecure_dev() {
+        let v = set_cookie("tok", None, false);
+        let s = v.to_str().unwrap();
+        assert!(!s.contains("Max-Age"));
+        assert!(!s.contains("Secure"));
+        assert!(s.contains("HttpOnly"));
+    }
+
+    #[test]
+    fn clear_cookie_expires_immediately() {
+        let s = clear_cookie(true);
+        assert!(s.to_str().unwrap().contains("Max-Age=0"));
+    }
 }

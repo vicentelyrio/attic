@@ -9,7 +9,6 @@ use crate::state::AppState;
 #[derive(Deserialize)]
 pub(super) struct NewItemReq {
     root: String,
-    /// Relative path (within `root`) of the directory to create the item in.
     #[serde(default)]
     dir: String,
     name: String,
@@ -17,8 +16,6 @@ pub(super) struct NewItemReq {
 
 #[derive(Serialize)]
 pub(super) struct Created {
-    /// The name actually used — may differ from the request when the requested
-    /// name was already taken and got a numeric suffix.
     name: String,
 }
 
@@ -33,9 +30,6 @@ pub(super) struct Deleted {
     count: usize,
 }
 
-/// Pick a name that doesn't yet exist in `dir`: `base`, then `base 2`, `base 3`…
-/// so "New Folder" / "New File" never fail on a clash. Preserves a file
-/// extension when `base` has one ("draft.txt" → "draft 2.txt").
 fn unique_name(dir: &Path, base: &str) -> String {
     if !dir.join(base).exists() {
         return base.to_string();
@@ -61,8 +55,6 @@ fn unique_name(dir: &Path, base: &str) -> String {
     }
 }
 
-/// Resolve the destination directory for a new item, rejecting a bad root or a
-/// name that isn't a single ordinary path component.
 fn resolve_new(
     state: &AppState,
     req: &NewItemReq,
@@ -76,7 +68,6 @@ fn resolve_new(
     Ok((dir, name))
 }
 
-/// Create an empty directory. Returns the (possibly de-duplicated) name.
 pub(super) async fn mkdir(
     State(state): State<AppState>,
     Json(req): Json<NewItemReq>,
@@ -88,8 +79,6 @@ pub(super) async fn mkdir(
     Ok(Json(Created { name }))
 }
 
-/// Create an empty file. `create_new` refuses to clobber an existing file —
-/// `unique_name` has already picked a free name, so this only guards a race.
 pub(super) async fn create_file(
     State(state): State<AppState>,
     Json(req): Json<NewItemReq>,
@@ -104,9 +93,8 @@ pub(super) async fn create_file(
     Ok(Json(Created { name }))
 }
 
-/// Move one or more entries to the OS trash (recoverable). Every path is
-/// resolved and guarded first, so a single bad path fails the batch before
-/// anything is trashed; a root directory can never be a target.
+// Every path is resolved and guarded before anything is trashed, so a single
+// bad path fails the whole batch; a root directory can never be a target.
 pub(super) async fn delete(
     State(state): State<AppState>,
     Json(req): Json<DeleteReq>,

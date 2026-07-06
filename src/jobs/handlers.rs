@@ -8,6 +8,8 @@ use uuid::Uuid;
 
 use super::model::{Job, JobFile, Op, Policy, Resolution, Status, now};
 use super::{plan, store};
+use crate::auth::CurrentUser;
+use crate::auth::model::User;
 use crate::state::AppState;
 
 type ApiError = (StatusCode, String);
@@ -20,32 +22,51 @@ fn bad_request(msg: &str) -> ApiError {
     (StatusCode::BAD_REQUEST, msg.to_string())
 }
 
-fn internal(e: impl std::fmt::Display) -> ApiError {
-    (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+fn not_found() -> ApiError {
+    (StatusCode::NOT_FOUND, "job not found".to_string())
 }
 
-/// Finder-style unique name for duplicating `name` inside `dir`:
-/// "report.pdf" → "report copy.pdf" → "report copy 2.pdf" … picking the first
-/// that doesn't already exist. Directories (and extension-less names) get the
-/// suffix appended whole.
+fn internal(e: impl std::fmt::Display) -> ApiError {
+    tracing::error!("jobs error: {e}");
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "internal error".to_string(),
+    )
+}
+
+fn can_access(job: &Job, user: &User) -> bool {
+    user.role.is_admin() || job.user_id.as_deref() == Some(user.id.as_str())
+}
+
+async fn load_accessible_job(state: &AppState, id: &str, user: &User) -> Result<Job, ApiError> {
+    let job = store::get_job(&state.pool, id)
+        .await
+        .map_err(internal)?
+        .ok_or_else(not_found)?;
+    if !can_access(&job, user) {
+        return Err(not_found());
+    }
+    Ok(job)
+}
+
 fn unique_copy_name(dir: &FsPath, name: &str, is_dir: bool) -> String {
     let p = FsPath::new(name);
     let (stem, ext) = match (p.file_stem().and_then(|s| s.to_str()), p.extension()) {
         (Some(stem), Some(ext)) if !is_dir => (stem, ext.to_str()),
         _ => (name, None),
     };
-    let build = |suffix: &str| match ext {
+    let with_suffix = |suffix: &str| match ext {
         Some(ext) => format!("{stem}{suffix}.{ext}"),
         None => format!("{stem}{suffix}"),
     };
 
-    let first = build(" copy");
+    let first = with_suffix(" copy");
     if !dir.join(&first).exists() {
         return first;
     }
     let mut n = 2;
     loop {
-        let candidate = build(&format!(" copy {n}"));
+        let candidate = with_suffix(&format!(" copy {n}"));
         if !dir.join(&candidate).exists() {
             return candidate;
         }
@@ -59,7 +80,6 @@ pub struct PasteReq {
     src_root: String,
     src_path: String,
     dst_root: String,
-    /// Relative path (within `dst_root`) of the directory to paste into.
     #[serde(default)]
     dst_dir: String,
 }
@@ -71,12 +91,9 @@ pub struct JobView {
     files: Vec<JobFile>,
 }
 
-/// Plan a paste: resolve + guard the paths, build the manifest, detect
-/// collisions, and persist the job. Returns the job with its file list so the
-/// UI can show a conflict dialog when `status == needs_resolution`.
 pub async fn paste(
     State(state): State<AppState>,
-    crate::auth::CurrentUser(user): crate::auth::CurrentUser,
+    CurrentUser(user): CurrentUser,
     Json(req): Json<PasteReq>,
 ) -> Result<Json<JobView>, ApiError> {
     let src = crate::fs::resolve_within_root(&state.roots, &req.src_root, &req.src_path)
@@ -98,10 +115,8 @@ pub async fn paste(
         return Err(bad_request("cannot paste a folder into itself"));
     }
 
-    // Pasting onto itself: a copy duplicates as "name copy.ext" (Finder-style);
-    // a move onto itself is a no-op we reject. `dst_name` is `None` whenever the
-    // destination keeps the source's own name.
-    let dst_name = if dst_dir.join(&base_name) == src {
+    let pastes_onto_itself = dst_dir.join(&base_name) == src;
+    let dst_name = if pastes_onto_itself {
         match req.op {
             Op::Copy => Some(unique_copy_name(&dst_dir, &base_name, src.is_dir())),
             Op::Move => return Err(bad_request("source and destination are the same")),
@@ -173,21 +188,17 @@ pub async fn paste(
 #[derive(Deserialize)]
 pub struct ResolveReq {
     policy: Option<Policy>,
-    /// Per-file overrides keyed by `rel_path`.
     #[serde(default)]
     overrides: std::collections::HashMap<String, Resolution>,
 }
 
-/// Apply a collision decision to a job awaiting resolution, then requeue it.
 pub async fn resolve(
     State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
     Path(id): Path<String>,
     Json(req): Json<ResolveReq>,
 ) -> Result<Json<Job>, ApiError> {
-    let job = store::get_job(&state.pool, &id)
-        .await
-        .map_err(internal)?
-        .ok_or((StatusCode::NOT_FOUND, "job not found".to_string()))?;
+    let job = load_accessible_job(&state, &id, &user).await?;
 
     if job.status != Status::NeedsResolution {
         return Err(bad_request("job is not awaiting resolution"));
@@ -199,49 +210,54 @@ pub async fn resolve(
         .map_err(internal)?;
     state.notify.notify_one();
 
-    let updated = store::get_job(&state.pool, &id)
-        .await
-        .map_err(internal)?
-        .ok_or((StatusCode::NOT_FOUND, "job not found".to_string()))?;
+    let updated = load_accessible_job(&state, &id, &user).await?;
     Ok(Json(updated))
 }
 
-/// List active + recent jobs for the transfers panel.
-pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<Job>>, ApiError> {
-    let jobs = store::list_jobs(&state.pool, 50).await.map_err(internal)?;
+pub async fn list(
+    State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
+) -> Result<Json<Vec<Job>>, ApiError> {
+    let jobs = if user.role.is_admin() {
+        store::list_jobs(&state.pool, 50).await
+    } else {
+        store::list_jobs_for_user(&state.pool, &user.id, 50).await
+    }
+    .map_err(internal)?;
     Ok(Json(jobs))
 }
 
-pub async fn clear(State(state): State<AppState>) -> Result<StatusCode, ApiError> {
-    store::clear_finished(&state.pool).await.map_err(internal)?;
+pub async fn clear(
+    State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
+) -> Result<StatusCode, ApiError> {
+    if user.role.is_admin() {
+        store::clear_finished(&state.pool).await
+    } else {
+        store::clear_finished_for_user(&state.pool, &user.id).await
+    }
+    .map_err(internal)?;
     Ok(StatusCode::NO_CONTENT)
 }
 
-/// A single job with its file manifest.
 pub async fn get(
     State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
     Path(id): Path<String>,
 ) -> Result<Json<JobView>, ApiError> {
-    let job = store::get_job(&state.pool, &id)
-        .await
-        .map_err(internal)?
-        .ok_or((StatusCode::NOT_FOUND, "job not found".to_string()))?;
+    let job = load_accessible_job(&state, &id, &user).await?;
     let files = store::get_job_files(&state.pool, &id)
         .await
         .map_err(internal)?;
     Ok(Json(JobView { job, files }))
 }
 
-/// Request cancellation: flip the DB status and trip the in-memory flag the
-/// worker polls mid-copy.
 pub async fn cancel(
     State(state): State<AppState>,
+    CurrentUser(user): CurrentUser,
     Path(id): Path<String>,
 ) -> Result<Json<Job>, ApiError> {
-    let job = store::get_job(&state.pool, &id)
-        .await
-        .map_err(internal)?
-        .ok_or((StatusCode::NOT_FOUND, "job not found".to_string()))?;
+    let job = load_accessible_job(&state, &id, &user).await?;
 
     if matches!(job.status, Status::Done | Status::Failed | Status::Canceled) {
         return Err(bad_request("job already finished"));
@@ -254,9 +270,6 @@ pub async fn cancel(
         .await
         .map_err(internal)?;
 
-    let updated = store::get_job(&state.pool, &id)
-        .await
-        .map_err(internal)?
-        .ok_or((StatusCode::NOT_FOUND, "job not found".to_string()))?;
+    let updated = load_accessible_job(&state, &id, &user).await?;
     Ok(Json(updated))
 }

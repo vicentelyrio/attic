@@ -39,7 +39,6 @@ fn row_to_file(row: &SqliteRow) -> JobFile {
     }
 }
 
-/// Insert a job and its file manifest in one transaction.
 pub async fn create_job(
     pool: &SqlitePool,
     job: &Job,
@@ -109,12 +108,25 @@ pub async fn get_job_files(pool: &SqlitePool, id: &str) -> Result<Vec<JobFile>, 
     Ok(rows.iter().map(row_to_file).collect())
 }
 
-/// Active and recent jobs for the transfers panel, newest activity first.
 pub async fn list_jobs(pool: &SqlitePool, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
     let rows = sqlx::query("SELECT * FROM jobs ORDER BY updated_at DESC LIMIT ?")
         .bind(limit)
         .fetch_all(pool)
         .await?;
+    Ok(rows.iter().map(row_to_job).collect())
+}
+
+pub async fn list_jobs_for_user(
+    pool: &SqlitePool,
+    user_id: &str,
+    limit: i64,
+) -> Result<Vec<Job>, sqlx::Error> {
+    let rows =
+        sqlx::query("SELECT * FROM jobs WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?")
+            .bind(user_id)
+            .bind(limit)
+            .fetch_all(pool)
+            .await?;
     Ok(rows.iter().map(row_to_job).collect())
 }
 
@@ -136,7 +148,31 @@ pub async fn clear_finished(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
     Ok(res.rows_affected())
 }
 
-/// The oldest runnable job, if any. Drives the worker loop.
+pub async fn clear_finished_for_user(
+    pool: &SqlitePool,
+    user_id: &str,
+) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query(
+        "DELETE FROM job_files WHERE job_id IN \
+         (SELECT id FROM jobs WHERE status IN ('done', 'failed', 'canceled') AND user_id = ?)",
+    )
+    .bind(user_id)
+    .execute(&mut *tx)
+    .await?;
+
+    let res = sqlx::query(
+        "DELETE FROM jobs WHERE status IN ('done', 'failed', 'canceled') AND user_id = ?",
+    )
+    .bind(user_id)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(res.rows_affected())
+}
+
 pub async fn next_queued(pool: &SqlitePool) -> Result<Option<Job>, sqlx::Error> {
     let row = sqlx::query("SELECT * FROM jobs WHERE status = 'queued' ORDER BY created_at LIMIT 1")
         .fetch_optional(pool)
@@ -168,8 +204,6 @@ pub async fn set_failed(pool: &SqlitePool, id: &str, error: &str) -> Result<(), 
     Ok(())
 }
 
-/// Apply the user's collision decision: a job-wide policy plus per-file
-/// overrides, then flip the job back to `queued`.
 pub async fn apply_resolution(
     pool: &SqlitePool,
     id: &str,
@@ -198,7 +232,6 @@ pub async fn apply_resolution(
     Ok(())
 }
 
-/// Record job-level progress (bytes copied so far + which file is in flight).
 pub async fn update_progress(
     pool: &SqlitePool,
     id: &str,
@@ -243,8 +276,6 @@ pub async fn mark_file_done(pool: &SqlitePool, id: &str, rel: &str) -> Result<()
     Ok(())
 }
 
-/// Flag a file that turned out to already exist at copy time (TOCTOU); the
-/// worker uses this to pause the job for a fresh resolution.
 pub async fn flag_conflict(pool: &SqlitePool, id: &str, rel: &str) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE job_files SET conflict = 1 WHERE job_id = ? AND rel_path = ?")
         .bind(id)
@@ -254,8 +285,6 @@ pub async fn flag_conflict(pool: &SqlitePool, id: &str, rel: &str) -> Result<(),
     Ok(())
 }
 
-/// On startup, anything left `running` from a previous process is requeued so
-/// the worker resumes it from the recorded per-file offsets.
 pub async fn requeue_running(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
     let res = sqlx::query(
         "UPDATE jobs SET status = 'queued', updated_at = ? WHERE status = 'running'",

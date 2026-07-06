@@ -10,8 +10,7 @@ use super::model::{Job, JobFile, Op, Policy, Resolution, Status};
 use super::{copy, plan, store};
 use crate::state::AppState;
 
-/// Background worker: reconcile interrupted jobs, then drain the queue one job
-/// at a time (large transfers are disk-bound, so serial is deliberate).
+// One job at a time: large transfers are disk-bound, so serial is deliberate.
 pub async fn run(state: AppState) {
     match store::requeue_running(&state.pool).await {
         Ok(n) if n > 0 => tracing::info!("requeued {n} interrupted job(s)"),
@@ -118,18 +117,14 @@ async fn process(
         .file_name()
         .and_then(|s| s.to_str())
         .ok_or_else(|| JobError::Path("source has no name".into()))?;
-    // Destination top-level name: an explicit override (duplicate-into-folder)
-    // or the source's own name. Files map source→dest by swapping this segment.
     let dst_base = job.dst_name.as_deref().unwrap_or(src_base);
     let target = dst_dir.join(dst_base);
 
     let files = store::get_job_files(&state.pool, &job.id).await?;
 
-    // Fast path: a conflict-free move on the same filesystem is a single rename
-    // of the whole tree — no byte copying at all.
-    let fresh_move = job.op == Op::Move && files.iter().all(|f| !f.conflict && !f.done);
-    if fresh_move {
-        match fs::rename(&src_top, &target) {
+    let untouched_move = job.op == Op::Move && files.iter().all(|f| !f.conflict && !f.done);
+    if untouched_move {
+        match rename_whole_tree(&src_top, &target) {
             Ok(()) => {
                 for f in &files {
                     store::mark_file_done(&state.pool, &job.id, &f.rel_path).await?;
@@ -137,15 +132,13 @@ async fn process(
                 store::update_progress(&state.pool, &job.id, job.bytes_total, None).await?;
                 return Ok(Outcome::Done);
             }
-            Err(e) if e.raw_os_error() == Some(copy::EXDEV) => { /* fall through */ }
-            Err(e) => return Err(e.into()),
+            Err(RenameError::CrossesFilesystems) => {}
+            Err(RenameError::Io(e)) => return Err(e.into()),
         }
     }
 
-    // Progress counter seeded from durably recorded per-file offsets, so a
-    // resumed job's bar picks up where it left off.
-    let initial: u64 = files.iter().map(|f| f.bytes_done.max(0) as u64).sum();
-    let counter = Arc::new(AtomicU64::new(initial));
+    let already_copied: u64 = files.iter().map(|f| f.bytes_done.max(0) as u64).sum();
+    let counter = Arc::new(AtomicU64::new(already_copied));
 
     for f in &files {
         if f.done {
@@ -158,9 +151,8 @@ async fn process(
         let source = src_parent.join(&f.rel_path);
         let dest = dst_dir.join(plan::replace_top(&f.rel_path, src_base, dst_base));
 
-        // TOCTOU: a file unplanned-for now exists at the destination. Pause the
-        // whole job for a fresh decision rather than guessing.
-        if !f.conflict && dest.exists() {
+        let unplanned_collision = !f.conflict && dest.exists();
+        if unplanned_collision {
             store::flag_conflict(&state.pool, &job.id, &f.rel_path).await?;
             return Ok(Outcome::NeedsResolution);
         }
@@ -180,7 +172,6 @@ async fn process(
 
         let completed = copy_with_progress(state, job, f, &source, &dest, &counter, cancel).await?;
         if !completed {
-            // Canceling is terminal (not a pause), so drop the partial sidecar.
             let _ = fs::remove_file(copy::part_path(&dest));
             return Ok(Outcome::Canceled);
         }
@@ -193,7 +184,6 @@ async fn process(
 
     store::update_progress(&state.pool, &job.id, job.bytes_total, None).await?;
 
-    // A move leaves the source dirs behind; sweep the empties best-effort.
     if job.op == Op::Move && src_top.is_dir() {
         remove_empty_dirs(&src_top);
     }
@@ -201,13 +191,23 @@ async fn process(
     Ok(Outcome::Done)
 }
 
-/// Per-file override wins over the job-wide policy.
+enum RenameError {
+    CrossesFilesystems,
+    Io(io::Error),
+}
+
+fn rename_whole_tree(src: &Path, target: &Path) -> Result<(), RenameError> {
+    match fs::rename(src, target) {
+        Ok(()) => Ok(()),
+        Err(e) if e.raw_os_error() == Some(copy::EXDEV) => Err(RenameError::CrossesFilesystems),
+        Err(e) => Err(RenameError::Io(e)),
+    }
+}
+
 fn effective_resolution(f: &JobFile, policy: Option<Policy>) -> Option<Resolution> {
     f.resolution.or_else(|| policy.map(Policy::resolution))
 }
 
-/// Run one file's copy on a blocking thread while a ticker checkpoints progress
-/// (job-wide + per-file) to the DB roughly twice a second.
 async fn copy_with_progress(
     state: &AppState,
     job: &Job,
@@ -220,25 +220,25 @@ async fn copy_with_progress(
     let start_offset = f.bytes_done.max(0) as u64;
     let counter_at_start = counter.load(Ordering::Relaxed);
 
-    let ticker = {
+    let progress_ticker = {
         let pool = state.pool.clone();
         let id = job.id.clone();
         let rel = f.rel_path.clone();
         let counter = counter.clone();
         tokio::spawn(async move {
-            let mut iv = tokio::time::interval(Duration::from_millis(500));
-            iv.tick().await; // first tick is immediate; skip it
+            let mut interval = tokio::time::interval(Duration::from_millis(500));
+            interval.tick().await;
             loop {
-                iv.tick().await;
-                let c = counter.load(Ordering::Relaxed);
-                let per_file = start_offset + c.saturating_sub(counter_at_start);
-                let _ = store::update_progress(&pool, &id, c as i64, Some(&rel)).await;
+                interval.tick().await;
+                let copied = counter.load(Ordering::Relaxed);
+                let per_file = start_offset + copied.saturating_sub(counter_at_start);
+                let _ = store::update_progress(&pool, &id, copied as i64, Some(&rel)).await;
                 let _ = store::set_file_progress(&pool, &id, &rel, per_file as i64).await;
             }
         })
     };
 
-    let res = {
+    let copy_result = {
         let source = source.to_path_buf();
         let dest = dest.to_path_buf();
         let counter = counter.clone();
@@ -249,19 +249,15 @@ async fn copy_with_progress(
         .await
     };
 
-    ticker.abort();
+    progress_ticker.abort();
 
-    let completed = res
-        .map_err(|e| JobError::Io(io::Error::other(e)))??;
+    let completed = copy_result.map_err(|e| JobError::Io(io::Error::other(e)))??;
 
-    // Final checkpoint for this file so a crash right after can't lose it.
-    let c = counter.load(Ordering::Relaxed);
-    let _ = store::update_progress(&state.pool, &job.id, c as i64, Some(&f.rel_path)).await;
+    let copied = counter.load(Ordering::Relaxed);
+    let _ = store::update_progress(&state.pool, &job.id, copied as i64, Some(&f.rel_path)).await;
     Ok(completed)
 }
 
-/// Remove now-empty directories bottom-up. Best-effort: non-empty dirs and
-/// errors are ignored.
 fn remove_empty_dirs(dir: &Path) {
     if let Ok(rd) = fs::read_dir(dir) {
         for entry in rd.filter_map(Result::ok) {

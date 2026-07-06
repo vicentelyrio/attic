@@ -1,14 +1,6 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use serde::{Deserialize, Serialize};
 
-/// Current unix time in seconds, used for `created_at`/`updated_at`.
-pub fn now() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
-        .unwrap_or(0)
-}
+pub use crate::util::now;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -37,9 +29,7 @@ impl Op {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
-    /// Manifest being built / collisions being detected.
     Planning,
-    /// Collisions found; waiting on the user's overwrite/skip decision.
     NeedsResolution,
     Queued,
     Running,
@@ -75,7 +65,6 @@ impl Status {
     }
 }
 
-/// Per-file decision when the destination already exists.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Resolution {
@@ -100,8 +89,6 @@ impl Resolution {
     }
 }
 
-/// Job-wide default applied to every conflicting file, unless a per-file
-/// override in `job_files.resolution` says otherwise.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Policy {
@@ -125,7 +112,6 @@ impl Policy {
         }
     }
 
-    /// The per-file resolution this policy implies.
     pub fn resolution(self) -> Resolution {
         match self {
             Policy::OverwriteAll => Resolution::Overwrite,
@@ -137,15 +123,12 @@ impl Policy {
 #[derive(Debug, Clone, Serialize)]
 pub struct Job {
     pub id: String,
-    /// The user who created the job. `None` only for rows predating auth.
     pub user_id: Option<String>,
     pub op: Op,
     pub src_root: String,
     pub src_path: String,
     pub dst_root: String,
     pub dst_dir: String,
-    /// Destination top-level name when it differs from the source's name (e.g.
-    /// duplicating into the same folder as "name copy.ext"). `None` = same name.
     pub dst_name: Option<String>,
     pub status: Status,
     pub policy: Option<Policy>,

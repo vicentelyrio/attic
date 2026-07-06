@@ -2,31 +2,33 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use sqlx::SqlitePool;
 use tokio::sync::Notify;
 
+use crate::auth::rate_limit::RateLimiter;
 use crate::config::{AuthConfig, Config};
 
-/// Per-job cancellation flags, shared between the cancel handler (which sets
-/// them) and the worker (which polls them mid-copy). Keyed by job id.
 pub type Cancels = Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>;
+
+const LOGIN_ATTEMPTS_PER_WINDOW: u32 = 10;
+const LOGIN_WINDOW: Duration = Duration::from_secs(15 * 60);
+const REGISTRATIONS_PER_WINDOW: u32 = 5;
+const REGISTRATION_WINDOW: Duration = Duration::from_secs(60 * 60);
 
 #[derive(Clone)]
 pub struct AppState {
     pub roots: Arc<HashMap<String, PathBuf>>,
     pub pool: SqlitePool,
-    /// Woken whenever a job becomes runnable so the worker stops idling.
     pub notify: Arc<Notify>,
     pub cancels: Cancels,
-    /// Owner bootstrap + session/cookie policy. Required — the server refuses to
-    /// serve anonymously.
     pub auth: Arc<AuthConfig>,
+    pub login_limiter: Arc<RateLimiter>,
+    pub register_limiter: Arc<RateLimiter>,
 }
 
 impl AppState {
-    /// Canonicalize every configured root once (failing loudly on a bad one),
-    /// open the job database, and seed the owner account when the DB is fresh.
     pub async fn new(config: Config) -> Self {
         let auth = config.auth.clone().unwrap_or_else(|| {
             panic!("config is missing the [auth] section; the server won't serve anonymously")
@@ -52,6 +54,11 @@ impl AppState {
             notify: Arc::new(Notify::new()),
             cancels: Arc::new(Mutex::new(HashMap::new())),
             auth: Arc::new(auth),
+            login_limiter: Arc::new(RateLimiter::new(LOGIN_ATTEMPTS_PER_WINDOW, LOGIN_WINDOW)),
+            register_limiter: Arc::new(RateLimiter::new(
+                REGISTRATIONS_PER_WINDOW,
+                REGISTRATION_WINDOW,
+            )),
         }
     }
 }

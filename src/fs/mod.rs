@@ -13,12 +13,10 @@ use axum::{
 
 use crate::state::AppState;
 
-// Re-export so sibling handlers reach it as `crate::fs::resolve_within_root`.
 pub(crate) use resolve::resolve_within_root;
 
-/// Accept a filename only if it's a single, ordinary path component — so a
-/// client can't escape a resolved directory through the name itself. Shared by
-/// every route that turns a user-supplied name into a path (upload, mkdir, …).
+/// Accepts a filename only if it's a single, ordinary path component, so a
+/// client can't escape a resolved directory through the name itself.
 pub(crate) fn safe_name(name: &str) -> Option<&str> {
     let name = name.trim();
     if name.is_empty() || name == "." || name == ".." {
@@ -30,7 +28,6 @@ pub(crate) fn safe_name(name: &str) -> Option<&str> {
     Some(name)
 }
 
-/// All filesystem-facing routes, assembled here so main.rs stays pure wiring.
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/api/roots", get(roots::list_roots))

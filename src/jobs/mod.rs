@@ -10,7 +10,6 @@ use axum::Router;
 
 use crate::state::AppState;
 
-/// All job-facing routes, merged into the app router alongside `fs::routes()`.
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/api/paste", post(handlers::paste))

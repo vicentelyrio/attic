@@ -4,27 +4,19 @@ use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
-/// `EXDEV` — rename across filesystems/roots. Same value on Linux and macOS.
+// Rename across filesystems; same value on Linux and macOS.
 pub const EXDEV: i32 = 18;
 
-const BUF_SIZE: usize = 1 << 20; // 1 MiB
+const BUF_SIZE: usize = 1 << 20;
 
-/// The temporary sidecar we stream into before the atomic rename into place.
 pub fn part_path(dst: &Path) -> PathBuf {
     let mut s: OsString = dst.as_os_str().to_owned();
     s.push(".part");
     PathBuf::from(s)
 }
 
-/// Copy `src` → `dst` crash-safely and resumably.
-///
-/// Bytes stream into `dst.part` (resuming from `start_offset`, truncating any
-/// unsynced tail past it), get `fsync`'d, then atomically renamed onto `dst` —
-/// so `dst` never exists in a half-written state, and an interrupted overwrite
-/// leaves the original untouched. `counter` accumulates job-wide bytes copied
-/// (for progress); `cancel` is polled between chunks.
-///
-/// Returns `Ok(true)` on completion, `Ok(false)` if canceled mid-copy.
+/// Streams into a `.part` sidecar, fsyncs, then renames into place — `dst`
+/// never exists half-written. Returns `Ok(false)` if canceled mid-copy.
 pub fn copy_file_resumable(
     src: &Path,
     dst: &Path,
@@ -40,14 +32,16 @@ pub fn copy_file_resumable(
     let mut src_f = File::open(src)?;
     let src_len = src_f.metadata()?.len();
 
+    // No truncate on open: the resume offset decides how much survives.
     let mut part_f = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(&part)?;
 
-    // Trust only what we durably recorded: clamp to the smaller of the recorded
-    // offset and what's actually on disk, and discard anything beyond it.
+    // Resume only from bytes that verifiably exist on both sides; discard any
+    // unsynced tail past that point.
     let part_len = part_f.metadata()?.len();
     let mut offset = start_offset.min(part_len).min(src_len);
     part_f.set_len(offset)?;
@@ -93,7 +87,7 @@ mod tests {
     fn copies_a_whole_file() {
         let dir = tmp();
         let src = dir.join("src.bin");
-        let dst = dir.join("out/dst.bin"); // nested → must create parent
+        let dst = dir.join("out/dst.bin");
         fs::write(&src, b"hello world").unwrap();
 
         let c = counter();
@@ -113,7 +107,6 @@ mod tests {
         let src = dir.join("src.bin");
         let dst = dir.join("dst.bin");
         fs::write(&src, b"ABCDEFGHIJ").unwrap();
-        // Pretend 4 bytes were already copied into the sidecar.
         fs::write(part_path(&dst), b"ABCD").unwrap();
 
         let c = counter();
@@ -122,7 +115,6 @@ mod tests {
 
         assert!(done);
         assert_eq!(fs::read(&dst).unwrap(), b"ABCDEFGHIJ");
-        // Only the remaining 6 bytes should have been counted.
         assert_eq!(c.load(Ordering::Relaxed), 6);
         fs::remove_dir_all(&dir).ok();
     }
@@ -135,7 +127,7 @@ mod tests {
         fs::write(&src, vec![7u8; 4096]).unwrap();
 
         let c = counter();
-        let cancel = AtomicBool::new(true); // canceled up front
+        let cancel = AtomicBool::new(true);
         let done = copy_file_resumable(&src, &dst, 0, &c, &cancel).unwrap();
 
         assert!(!done);

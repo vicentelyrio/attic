@@ -1,20 +1,30 @@
-use axum::extract::{Path, Query, State};
+use std::net::SocketAddr;
+
+use axum::extract::{ConnectInfo, Path, Query, State};
 use axum::http::{header, StatusCode};
 use axum::response::{IntoResponse, Json, Response};
 use axum_extra::extract::CookieJar;
 use serde::Deserialize;
 
-use super::model::{AccountStatus, User};
+use super::model::{AccountStatus, Role, User};
 use super::{password, session, store, CurrentUser};
 use crate::state::AppState;
 
 type ApiError = (StatusCode, String);
 
+const MIN_USERNAME: usize = 3;
+const MAX_USERNAME: usize = 32;
+const MIN_PASSWORD: usize = 8;
+const MAX_PASSWORD: usize = 128;
+
 fn bad_request(msg: &str) -> ApiError {
     (StatusCode::BAD_REQUEST, msg.to_string())
 }
 
-/// Log the real error server-side; hand the client a generic message.
+fn too_many_requests(msg: &str) -> ApiError {
+    (StatusCode::TOO_MANY_REQUESTS, msg.to_string())
+}
+
 fn internal(e: impl std::fmt::Display) -> ApiError {
     tracing::error!("auth error: {e}");
     (
@@ -23,20 +33,40 @@ fn internal(e: impl std::fmt::Display) -> ApiError {
     )
 }
 
-const MIN_USERNAME: usize = 3;
-const MIN_PASSWORD: usize = 8;
+fn validate_password(password: &str) -> Result<(), ApiError> {
+    if password.len() < MIN_PASSWORD {
+        return Err(bad_request("password must be at least 8 characters"));
+    }
+    if password.len() > MAX_PASSWORD {
+        return Err(bad_request("password must be at most 128 characters"));
+    }
+    Ok(())
+}
 
 fn validate_credentials(username: &str, password: &str) -> Result<(), ApiError> {
     if username.len() < MIN_USERNAME {
         return Err(bad_request("username must be at least 3 characters"));
     }
+    if username.len() > MAX_USERNAME {
+        return Err(bad_request("username must be at most 32 characters"));
+    }
     if username.contains(|c: char| c.is_whitespace()) {
         return Err(bad_request("username must not contain spaces"));
     }
-    if password.len() < MIN_PASSWORD {
-        return Err(bad_request("password must be at least 8 characters"));
-    }
-    Ok(())
+    validate_password(password)
+}
+
+async fn hash_off_runtime(password: String) -> Result<String, ApiError> {
+    tokio::task::spawn_blocking(move || password::hash(&password))
+        .await
+        .map_err(internal)?
+        .map_err(internal)
+}
+
+async fn verify_off_runtime(password: String, phc: String) -> Result<bool, ApiError> {
+    tokio::task::spawn_blocking(move || password::verify(&password, &phc))
+        .await
+        .map_err(internal)
 }
 
 #[derive(Deserialize)]
@@ -45,16 +75,22 @@ pub struct RegisterReq {
     password: String,
 }
 
-/// Self-service registration. Creates a `pending` account that an admin must
-/// approve before it can sign in.
 pub async fn register(
     State(state): State<AppState>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Json(req): Json<RegisterReq>,
 ) -> Result<Response, ApiError> {
+    if !state.register_limiter.check(addr.ip()) {
+        return Err(too_many_requests(
+            "too many registration attempts; try again later",
+        ));
+    }
+
     let username = req.username.trim();
     validate_credentials(username, &req.password)?;
+    state.register_limiter.record(addr.ip());
 
-    let hash = password::hash(&req.password).map_err(internal)?;
+    let hash = hash_off_runtime(req.password).await?;
     let created = store::create_pending(&state.pool, username, &hash)
         .await
         .map_err(internal)?;
@@ -73,20 +109,38 @@ pub struct LoginReq {
     remember: bool,
 }
 
-/// Verify credentials and, on success for an active account, mint a session and
-/// set the cookie. Unknown user and wrong password are indistinguishable (401).
 pub async fn login(
     State(state): State<AppState>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Json(req): Json<LoginReq>,
 ) -> Result<Response, ApiError> {
+    let ip = addr.ip();
+    if !state.login_limiter.check(ip) {
+        return Err(too_many_requests(
+            "too many sign-in attempts; try again later",
+        ));
+    }
+    if req.password.len() > MAX_PASSWORD {
+        return Err(bad_request("password must be at most 128 characters"));
+    }
+
     let username = req.username.trim();
     let user = store::find_by_username(&state.pool, username)
         .await
         .map_err(internal)?;
 
+    let phc = user
+        .as_ref()
+        .map(|u| u.password_hash.clone())
+        .unwrap_or_else(|| password::DUMMY_HASH.clone());
+    let verified = verify_off_runtime(req.password, phc).await?;
+
     let user = match user {
-        Some(u) if password::verify(&req.password, &u.password_hash) => u,
-        _ => return Err((StatusCode::UNAUTHORIZED, "invalid credentials".to_string())),
+        Some(u) if verified => u,
+        _ => {
+            state.login_limiter.record(ip);
+            return Err((StatusCode::UNAUTHORIZED, "invalid credentials".to_string()));
+        }
     };
 
     match user.status {
@@ -112,16 +166,21 @@ pub async fn login(
     store::create_session(&state.pool, &session::hash_token(&token), &user.id, ttl_secs)
         .await
         .map_err(internal)?;
+    state.login_limiter.clear(ip);
 
+    if let Err(e) = store::sweep_expired_sessions(&state.pool).await {
+        tracing::warn!("session sweep failed: {e}");
+    }
+
+    let persistent_cookie_secs = req.remember.then_some(ttl_secs);
     let mut resp = Json(user).into_response();
     resp.headers_mut().insert(
         header::SET_COOKIE,
-        session::set_cookie(&token, ttl_secs, state.auth.secure_cookies),
+        session::set_cookie(&token, persistent_cookie_secs, state.auth.secure_cookies),
     );
     Ok(resp)
 }
 
-/// Destroy the current session (server-side row + cookie).
 pub async fn logout(
     State(state): State<AppState>,
     jar: CookieJar,
@@ -140,14 +199,9 @@ pub async fn logout(
     Ok(resp)
 }
 
-/// The authenticated user behind the current session. Drives the frontend guard.
 pub async fn me(CurrentUser(user): CurrentUser) -> Json<User> {
     Json(user)
 }
-
-/* ---------------------------------------------------------------- */
-/* Admin — behind require_admin                                     */
-/* ---------------------------------------------------------------- */
 
 #[derive(Deserialize)]
 pub struct ListQuery {
@@ -175,7 +229,6 @@ async fn load_user(state: &AppState, id: &str) -> Result<User, ApiError> {
         .ok_or((StatusCode::NOT_FOUND, "user not found".to_string()))
 }
 
-/// Activate an account: approve a pending signup or re-enable a disabled user.
 pub async fn approve(
     State(state): State<AppState>,
     Path(id): Path<String>,
@@ -215,15 +268,12 @@ pub async fn reset_password(
     Path(id): Path<String>,
     Json(req): Json<ResetPasswordReq>,
 ) -> Result<StatusCode, ApiError> {
-    if req.password.len() < MIN_PASSWORD {
-        return Err(bad_request("password must be at least 8 characters"));
-    }
+    validate_password(&req.password)?;
     load_user(&state, &id).await?;
-    let hash = password::hash(&req.password).map_err(internal)?;
+    let hash = hash_off_runtime(req.password).await?;
     store::set_password(&state.pool, &id, &hash)
         .await
         .map_err(internal)?;
-    // Force re-login everywhere with the new password.
     store::delete_user_sessions(&state.pool, &id)
         .await
         .map_err(internal)?;
@@ -246,13 +296,45 @@ pub async fn delete_user(
     Ok(StatusCode::NO_CONTENT)
 }
 
-/// Refuse to disable/remove the final active owner, which would lock everyone
-/// out of administration.
 async fn guard_last_owner(state: &AppState, user: &User) -> Result<(), ApiError> {
-    let is_active_owner =
-        user.role == super::model::Role::Owner && user.status == AccountStatus::Active;
+    let is_active_owner = user.role == Role::Owner && user.status == AccountStatus::Active;
     if is_active_owner && store::owner_count(&state.pool).await.map_err(internal)? <= 1 {
         return Err(bad_request("cannot remove the last owner"));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_short_username() {
+        assert!(validate_credentials("ab", "password1").is_err());
+    }
+
+    #[test]
+    fn rejects_long_username() {
+        assert!(validate_credentials(&"a".repeat(33), "password1").is_err());
+    }
+
+    #[test]
+    fn rejects_whitespace_username() {
+        assert!(validate_credentials("a b", "password1").is_err());
+    }
+
+    #[test]
+    fn rejects_short_password() {
+        assert!(validate_credentials("alice", "short").is_err());
+    }
+
+    #[test]
+    fn rejects_oversized_password() {
+        assert!(validate_credentials("alice", &"p".repeat(129)).is_err());
+    }
+
+    #[test]
+    fn accepts_valid_credentials() {
+        assert!(validate_credentials("alice", "password1").is_ok());
+    }
 }

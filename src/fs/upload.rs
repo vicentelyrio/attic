@@ -17,7 +17,6 @@ use crate::state::AppState;
 #[derive(Deserialize)]
 pub(super) struct UploadQuery {
     root: String,
-    /// Relative path (within `root`) of the directory to upload into.
     #[serde(default)]
     dir: String,
     name: String,
@@ -35,13 +34,8 @@ fn part_path(dst: &std::path::Path) -> PathBuf {
     PathBuf::from(s)
 }
 
-/// Stream a single file's bytes into the destination directory.
-///
-/// Bytes land in a `.part` sidecar that is `fsync`'d and atomically renamed into
-/// place, so the final file never appears half-written and a dropped connection
-/// leaves no partial file behind. The destination directory is guarded by the
-/// same root boundary as every other filesystem route; the raw request body is
-/// streamed to disk rather than buffered, so large files don't sit in memory.
+// Streams into a fsync'd `.part` sidecar renamed into place, so the final file
+// never appears half-written and a dropped connection leaves nothing behind.
 pub(super) async fn upload(
     State(state): State<AppState>,
     Query(q): Query<UploadQuery>,

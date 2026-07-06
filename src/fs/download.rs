@@ -38,12 +38,11 @@ pub(super) async fn download(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .into_response();
 
-    if q.dl {
-        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-            if let Ok(value) = format!("attachment; filename=\"{}\"", name).parse() {
-                response.headers_mut().insert(header::CONTENT_DISPOSITION, value);
-            }
-        }
+    if q.dl
+        && let Some(name) = path.file_name().and_then(|n| n.to_str())
+        && let Ok(value) = format!("attachment; filename=\"{name}\"").parse()
+    {
+        response.headers_mut().insert(header::CONTENT_DISPOSITION, value);
     }
 
     Ok(response)

@@ -22,10 +22,10 @@ pub(super) struct ListQuery {
 pub(super) struct Entry {
     name: String,
     is_dir: bool,
-    size: u64,             // bytes; 0 for directories
-    items: Option<u64>,    // immediate child count for directories; None for files
-    modified: Option<i64>, // unix epoch seconds
-    created: Option<i64>,  // unix epoch seconds; None where the FS/OS doesn't track it
+    size: u64,
+    items: Option<u64>,
+    modified: Option<i64>,
+    created: Option<i64>,
 }
 
 fn to_epoch(t: std::io::Result<SystemTime>) -> Option<i64> {

@@ -1,7 +1,4 @@
-//! Generate an Argon2id PHC hash for the owner password, to paste into
-//! `config.toml` as `[auth].owner_password_hash`. Reads the password from
-//! stdin. Standalone so it doesn't require a library target.
-//!
+//! Generates the Argon2id hash for `VAULT_OWNER_PASSWORD_HASH`.
 //! Usage: `cargo run --bin hash-password`
 
 use std::io::{self, Write};

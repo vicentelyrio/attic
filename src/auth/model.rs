@@ -50,7 +50,6 @@ impl AccountStatus {
     }
 }
 
-/// A user account. `password_hash` is never serialized to clients.
 #[derive(Debug, Clone, Serialize)]
 pub struct User {
     pub id: String,
