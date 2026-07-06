@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { fetchRoots } from '@domain'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_app/')({
   loader: async () => {
     const roots = await fetchRoots()
     throw redirect({

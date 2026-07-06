@@ -1,5 +1,3 @@
-import { createRootRoute } from '@tanstack/react-router'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
 
-import { AppTemplate } from '@templates/app-template'
-
-export const Route = createRootRoute({ component: AppTemplate })
+export const Route = createRootRoute({ component: () => <Outlet /> })

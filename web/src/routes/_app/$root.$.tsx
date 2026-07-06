@@ -14,7 +14,7 @@ import { type Entry, useClipboardShortcuts, useDirectory } from '@domain'
 
 import { ContextMenu, DetailPanel, Footer, Grid, Header, List } from '@features'
 
-export const Route = createFileRoute('/$root/$')({
+export const Route = createFileRoute('/_app/$root/$')({
   component: Index,
 })
 

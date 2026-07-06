@@ -8,6 +8,7 @@ import {
   type Resolution,
   type Root,
   type SearchHit,
+  type User,
 } from '@domain'
 
 const paths = {
@@ -20,6 +21,11 @@ const paths = {
   mkdir: '/api/mkdir',
   file: '/api/file',
   delete: '/api/delete',
+  login: '/api/auth/login',
+  logout: '/api/auth/logout',
+  register: '/api/auth/register',
+  me: '/api/auth/me',
+  users: '/api/admin/users',
 }
 
 const jsonHeaders = { 'content-type': 'application/json' }
@@ -27,17 +33,54 @@ const jsonHeaders = { 'content-type': 'application/json' }
 const PREVIEW_BYTES = 16 * 1024
 const PREVIEW_LINES = 80
 
+/** A failed API response, carrying the HTTP status so callers (and the global
+ *  query error handler) can react to 401s specifically. */
+export class HttpError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'HttpError'
+  }
+}
+
+/** Single fetch wrapper: same-origin credentials (session cookie) and a typed
+ *  error on non-2xx. The one place auth/401 handling is centralized. */
+async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
+  const res = await fetch(input, { credentials: 'same-origin', ...init })
+  if (!res.ok) {
+    // Backend error bodies are short plain-text messages — surface them so forms
+    // can show "account is awaiting approval" instead of a bare status code.
+    const detail = await res.text().catch(() => '')
+    throw new HttpError(
+      res.status,
+      detail || `${init?.method ?? 'GET'} ${input} → ${res.status}`,
+    )
+  }
+  return res
+}
+
+async function getJson<T>(url: string): Promise<T> {
+  return (await apiFetch(url)).json()
+}
+
+async function postJson<T>(url: string, body?: unknown): Promise<T> {
+  const res = await apiFetch(url, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+  return res.status === 204 ? (undefined as T) : res.json()
+}
+
 export async function fetchRoots(): Promise<Root[]> {
-  const res = await fetch(paths.roots)
-  if (!res.ok) throw new Error(`roots failed: ${res.status}`)
-  return res.json()
+  return getJson(paths.roots)
 }
 
 export async function listDir(root: string, path: string): Promise<Entry[]> {
   const params = new URLSearchParams({ root, path })
-  const res = await fetch(`${paths.list}?${params}`)
-  if (!res.ok) throw new Error(`list failed: ${res.status}`)
-  return res.json()
+  return getJson(`${paths.list}?${params}`)
 }
 
 export interface SearchOpts {
@@ -52,21 +95,16 @@ export async function search(
   const params = new URLSearchParams({ q })
   if (root) params.set('root', root)
   if (limit) params.set('limit', String(limit))
-  const res = await fetch(`${paths.search}?${params}`)
-  if (!res.ok) throw new Error(`search failed: ${res.status}`)
-  return res.json()
+  return getJson(`${paths.search}?${params}`)
 }
 
 export async function fetchTextPreview(
   root: string,
   path: string,
 ): Promise<string> {
-  const res = await fetch(downloadUrl(root, path), {
+  const res = await apiFetch(downloadUrl(root, path), {
     headers: { Range: `bytes=0-${PREVIEW_BYTES - 1}` },
   })
-  if (!res.ok && res.status !== 206) {
-    throw new Error(`preview failed: ${res.status}`)
-  }
   const text = await res.text()
   return text.split('\n').slice(0, PREVIEW_LINES).join('\n')
 }
@@ -85,13 +123,7 @@ export interface ResolveReq {
 }
 
 export async function paste(req: PasteReq): Promise<JobView> {
-  const res = await fetch(paths.paste, {
-    method: 'POST',
-    headers: jsonHeaders,
-    body: JSON.stringify(req),
-  })
-  if (!res.ok) throw new Error(`paste failed: ${res.status}`)
-  return res.json()
+  return postJson(paths.paste, req)
 }
 
 export interface NewItemReq {
@@ -104,63 +136,96 @@ export interface Created {
   name: string
 }
 
-async function newItem(url: string, req: NewItemReq): Promise<Created> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: jsonHeaders,
-    body: JSON.stringify(req),
-  })
-  if (!res.ok) throw new Error(`create failed: ${res.status}`)
-  return res.json()
-}
+export const createFolder = (req: NewItemReq): Promise<Created> =>
+  postJson(paths.mkdir, req)
 
-export const createFolder = (req: NewItemReq) => newItem(paths.mkdir, req)
-
-export const createFile = (req: NewItemReq) => newItem(paths.file, req)
+export const createFile = (req: NewItemReq): Promise<Created> =>
+  postJson(paths.file, req)
 
 export async function trashEntries(
   root: string,
   relPaths: string[],
 ): Promise<void> {
-  const res = await fetch(paths.delete, {
-    method: 'POST',
-    headers: jsonHeaders,
-    body: JSON.stringify({ root, paths: relPaths }),
-  })
-  if (!res.ok) throw new Error(`delete failed: ${res.status}`)
+  await postJson(paths.delete, { root, paths: relPaths })
 }
 
 export async function listJobs(): Promise<Job[]> {
-  const res = await fetch(paths.jobs)
-  if (!res.ok) throw new Error(`jobs failed: ${res.status}`)
-  return res.json()
+  return getJson(paths.jobs)
 }
 
 export async function getJob(id: string): Promise<JobView> {
-  const res = await fetch(`${paths.jobs}/${id}`)
-  if (!res.ok) throw new Error(`job failed: ${res.status}`)
-  return res.json()
+  return getJson(`${paths.jobs}/${id}`)
 }
 
 export async function resolveJob(id: string, req: ResolveReq): Promise<Job> {
-  const res = await fetch(`${paths.jobs}/${id}/resolve`, {
-    method: 'POST',
-    headers: jsonHeaders,
-    body: JSON.stringify(req),
-  })
-  if (!res.ok) throw new Error(`resolve failed: ${res.status}`)
-  return res.json()
+  return postJson(`${paths.jobs}/${id}/resolve`, req)
 }
 
 export async function cancelJob(id: string): Promise<Job> {
-  const res = await fetch(`${paths.jobs}/${id}/cancel`, { method: 'POST' })
-  if (!res.ok) throw new Error(`cancel failed: ${res.status}`)
-  return res.json()
+  return postJson(`${paths.jobs}/${id}/cancel`)
 }
 
 export async function clearJobs(): Promise<void> {
-  const res = await fetch(paths.jobs, { method: 'DELETE' })
-  if (!res.ok) throw new Error(`clear failed: ${res.status}`)
+  await apiFetch(paths.jobs, { method: 'DELETE' })
+}
+
+/* ---------------------------------------------------------------- */
+/* Auth                                                             */
+/* ---------------------------------------------------------------- */
+
+export interface LoginReq {
+  username: string
+  password: string
+  remember: boolean
+}
+
+export interface RegisterReq {
+  username: string
+  password: string
+}
+
+export async function login(req: LoginReq): Promise<User> {
+  return postJson(paths.login, req)
+}
+
+export async function register(req: RegisterReq): Promise<User> {
+  return postJson(paths.register, req)
+}
+
+export async function logout(): Promise<void> {
+  await apiFetch(paths.logout, { method: 'POST' })
+}
+
+export async function fetchMe(): Promise<User> {
+  return getJson(paths.me)
+}
+
+/* ---------------------------------------------------------------- */
+/* Admin                                                            */
+/* ---------------------------------------------------------------- */
+
+export async function listUsers(status?: string): Promise<User[]> {
+  const qs = status ? `?${new URLSearchParams({ status })}` : ''
+  return getJson(`${paths.users}${qs}`)
+}
+
+export async function approveUser(id: string): Promise<User> {
+  return postJson(`${paths.users}/${id}/approve`)
+}
+
+export async function disableUser(id: string): Promise<User> {
+  return postJson(`${paths.users}/${id}/disable`)
+}
+
+export async function resetUserPassword(
+  id: string,
+  password: string,
+): Promise<void> {
+  await postJson(`${paths.users}/${id}/reset-password`, { password })
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await apiFetch(`${paths.users}/${id}`, { method: 'DELETE' })
 }
 
 export interface UploadReq {
@@ -188,7 +253,7 @@ export function uploadFile(
     xhr.onload = () =>
       xhr.status >= 200 && xhr.status < 300
         ? resolve()
-        : reject(new Error(`upload failed: ${xhr.status}`))
+        : reject(new HttpError(xhr.status, `upload failed: ${xhr.status}`))
     xhr.onerror = () => reject(new Error('upload failed'))
     xhr.onabort = () => reject(new DOMException('aborted', 'AbortError'))
 

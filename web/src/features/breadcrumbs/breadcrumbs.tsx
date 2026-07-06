@@ -15,10 +15,8 @@ type BreadcrumbsProps = {
 
 type Crumb = { label: string; target: string }
 
-/** How many leading / trailing crumbs stay visible before collapsing. */
-const HEAD = 3
-const TAIL = 3
-/** Collapse only when it actually hides more than one crumb. */
+const HEAD = 1
+const TAIL = 5
 const MAX_VISIBLE = HEAD + TAIL + 1
 
 export function Breadcrumbs({ path, root }: BreadcrumbsProps) {

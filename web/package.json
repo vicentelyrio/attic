@@ -19,6 +19,7 @@
   "dependencies": {
     "@mantine/code-highlight": "^9.4.1",
     "@mantine/core": "^9.4.1",
+    "@mantine/form": "^9.4.1",
     "@mantine/hooks": "^9.4.1",
     "@mantine/spotlight": "^9.4.1",
     "@phosphor-icons/react": "^2.1.10",
