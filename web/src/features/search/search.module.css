@@ -7,36 +7,45 @@
   padding-bottom: var(--mantine-spacing-xs);
 }
 
-.list {
+/* Doubled class beats Mantine's `.m_6e463822 { max-height: calc(100vh - 15rem) }`
+   (their styles ship unlayered), so only this list scrolls — not the modal too. */
+.list.list {
   border-top-color: var(--mantine-color-dark-5);
   overflow-x: hidden;
-  padding: 0 var(--mantine-spacing-xs) var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-xs)
+    var(--mantine-spacing-sm);
+  max-height: 24rem;
 }
 
 .group {
-  margin-top: var(--mantine-spacing-sm);
+  margin-top: var(--mantine-spacing-xs);
+}
+
+.group:first-of-type {
+  margin-top: 0;
 }
 
 .group::before {
   padding-inline-start: var(--mantine-spacing-sm);
-  padding-bottom: var(--mantine-spacing-xs);
+  padding-bottom: calc(var(--mantine-spacing-xs) / 2);
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-4);
+  font-size: var(--mantine-font-size-xs);
 }
 
 .empty {
-  padding: var(--mantine-spacing-xl);
-  font-size: var(--mantine-font-size-sm);
+  padding: 0;
 }
 
 .footer {
-  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   border-top-color: var(--mantine-color-dark-5);
 }
 
-/* Result rows: the hairline turns indigo when selected. */
+/* Rows: a transparent hairline that turns indigo when selected. */
 .action {
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-  margin-block: 2px;
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
   border: 1px solid transparent;
   border-radius: var(--mantine-radius-md);
 }
@@ -63,28 +72,61 @@
 .meta {
   display: flex;
   flex-direction: column;
-  gap: 2;
+  gap: 1px;
   flex: 1 1 0;
   min-width: 0;
 }
 
+/* Quick-action rows */
+.actionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  font-size: var(--mantine-font-size-lg);
+  color: var(--mantine-color-indigo-4);
+}
+
+/* "open" pill, revealed on the selected result row */
 .openHint {
   display: flex;
   align-items: center;
   gap: var(--mantine-spacing-xs);
   flex-shrink: 0;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-xs);
   border-radius: var(--mantine-radius-sm);
-  border: 1px solid color-mix(in srgb, var(--mantine-color-indigo-6) 45%, transparent);
-  background-color: color-mix(in srgb, var(--mantine-color-indigo-6) 12%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--mantine-color-indigo-6) 45%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 12%,
+    transparent
+  );
   color: var(--mantine-color-indigo-2);
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--mantine-font-size-xs);
   font-weight: 600;
   opacity: 0;
 }
 
 .action[data-selected] .openHint {
   opacity: 1;
+}
+
+/* No-results state */
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--mantine-spacing-xs) / 2);
+  text-align: center;
+  padding: var(--mantine-spacing-xl) var(--mantine-spacing-xl);
+}
+
+.noResultsIcon {
+  color: var(--mantine-color-dark-4);
+  margin-bottom: var(--mantine-spacing-xs);
 }
 
 .hintKeys {
