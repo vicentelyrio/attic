@@ -6,6 +6,7 @@ use super::model::{Job, JobFile, Op, Policy, Resolution, Status, now};
 fn row_to_job(row: &SqliteRow) -> Job {
     Job {
         id: row.get("id"),
+        user_id: row.get("user_id"),
         op: Op::parse(&row.get::<String, _>("op")).unwrap_or(Op::Copy),
         src_root: row.get("src_root"),
         src_path: row.get("src_path"),
@@ -50,9 +51,10 @@ pub async fn create_job(
         "INSERT INTO jobs \
          (id, user_id, op, src_root, src_path, dst_root, dst_dir, dst_name, status, policy, \
           bytes_total, bytes_done, current_file, error, created_at, updated_at) \
-         VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&job.id)
+    .bind(&job.user_id)
     .bind(job.op.as_str())
     .bind(&job.src_root)
     .bind(&job.src_path)

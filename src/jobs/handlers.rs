@@ -76,6 +76,7 @@ pub struct JobView {
 /// UI can show a conflict dialog when `status == needs_resolution`.
 pub async fn paste(
     State(state): State<AppState>,
+    crate::auth::CurrentUser(user): crate::auth::CurrentUser,
     Json(req): Json<PasteReq>,
 ) -> Result<Json<JobView>, ApiError> {
     let src = crate::fs::resolve_within_root(&state.roots, &req.src_root, &req.src_path)
@@ -128,6 +129,7 @@ pub async fn paste(
     let ts = now();
     let job = Job {
         id: Uuid::new_v4().to_string(),
+        user_id: Some(user.id),
         op: req.op,
         src_root: req.src_root,
         src_path: req.src_path,

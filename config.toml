@@ -3,3 +3,13 @@ db_path = "attic.db"
 
 [roots]
 root = "/"
+
+[auth]
+owner_username = "homelab"
+# The owner password hash is a secret and lives in the (gitignored) .env file as
+# VAULT_OWNER_PASSWORD_HASH — not here, since this file is committed. Generate one
+# with `cargo run --bin hash-password`. See .env.example.
+
+# Keep true in production (HTTPS). false only for local plain-http dev.
+secure_cookies = false
+session_ttl_days = 7

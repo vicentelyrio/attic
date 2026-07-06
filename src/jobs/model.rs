@@ -137,6 +137,8 @@ impl Policy {
 #[derive(Debug, Clone, Serialize)]
 pub struct Job {
     pub id: String,
+    /// The user who created the job. `None` only for rows predating auth.
+    pub user_id: Option<String>,
     pub op: Op,
     pub src_root: String,
     pub src_path: String,
