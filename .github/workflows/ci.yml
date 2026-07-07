@@ -33,7 +33,6 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      # rust-embed reads web/dist at compile time, so build the SPA first.
       - uses: pnpm/action-setup@v4
         with:
           version: 10

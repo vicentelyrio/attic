@@ -1,5 +1,5 @@
 services:
-  files:
+  attic:
     image: ghcr.io/vicentelyrio/attic:latest
     # To build the image locally instead of pulling, comment out `image` above
     # and uncomment the next line:

@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
 
-# ---- Build the SPA ----
 FROM node:24-slim AS web
 WORKDIR /web
 RUN corepack enable
@@ -10,7 +9,6 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 COPY web/ ./
 RUN pnpm build
 
-# ---- Build the Rust binary (rust-embed bakes web/dist into the binary) ----
 FROM rust:slim AS build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
@@ -24,7 +22,6 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/app/target \
     cargo build --release && cp target/release/attic /usr/local/bin/attic
 
-# ---- Runtime ----
 FROM debian:trixie-slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \

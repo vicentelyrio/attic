@@ -13,9 +13,6 @@ pub async fn handler(uri: Uri) -> Response {
 
     match Assets::get(path) {
         Some(file) => serve(path, file),
-        // A request with a file extension is a real asset; if it's missing it's
-        // a genuine 404. Anything else is a client-side route, so hand back
-        // index.html and let the SPA router resolve it.
         None if std::path::Path::new(path).extension().is_some() => {
             StatusCode::NOT_FOUND.into_response()
         }
