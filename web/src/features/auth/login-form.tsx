@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { useNavigate } from '@tanstack/react-router'
 
 import {
@@ -14,7 +12,6 @@ import {
   Stack,
   Text,
   TextInput,
-  UnstyledButton,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
@@ -28,12 +25,10 @@ import {
 import { HttpError, useLogin } from '@domain'
 
 import { AuthShell } from './auth-shell'
-import classes from './auth.module.css'
 
 export function LoginForm() {
   const navigate = useNavigate()
   const loginMut = useLogin()
-  const [visible, setVisible] = useState(false)
   const [forgotOpen, forgot] = useDisclosure(false)
 
   const form = useForm({

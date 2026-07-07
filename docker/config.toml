@@ -1,0 +1,12 @@
+listen = "0.0.0.0:4000"
+db_path = "/data/attic.db"
+
+max_upload_bytes = 53687091200
+
+[roots]
+files = "/data/files"
+
+[auth]
+owner_username = "admin"
+secure_cookies = false
+session_ttl_days = 7

@@ -1,0 +1,17 @@
+services:
+  attic:
+    image: ghcr.io/vicentelyrio/attic:latest
+    # To build the image locally instead of pulling, comment out `image` above
+    # and uncomment the next line:
+    # build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./data:/data
+    environment:
+      # Generate a hash with:
+      #   docker run --rm -it ghcr.io/vicentelyrio/attic hash-password
+      # then put it in a .env file next to this compose file as
+      # VAULT_OWNER_PASSWORD_HASH=...
+      VAULT_OWNER_PASSWORD_HASH: ${VAULT_OWNER_PASSWORD_HASH:?set VAULT_OWNER_PASSWORD_HASH in .env}
+    restart: unless-stopped

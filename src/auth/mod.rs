@@ -1,6 +1,6 @@
 pub mod handlers;
 pub mod model;
-mod password;
+pub mod password;
 pub mod rate_limit;
 mod session;
 pub mod store;
