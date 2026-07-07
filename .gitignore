@@ -1,4 +1,5 @@
 /target
+/roots
 node_modules
 dist
 .env

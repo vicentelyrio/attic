@@ -1,11 +1,10 @@
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 #[derive(Deserialize)]
 pub struct Config {
     pub listen: String,
-    pub roots: HashMap<String, PathBuf>,
+    pub roots_dir: PathBuf,
     #[serde(default = "default_db_path")]
     pub db_path: PathBuf,
     #[serde(default = "default_max_upload_bytes")]

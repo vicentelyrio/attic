@@ -5,8 +5,9 @@ db_path = "attic.db"
 # Defaults to 50 GiB when omitted.
 max_upload_bytes = 53687091200
 
-[roots]
-root = "/"
+# Each immediate subdirectory here is exposed as a drive, named after the folder.
+# Created on startup if missing.
+roots_dir = "./roots"
 
 [auth]
 owner_username = "homelab"

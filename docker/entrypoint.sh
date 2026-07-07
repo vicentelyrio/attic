@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 
-mkdir -p /data/files
+mkdir -p /data/roots
 
 exec attic "$@"
