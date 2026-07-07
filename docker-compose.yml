@@ -7,7 +7,12 @@ services:
     ports:
       - "4000:4000"
     volumes:
+      # Attic's own state (the SQLite database).
       - ./data:/data
+      # Each directory you mount under /data/roots becomes a drive in the UI,
+      # named after the folder on the right. Add a line per drive; point the left
+      # side at your files (e.g. /mnt/tank/media:/data/roots/media).
+      - ./data/roots/files:/data/roots/files
     environment:
       # Generate a hash with:
       #   docker run --rm -it ghcr.io/vicentelyrio/attic hash-password

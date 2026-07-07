@@ -35,17 +35,26 @@ The image bundles everything. You only need Docker and a password hash.
    VAULT_OWNER_PASSWORD_HASH='<paste the hash>'
    ```
 
-3. Start it:
+3. Point Attic at the files you want to browse. Each directory you mount under
+   `/data/roots` in `docker-compose.yml` becomes a drive in the UI, named after
+   the folder. Add a line per drive (skip this to use a fresh `files` drive):
+
+   ```yaml
+   - /mnt/tank/media:/data/roots/media
+   - /mnt/tank/photos:/data/roots/photos
+   ```
+
+4. Start it:
 
    ```bash
    docker compose up -d
    ```
 
-The UI is at http://localhost:4000. Your files live in `./data/files` and the
-database in `./data/attic.db` (both under the `./data` volume). Sign in as
-`admin` with the password you hashed.
+The UI is at http://localhost:4000. Your drives are whatever you mounted under
+`/data/roots`, and the database lives in `./data/attic.db`. Sign in as `admin`
+with the password you hashed.
 
-To override defaults (listen address, upload cap, root name, `secure_cookies`),
+To override defaults (listen address, upload cap, `roots_dir`, `secure_cookies`),
 mount your own config over `/app/config.toml`, or point `CONFIG_PATH` at another
 file.
 

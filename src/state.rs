@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -29,22 +29,44 @@ pub struct AppState {
     pub max_upload_bytes: u64,
 }
 
+fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
+    std::fs::create_dir_all(roots_dir)
+        .unwrap_or_else(|e| panic!("cannot create roots_dir '{}': {}", roots_dir.display(), e));
+    let base = std::fs::canonicalize(roots_dir)
+        .unwrap_or_else(|e| panic!("roots_dir '{}' is unusable: {}", roots_dir.display(), e));
+
+    let entries = std::fs::read_dir(&base)
+        .unwrap_or_else(|e| panic!("cannot read roots_dir '{}': {}", base.display(), e));
+
+    let mut roots = HashMap::new();
+    for entry in entries {
+        let entry = entry.expect("read roots_dir entry");
+        let name = entry.file_name().to_string_lossy().into_owned();
+        if name.starts_with('.') {
+            continue;
+        }
+        let path = entry.path();
+        if std::fs::metadata(&path).is_ok_and(|m| m.is_dir()) {
+            let canon = std::fs::canonicalize(&path)
+                .unwrap_or_else(|e| panic!("root '{name}' is unusable: {e}"));
+            tracing::info!("root '{}' -> {}", name, canon.display());
+            roots.insert(name, canon);
+        }
+    }
+
+    if roots.is_empty() {
+        tracing::warn!("no roots found under {}", base.display());
+    }
+    roots
+}
+
 impl AppState {
     pub async fn new(config: Config) -> Self {
         let auth = config.auth.clone().unwrap_or_else(|| {
             panic!("config is missing the [auth] section; the server won't serve anonymously")
         });
 
-        let mut roots = HashMap::new();
-        for (name, path) in config.roots {
-            match std::fs::canonicalize(&path) {
-                Ok(canon) => {
-                    tracing::info!("root '{}' -> {}", name, canon.display());
-                    roots.insert(name, canon);
-                }
-                Err(e) => panic!("root '{}' ({}) is unusable: {}", name, path.display(), e),
-            }
-        }
+        let roots = discover_roots(&config.roots_dir);
 
         let pool = crate::db::connect(&config.db_path).await;
         crate::auth::store::seed_owner_if_empty(&pool, &auth).await;

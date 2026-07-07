@@ -3,8 +3,9 @@ db_path = "/data/attic.db"
 
 max_upload_bytes = 53687091200
 
-[roots]
-files = "/data/files"
+# Every subdirectory mounted under here becomes a drive in the UI, named after
+# the folder. Add drives by mounting them in docker-compose.yml — no edits here.
+roots_dir = "/data/roots"
 
 [auth]
 owner_username = "admin"
