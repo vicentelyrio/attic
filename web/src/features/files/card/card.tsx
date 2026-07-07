@@ -1,4 +1,9 @@
-import { type MouseEvent, type ReactNode, memo } from 'react'
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  memo,
+} from 'react'
 
 import { sizeParts } from '@infrastructure'
 
@@ -9,7 +14,6 @@ import {
   Stack,
   Text,
   ThemeIcon,
-  UnstyledButton,
 } from '@mantine/core'
 
 import { FolderSimpleIcon } from '@phosphor-icons/react'
@@ -43,15 +47,27 @@ function Shell({
   children: ReactNode
   padding?: string | number
 }) {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      onOpen(entry)
+    } else if (event.key === ' ') {
+      event.preventDefault()
+      onSelect(entry, event as unknown as MouseEvent)
+    }
+  }
+
   return (
     <MantineCard
-      renderRoot={(props) => <UnstyledButton {...props} />}
       className={classes.card}
+      role="button"
+      tabIndex={0}
       data-name={entry.name}
       data-selected={selected || undefined}
       data-dimmed={entry.name.startsWith('.') || undefined}
       onClick={(event) => onSelect(entry, event)}
       onDoubleClick={() => onOpen(entry)}
+      onKeyDown={handleKeyDown}
       padding={padding}
       w="100%"
     >
