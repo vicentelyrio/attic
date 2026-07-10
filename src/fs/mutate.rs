@@ -55,6 +55,15 @@ fn unique_name(dir: &Path, base: &str) -> String {
     }
 }
 
+fn io_status(path: &Path, err: &std::io::Error) -> StatusCode {
+    tracing::error!("create '{}' failed: {}", path.display(), err);
+    match err.kind() {
+        std::io::ErrorKind::PermissionDenied => StatusCode::FORBIDDEN,
+        std::io::ErrorKind::AlreadyExists => StatusCode::CONFLICT,
+        _ => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
 fn resolve_new(
     state: &AppState,
     req: &NewItemReq,
@@ -73,9 +82,10 @@ pub(super) async fn mkdir(
     Json(req): Json<NewItemReq>,
 ) -> Result<Json<Created>, StatusCode> {
     let (dir, name) = resolve_new(&state, &req)?;
-    tokio::fs::create_dir(dir.join(&name))
+    let path = dir.join(&name);
+    tokio::fs::create_dir(&path)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| io_status(&path, &e))?;
     Ok(Json(Created { name }))
 }
 
@@ -84,17 +94,16 @@ pub(super) async fn create_file(
     Json(req): Json<NewItemReq>,
 ) -> Result<Json<Created>, StatusCode> {
     let (dir, name) = resolve_new(&state, &req)?;
+    let path = dir.join(&name);
     tokio::fs::OpenOptions::new()
         .write(true)
         .create_new(true)
-        .open(dir.join(&name))
+        .open(&path)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| io_status(&path, &e))?;
     Ok(Json(Created { name }))
 }
 
-// Every path is resolved and guarded before anything is trashed, so a single
-// bad path fails the whole batch; a root directory can never be a target.
 pub(super) async fn delete(
     State(state): State<AppState>,
     Json(req): Json<DeleteReq>,

@@ -20,21 +20,17 @@ import classes from './context-menu.module.css'
 import { NewEntryDialog, type NewEntryKind } from './new-entry-dialog'
 
 export type ContextMenuProps = {
-  /** The entries currently shown, used to resolve the right-clicked row. */
   entries: Entry[]
   root: string
   path: string
+  writable: boolean
   selected: Set<string>
-  /** Fix the selection when right-clicking a row outside the current one. */
   onSelect: (name: string, mods: SelectMods) => void
-  /** Open a folder (navigate); files open via their view URL. */
   onOpen: (entry: Entry) => void
-  /** Reveal the detail panel for the current selection. */
   onQuickLook: () => void
   children: ReactNode
 }
 
-/** What the menu acts on: one or more entries, or the empty listing space. */
 type Target = { kind: 'entries'; entries: Entry[] } | { kind: 'empty' } | null
 
 function Shortcut({ children }: { children: ReactNode }) {
@@ -62,6 +58,14 @@ function EntryHeader({ entry }: { entry: Entry }) {
   )
 }
 
+function ReadOnly() {
+  return (
+    <Text size="xs" c="dimmed">
+      Read-only
+    </Text>
+  )
+}
+
 function CountHeader({ count }: { count: number }) {
   return (
     <Group gap="sm" wrap="nowrap" p="xs" className={classes.header}>
@@ -72,13 +76,11 @@ function CountHeader({ count }: { count: number }) {
   )
 }
 
-/** Right-click menu for the directory listing. Rendered once around the
- *  listing; `Menu.ContextMenu` anchors the dropdown to the cursor, and the
- *  right-clicked row (or the empty space) is resolved from the event target. */
 export function ContextMenu({
   entries,
   root,
   path,
+  writable,
   selected,
   onSelect,
   onOpen,
@@ -112,9 +114,6 @@ export function ContextMenu({
     op.mutate(name, { onSuccess: () => setNewEntry(null) })
   }
 
-  // Delete / ⌘⌫ trashes the current selection. Routes through the same confirm
-  // dialog as the menu action. `useHotkeys` ignores keystrokes typed in inputs,
-  // so this never fires while searching or naming a new entry.
   const selectedEntries = useMemo(
     () => entries.filter((e) => selected.has(e.name)),
     [entries, selected],
@@ -183,10 +182,18 @@ export function ContextMenu({
                 Paste
               </Menu.Item>
               <Menu.Divider />
-              <Menu.Item onClick={() => setNewEntry('folder')}>
+              <Menu.Item
+                disabled={!writable}
+                onClick={() => setNewEntry('folder')}
+                rightSection={writable ? undefined : <ReadOnly />}
+              >
                 New Folder
               </Menu.Item>
-              <Menu.Item onClick={() => setNewEntry('file')}>
+              <Menu.Item
+                disabled={!writable}
+                onClick={() => setNewEntry('file')}
+                rightSection={writable ? undefined : <ReadOnly />}
+              >
                 New File
               </Menu.Item>
             </>
