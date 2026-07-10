@@ -6,3 +6,8 @@ export interface Entry {
   modified: number
   items: number
 }
+
+export interface Listing {
+  writable: boolean
+  entries: Entry[]
+}

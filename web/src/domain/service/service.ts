@@ -1,9 +1,9 @@
 import {
   downloadUrl,
-  type Entry,
   type Favorite,
   type Job,
   type JobView,
+  type Listing,
   type Op,
   type Policy,
   type Resolution,
@@ -80,7 +80,7 @@ export async function fetchRoots(): Promise<Root[]> {
   return getJson(paths.roots)
 }
 
-export async function listDir(root: string, path: string): Promise<Entry[]> {
+export async function listDir(root: string, path: string): Promise<Listing> {
   const params = new URLSearchParams({ root, path })
   return getJson(`${paths.list}?${params}`)
 }

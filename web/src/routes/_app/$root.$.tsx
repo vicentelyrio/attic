@@ -27,15 +27,17 @@ function Index() {
   const [view, setView] = useViewMode()
   const [showHidden, setShowHidden] = useShowHidden()
 
+  const all = data?.entries
+
   const entries = useMemo(
     () =>
-      showHidden ? data : data?.filter((entry) => !entry.name.startsWith('.')),
-    [data, showHidden],
+      showHidden ? all : all?.filter((entry) => !entry.name.startsWith('.')),
+    [all, showHidden],
   )
 
   const hiddenCount = useMemo(
-    () => data?.filter((entry) => entry.name.startsWith('.')).length ?? 0,
-    [data],
+    () => all?.filter((entry) => entry.name.startsWith('.')).length ?? 0,
+    [all],
   )
 
   const dirKey = path ? `${root}/${path}` : root
@@ -66,6 +68,7 @@ function Index() {
           entries={entries ?? []}
           root={root}
           path={path}
+          writable={data?.writable ?? false}
           selected={selected}
           onSelect={onSelect}
           onOpen={open}
@@ -94,7 +97,7 @@ function Index() {
         <Footer
           root={root}
           path={path}
-          count={data?.length ?? 0}
+          count={all?.length ?? 0}
           hidden={hiddenCount}
           showHidden={showHidden}
           onShowHiddenChange={setShowHidden}

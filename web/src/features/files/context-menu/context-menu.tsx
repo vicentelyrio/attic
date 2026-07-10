@@ -24,6 +24,8 @@ export type ContextMenuProps = {
   entries: Entry[]
   root: string
   path: string
+  /** False when the filesystem won't let us create entries here (`/`, say). */
+  writable: boolean
   selected: Set<string>
   /** Fix the selection when right-clicking a row outside the current one. */
   onSelect: (name: string, mods: SelectMods) => void
@@ -62,6 +64,14 @@ function EntryHeader({ entry }: { entry: Entry }) {
   )
 }
 
+function ReadOnly() {
+  return (
+    <Text size="xs" c="dimmed">
+      Read-only
+    </Text>
+  )
+}
+
 function CountHeader({ count }: { count: number }) {
   return (
     <Group gap="sm" wrap="nowrap" p="xs" className={classes.header}>
@@ -79,6 +89,7 @@ export function ContextMenu({
   entries,
   root,
   path,
+  writable,
   selected,
   onSelect,
   onOpen,
@@ -183,10 +194,18 @@ export function ContextMenu({
                 Paste
               </Menu.Item>
               <Menu.Divider />
-              <Menu.Item onClick={() => setNewEntry('folder')}>
+              <Menu.Item
+                disabled={!writable}
+                onClick={() => setNewEntry('folder')}
+                rightSection={writable ? undefined : <ReadOnly />}
+              >
                 New Folder
               </Menu.Item>
-              <Menu.Item onClick={() => setNewEntry('file')}>
+              <Menu.Item
+                disabled={!writable}
+                onClick={() => setNewEntry('file')}
+                rightSection={writable ? undefined : <ReadOnly />}
+              >
                 New File
               </Menu.Item>
             </>
