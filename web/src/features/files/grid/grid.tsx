@@ -19,7 +19,15 @@ export type GridProps = {
   onClearSelection: () => void
 }
 
-function Section({ label, children }: { label: string; children: ReactNode }) {
+function Section({
+  label,
+  children,
+  autoFill,
+}: {
+  label: string
+  children: ReactNode
+  autoFill?: boolean
+}) {
   return (
     <Stack gap="sm">
       <Text
@@ -31,9 +39,13 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
       >
         {label}
       </Text>
-      <SimpleGrid cols={{ base: 2, sm: 3, lg: 4 }} spacing="md">
-        {children}
-      </SimpleGrid>
+      {autoFill ? (
+        <Box className={classes.grid}>{children}</Box>
+      ) : (
+        <SimpleGrid cols={{ base: 1, sm: 3, lg: 4 }} spacing="md">
+          {children}
+        </SimpleGrid>
+      )}
     </Stack>
   )
 }
@@ -81,7 +93,7 @@ export function Grid({
     >
       <Stack gap="xl">
         {folders.length > 0 && (
-          <Section label="Folders">
+          <Section label="Folders" autoFill>
             {folders.map((entry) => (
               <Card
                 key={entry.name}
