@@ -55,8 +55,6 @@ fn unique_name(dir: &Path, base: &str) -> String {
     }
 }
 
-/// A root may be a directory the server has no write access to (`/`, for one),
-/// so a failed create is usually the filesystem talking, not a server fault.
 fn io_status(path: &Path, err: &std::io::Error) -> StatusCode {
     tracing::error!("create '{}' failed: {}", path.display(), err);
     match err.kind() {
@@ -106,8 +104,6 @@ pub(super) async fn create_file(
     Ok(Json(Created { name }))
 }
 
-// Every path is resolved and guarded before anything is trashed, so a single
-// bad path fails the whole batch; a root directory can never be a target.
 pub(super) async fn delete(
     State(state): State<AppState>,
     Json(req): Json<DeleteReq>,

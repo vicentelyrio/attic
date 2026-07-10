@@ -30,8 +30,6 @@ pub(super) struct Entry {
 
 #[derive(Serialize)]
 pub(super) struct Listing {
-    /// Whether this process may create entries here. A root can be a directory
-    /// nobody but root may write to (`/`), so the UI needs to know up front.
     writable: bool,
     entries: Vec<Entry>,
 }
