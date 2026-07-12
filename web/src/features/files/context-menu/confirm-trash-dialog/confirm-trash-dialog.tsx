@@ -3,16 +3,12 @@ import { Button, Group, Modal, Stack, Text } from '@mantine/core'
 import type { Entry } from '@domain'
 
 export type ConfirmTrashDialogProps = {
-  /** Entries pending deletion, or `null` when the dialog is closed. */
   entries: Entry[] | null
   pending?: boolean
   onConfirm: () => void
   onClose: () => void
 }
 
-/** Confirmation shown before moving entries to the trash. Trashing is
- *  recoverable (Finder's Trash), so this is a light guard against an accidental
- *  click rather than a hard warning. */
 export function ConfirmTrashDialog({
   entries,
   pending,
