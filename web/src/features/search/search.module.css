@@ -7,8 +7,6 @@
   padding-bottom: var(--mantine-spacing-xs);
 }
 
-/* Doubled class beats Mantine's `.m_6e463822 { max-height: calc(100vh - 15rem) }`
-   (their styles ship unlayered), so only this list scrolls — not the modal too. */
 .list.list {
   border-top-color: var(--mantine-color-dark-5);
   overflow-x: hidden;
@@ -43,7 +41,6 @@
   border-top-color: var(--mantine-color-dark-5);
 }
 
-/* Rows: a transparent hairline that turns indigo when selected. */
 .action {
   padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
   border: 1px solid transparent;
@@ -77,7 +74,6 @@
   min-width: 0;
 }
 
-/* Quick-action rows */
 .actionIcon {
   display: flex;
   align-items: center;
@@ -89,7 +85,6 @@
   color: var(--mantine-color-indigo-4);
 }
 
-/* "open" pill, revealed on the selected result row */
 .openHint {
   display: flex;
   align-items: center;
@@ -114,7 +109,6 @@
   opacity: 1;
 }
 
-/* No-results state */
 .noResults {
   display: flex;
   flex-direction: column;
