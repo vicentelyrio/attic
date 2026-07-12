@@ -1,0 +1,40 @@
+.row + .row {
+  border-top: 1px solid var(--mantine-color-dark-5);
+}
+
+.iconBtn {
+  color: var(--mantine-color-dark-3);
+}
+
+.status {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.waitCircle {
+  width: 18px;
+  height: 18px;
+  border: 1.5px dashed var(--mantine-color-dark-3);
+  border-radius: var(--mantine-radius-xl);
+}
+
+.waitCancel {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.row:hover .waitCircle {
+  opacity: 0;
+}
+
+.row:hover .waitCancel {
+  opacity: 1;
+}

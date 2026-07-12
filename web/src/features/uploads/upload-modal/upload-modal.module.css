@@ -1,0 +1,11 @@
+.title {
+  font-weight: 600;
+}
+
+.location {
+  color: var(--mantine-color-indigo-4);
+}
+
+.iconBtn {
+  color: var(--mantine-color-dark-3);
+}
