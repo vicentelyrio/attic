@@ -1,8 +1,14 @@
 .footer {
   flex-wrap: nowrap;
   border-top: 1px solid var(--mantine-color-dark-5);
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--mantine-spacing-md);
+  padding-inline: var(--mantine-spacing-sm);
 }
 
 .count {
+  flex-wrap: nowrap;
+  gap: var(--mantine-spacing-xs);
   flex-shrink: 0;
 }
