@@ -21,6 +21,7 @@ import { FolderSimpleIcon } from '@phosphor-icons/react'
 import type { Entry } from '@domain'
 
 import { EntryIcon } from '../entry-icon'
+import { RenameField } from '../rename'
 import classes from './card.module.css'
 import { LazyMount } from './lazy-mount'
 import { FilePlaceholder } from './placeholder'
@@ -33,21 +34,31 @@ export type CardProps = {
   selected: boolean
   onSelect: (entry: Entry, event: MouseEvent) => void
   onOpen: (entry: Entry) => void
+  renaming: boolean
+  renamePending: boolean
+  onRenameSubmit: (entry: Entry, name: string) => void
+  onRenameCancel: () => void
 }
 
-/** Shared clickable shell: click selects, double-click opens. */
+/** Shared clickable shell: click selects, double-click opens. Inert while the
+ *  card is being renamed so the write-in-place field keeps focus. */
 function Shell({
   entry,
   selected,
   onSelect,
   onOpen,
+  renaming,
   children,
   padding,
-}: Omit<CardProps, 'root' | 'path'> & {
+}: Omit<
+  CardProps,
+  'root' | 'path' | 'renamePending' | 'onRenameSubmit' | 'onRenameCancel'
+> & {
   children: ReactNode
   padding?: string | number
 }) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (renaming) return
     if (event.key === 'Enter') {
       event.preventDefault()
       onOpen(entry)
@@ -65,14 +76,42 @@ function Shell({
       data-name={entry.name}
       data-selected={selected || undefined}
       data-dimmed={entry.name.startsWith('.') || undefined}
-      onClick={(event) => onSelect(entry, event)}
-      onDoubleClick={() => onOpen(entry)}
+      onClick={(event) => !renaming && onSelect(entry, event)}
+      onDoubleClick={() => !renaming && onOpen(entry)}
       onKeyDown={handleKeyDown}
       padding={padding}
       w="100%"
     >
       {children}
     </MantineCard>
+  )
+}
+
+/** The entry's name, or the write-in-place rename field when it's the target. */
+function CardName({
+  entry,
+  renaming,
+  renamePending,
+  onRenameSubmit,
+  onRenameCancel,
+}: Pick<
+  CardProps,
+  'entry' | 'renaming' | 'renamePending' | 'onRenameSubmit' | 'onRenameCancel'
+>) {
+  if (renaming) {
+    return (
+      <RenameField
+        entry={entry}
+        pending={renamePending}
+        onSubmit={(name) => onRenameSubmit(entry, name)}
+        onCancel={onRenameCancel}
+      />
+    )
+  }
+  return (
+    <Text fw={500} c="dark.0" truncate flex={1} miw={0}>
+      {entry.name}
+    </Text>
   )
 }
 
@@ -114,9 +153,7 @@ function FolderCard(props: CardProps) {
           <FolderSimpleIcon weight="fill" size={22} />
         </ThemeIcon>
         <Stack gap={2} flex={1} miw={0}>
-          <Text fw={500} c="dark.0" truncate>
-            {entry.name}
-          </Text>
+          <CardName {...props} />
           <Text size="sm" c="dark.2">
             {items.toLocaleString()} {items === 1 ? 'item' : 'items'}
           </Text>
@@ -137,9 +174,7 @@ function FileCard(props: CardProps) {
       </MantineCard.Section>
       <Group gap="sm" wrap="nowrap" px="md" py="sm">
         <EntryIcon name={entry.name} isDir={false} />
-        <Text fw={500} c="dark.0" truncate flex={1} miw={0}>
-          {entry.name}
-        </Text>
+        <CardName {...props} />
         <Text size="sm" c="dark.2" className={classes.size}>
           {value}{' '}
           <Text span inherit c="dark.3">

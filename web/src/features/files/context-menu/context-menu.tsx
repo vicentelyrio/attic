@@ -24,6 +24,7 @@ export type ContextMenuProps = {
   onOpen: (entry: Entry) => void
   onQuickLook: () => void
   onPreview: () => void
+  onRename: (entry: Entry) => void
   children: ReactNode
 }
 
@@ -37,6 +38,7 @@ export function ContextMenu({
   onOpen,
   onQuickLook,
   onPreview,
+  onRename,
   children,
 }: ContextMenuProps) {
   const menu = useContextMenu({ entries, root, path, selected, onSelect })
@@ -53,6 +55,7 @@ export function ContextMenu({
         shadow="lg"
         radius="md"
         withinPortal
+        returnFocus={false}
         classNames={{
           dropdown: classes.dropdown,
           item: classes.item,
@@ -82,6 +85,7 @@ export function ContextMenu({
               onOpen={onOpen}
               onQuickLook={onQuickLook}
               onPreview={onPreview}
+              onRename={onRename}
             />
           )}
 

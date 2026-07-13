@@ -20,6 +20,15 @@ pub(super) struct Created {
 }
 
 #[derive(Deserialize)]
+pub(super) struct RenameReq {
+    root: String,
+    /// Path of the entry to rename, relative to the root.
+    path: String,
+    /// The new (bare) name — a single path component.
+    name: String,
+}
+
+#[derive(Deserialize)]
 pub(super) struct DeleteReq {
     root: String,
     paths: Vec<String>,
@@ -102,6 +111,41 @@ pub(super) async fn create_file(
         .await
         .map_err(|e| io_status(&path, &e))?;
     Ok(Json(Created { name }))
+}
+
+pub(super) async fn rename(
+    State(state): State<AppState>,
+    Json(req): Json<RenameReq>,
+) -> Result<Json<Created>, StatusCode> {
+    let name = safe_name(&req.name).ok_or(StatusCode::BAD_REQUEST)?;
+    let src = resolve_within_root(&state.roots, &req.root, &req.path).ok_or(StatusCode::FORBIDDEN)?;
+
+    // Renaming a root itself would move the mount point — never allowed.
+    if state.roots.values().any(|r| *r == src) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let parent = src.parent().ok_or(StatusCode::BAD_REQUEST)?;
+    let dst = parent.join(name);
+
+    // No-op rename (unchanged name) succeeds without touching the filesystem.
+    if dst == src {
+        return Ok(Json(Created {
+            name: name.to_string(),
+        }));
+    }
+    // Don't clobber an existing sibling; the client surfaces this as a conflict.
+    if dst.exists() {
+        return Err(StatusCode::CONFLICT);
+    }
+
+    tokio::fs::rename(&src, &dst)
+        .await
+        .map_err(|e| io_status(&dst, &e))?;
+
+    Ok(Json(Created {
+        name: name.to_string(),
+    }))
 }
 
 pub(super) async fn delete(

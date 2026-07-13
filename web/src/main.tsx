@@ -12,14 +12,17 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 
 import { CodeHighlightAdapterProvider } from '@mantine/code-highlight'
 import { MantineProvider } from '@mantine/core'
+import { Notifications } from '@mantine/notifications'
 
 import { HttpError } from '@domain'
+
 import { theme } from '@theme'
 
 import '@mantine/core/styles.css'
-// ‼️ code-highlight and spotlight styles must come after core styles
+// ‼️ code-highlight, spotlight and notifications styles must come after core styles
 import '@mantine/code-highlight/styles.css'
 import '@mantine/spotlight/styles.css'
+import '@mantine/notifications/styles.css'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({ routeTree })
@@ -50,6 +53,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <MantineProvider defaultColorScheme="dark" theme={theme}>
+        <Notifications position="bottom-right" />
         <CodeHighlightAdapterProvider adapter={shikiAdapter}>
           <RouterProvider router={router} />
         </CodeHighlightAdapterProvider>

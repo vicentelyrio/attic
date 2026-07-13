@@ -37,5 +37,6 @@ pub fn routes() -> Router<AppState> {
         .route("/api/upload", post(upload::upload))
         .route("/api/mkdir", post(mutate::mkdir))
         .route("/api/file", post(mutate::create_file))
+        .route("/api/rename", post(mutate::rename))
         .route("/api/delete", post(mutate::delete))
 }

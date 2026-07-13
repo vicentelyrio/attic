@@ -12,6 +12,7 @@ type SingleEntryMenuProps = {
   onOpen: (entry: Entry) => void
   onQuickLook: () => void
   onPreview: () => void
+  onRename: (entry: Entry) => void
 }
 
 export function SingleEntryMenu({
@@ -20,6 +21,7 @@ export function SingleEntryMenu({
   onOpen,
   onQuickLook,
   onPreview,
+  onRename,
 }: SingleEntryMenuProps) {
   const {
     openHref,
@@ -109,7 +111,7 @@ export function SingleEntryMenu({
           {isFavorite(entry) ? 'Remove from Favorites' : 'Add to Favorites'}
         </Menu.Item>
       )}
-      <Menu.Item disabled>Rename</Menu.Item>
+      <Menu.Item onClick={() => onRename(entry)}>Rename</Menu.Item>
       <Menu.Item
         component="a"
         href={downloadHref(entry, true)}
