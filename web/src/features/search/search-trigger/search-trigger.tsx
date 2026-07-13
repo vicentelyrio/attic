@@ -1,3 +1,5 @@
+import { useShortcut } from '@infrastructure'
+
 import { Input, Kbd } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 
@@ -13,7 +15,7 @@ export function SearchTrigger() {
       pointer
       className={classes.trigger}
       leftSection={<MagnifyingGlassIcon />}
-      rightSection={<Kbd>⌘K</Kbd>}
+      rightSection={<Kbd>{useShortcut('search')}</Kbd>}
       rightSectionWidth={48}
       onClick={spotlight.open}
     >

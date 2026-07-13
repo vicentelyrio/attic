@@ -1,3 +1,5 @@
+import { SHORTCUTS } from '@infrastructure/shortcuts'
+
 import { useHotkeys } from '@mantine/hooks'
 
 import { type ClipboardRef, useClipboardActions } from '@domain'
@@ -14,7 +16,7 @@ export function useClipboardShortcuts(
 
   useHotkeys([
     [
-      'mod+C',
+      SHORTCUTS.copy.hotkey,
       (e) => {
         if (!selected.length) return
         e.preventDefault()
@@ -23,7 +25,7 @@ export function useClipboardShortcuts(
       { preventDefault: false },
     ],
     [
-      'mod+X',
+      SHORTCUTS.cut.hotkey,
       (e) => {
         if (!selected.length) return
         e.preventDefault()
@@ -32,7 +34,7 @@ export function useClipboardShortcuts(
       { preventDefault: false },
     ],
     [
-      'mod+V',
+      SHORTCUTS.paste.hotkey,
       (e) => {
         if (!hasClipboard) return
         e.preventDefault()

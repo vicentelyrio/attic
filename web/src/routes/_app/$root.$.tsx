@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import {
   useDetailPanel,
+  useFullscreenPreview,
   useSelection,
   useShowHidden,
   useViewMode,
@@ -12,7 +13,15 @@ import { Flex, Stack } from '@mantine/core'
 
 import { type Entry, useClipboardShortcuts, useDirectory } from '@domain'
 
-import { ContextMenu, DetailPanel, Footer, Grid, Header, List } from '@features'
+import {
+  ContextMenu,
+  DetailPanel,
+  FilePreview,
+  Footer,
+  Grid,
+  Header,
+  List,
+} from '@features'
 
 export const Route = createFileRoute('/_app/$root/$')({
   component: Index,
@@ -50,7 +59,8 @@ function Index() {
     useMemo(() => [...selected], [selected]),
   )
 
-  const detail = useDetailPanel(selected, entries)
+  const preview = useFullscreenPreview(selected, entries)
+  const detail = useDetailPanel(selected, entries, !!preview.entry)
 
   const open = (item: Entry) => {
     if (!item.is_dir) return
@@ -73,6 +83,7 @@ function Index() {
           onSelect={onSelect}
           onOpen={open}
           onQuickLook={detail.open}
+          onPreview={preview.open}
         >
           {view === 'grid' ? (
             <Grid
@@ -109,6 +120,18 @@ function Index() {
           root={root}
           path={path}
           onClose={detail.close}
+        />
+      )}
+      {preview.entry && (
+        <FilePreview
+          entry={preview.entry}
+          root={root}
+          path={path}
+          index={preview.index}
+          total={preview.total}
+          onPrev={preview.prev}
+          onNext={preview.next}
+          onClose={preview.close}
         />
       )}
     </Flex>

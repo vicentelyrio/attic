@@ -1,0 +1,28 @@
+.toolbar {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  border-bottom: 1px solid var(--mantine-color-dark-5);
+  flex-shrink: 0;
+}
+
+.name {
+  font-variant-numeric: tabular-nums;
+}
+
+.counter {
+  font-family: var(--mantine-font-family-monospace);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.zoom {
+  border: 1px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-sm);
+  padding: 2px;
+}
+
+.zoomValue {
+  min-width: 46px;
+  text-align: center;
+  font-family: var(--mantine-font-family-monospace);
+  font-variant-numeric: tabular-nums;
+}

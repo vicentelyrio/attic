@@ -1,8 +1,8 @@
 import {
   type KeyboardEvent,
   type MouseEvent,
-  type ReactNode,
   memo,
+  type ReactNode,
 } from 'react'
 
 import { sizeParts } from '@infrastructure'
@@ -51,7 +51,7 @@ function Shell({
     if (event.key === 'Enter') {
       event.preventDefault()
       onOpen(entry)
-    } else if (event.key === ' ') {
+    } else if (event.key === ' ' && !event.metaKey && !event.ctrlKey) {
       event.preventDefault()
       onSelect(entry, event as unknown as MouseEvent)
     }

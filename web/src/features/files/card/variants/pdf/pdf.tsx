@@ -14,9 +14,10 @@ export type PdfPreviewProps = {
   entry: Entry
   root: string
   path: string
+  width?: number
 }
 
-export function PdfPreview({ entry, root, path }: PdfPreviewProps) {
+export function PdfPreview({ entry, root, path, width }: PdfPreviewProps) {
   const filePath = path ? `${path}/${entry.name}` : entry.name
   const url = downloadUrl(root, filePath)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -28,10 +29,11 @@ export function PdfPreview({ entry, root, path }: PdfPreviewProps) {
 
     setFailed(false)
     const handle = renderPdfThumbnail(canvas, url, {
+      width,
       onError: () => setFailed(true),
     })
     return () => handle.cancel()
-  }, [url])
+  }, [url, width])
 
   if (failed) return <FilePlaceholder entry={entry} />
 

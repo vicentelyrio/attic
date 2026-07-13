@@ -23,6 +23,7 @@ export type ContextMenuProps = {
   onSelect: (name: string, mods: SelectMods) => void
   onOpen: (entry: Entry) => void
   onQuickLook: () => void
+  onPreview: () => void
   children: ReactNode
 }
 
@@ -35,6 +36,7 @@ export function ContextMenu({
   onSelect,
   onOpen,
   onQuickLook,
+  onPreview,
   children,
 }: ContextMenuProps) {
   const menu = useContextMenu({ entries, root, path, selected, onSelect })
@@ -79,6 +81,7 @@ export function ContextMenu({
               state={menu}
               onOpen={onOpen}
               onQuickLook={onQuickLook}
+              onPreview={onPreview}
             />
           )}
 
