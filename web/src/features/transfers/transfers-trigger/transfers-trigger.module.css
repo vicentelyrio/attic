@@ -1,0 +1,12 @@
+.trigger {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.trigger:hover {
+  background-color: var(--mantine-color-dark-5);
+}

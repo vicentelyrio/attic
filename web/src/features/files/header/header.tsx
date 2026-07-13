@@ -8,8 +8,6 @@ import { ListIcon, SquaresFourIcon } from '@phosphor-icons/react'
 
 import { Breadcrumbs } from '@features'
 
-import { Transfers } from '../../transfers'
-import { Uploads } from '../../uploads'
 import classes from './header.module.css'
 
 const viewmode = [
@@ -60,8 +58,6 @@ export function Header({
             onChange={(value) => onViewChange(value as ViewMode)}
             classNames={{ label: classes.viewLabel }}
           />
-          <Transfers />
-          <Uploads root={root} path={path} />
         </Group>
       </Group>
     </Stack>

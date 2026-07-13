@@ -230,12 +230,25 @@ export const theme = createTheme({
     Kbd: {
       styles: {
         root: {
+          backgroundColor: 'var(--mantine-color-dark-5)',
+          borderWidth: 0,
+          color: 'var(--mantine-color-dark-1)',
           fontFamily: "'Geist Mono', ui-monospace, monospace",
-          backgroundColor: 'var(--mantine-color-dark-6)',
-          borderColor: 'var(--mantine-color-dark-5)',
-          color: 'var(--mantine-color-dark-4)',
+          fontSize: 'var(--mantine-font-size-xs)',
+          height: 'var(--mantine-spacing-md)',
+          lineHeight: 1.4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingInline: '6px',
+          paddingTop: '6px',
+          paddingBottom: '2px',
         },
       },
+    },
+
+    Divider: {
+      defaultProps: { color: 'dark.6' },
     },
 
     Code: {

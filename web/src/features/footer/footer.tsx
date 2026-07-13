@@ -27,11 +27,11 @@ export function Footer({
   useHotkeys([['mod+shift+.', () => onShowHiddenChange(!showHidden)]])
 
   return (
-    <Group className={classes.footer} justify="space-between" py="sm" px="md">
+    <Group className={classes.footer}>
       <Text size="xs" c="dimmed" ff="monospace" truncate="end">
         {fullPath}
       </Text>
-      <Group gap="xs" className={classes.count} wrap="nowrap">
+      <Group className={classes.count}>
         <Text size="xs" c="dimmed" ff="monospace">
           {count.toLocaleString()} {count === 1 ? 'file' : 'files'}
           {hidden > 0 && ` (${hidden.toLocaleString()} hidden)`}

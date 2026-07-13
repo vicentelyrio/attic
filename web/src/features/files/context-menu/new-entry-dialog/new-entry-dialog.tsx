@@ -16,9 +16,6 @@ const DEFAULT_NAME: Record<NewEntryKind, string> = {
   file: 'untitled file',
 }
 
-/** Prompt for the name of a new folder or file. Opens with a Finder-style
- *  default name pre-selected, so hitting Enter accepts it and typing replaces
- *  it. The backend de-duplicates the name, so a clash is never an error. */
 export function NewEntryDialog({
   kind,
   pending,
