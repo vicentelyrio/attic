@@ -1,6 +1,10 @@
-import type { ReactNode } from 'react'
-
-import { FOLDER_KIND, fileKind, size } from '@infrastructure'
+import {
+  FOLDER_KIND,
+  fileKind,
+  type ShortcutId,
+  size,
+  useShortcut,
+} from '@infrastructure'
 
 import { Group, Stack, Text } from '@mantine/core'
 
@@ -9,8 +13,8 @@ import type { Entry } from '@domain'
 import { EntryIcon } from '../../entry-icon'
 import classes from '../context-menu.module.css'
 
-export function Shortcut({ children }: { children: ReactNode }) {
-  return <Text className={classes.shortcut}>{children}</Text>
+export function Shortcut({ id }: { id: ShortcutId }) {
+  return <Text className={classes.shortcut}>{useShortcut(id)}</Text>
 }
 
 export function ReadOnly() {

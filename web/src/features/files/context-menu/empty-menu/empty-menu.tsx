@@ -21,7 +21,7 @@ export function EmptyMenu({
       <Menu.Item
         disabled={!hasClipboard}
         onClick={onPaste}
-        rightSection={<Shortcut>⌘V</Shortcut>}
+        rightSection={<Shortcut id="paste" />}
       >
         Paste
       </Menu.Item>

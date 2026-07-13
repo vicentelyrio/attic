@@ -1,0 +1,16 @@
+.hints {
+  padding: var(--mantine-spacing-sm);
+  flex-shrink: 0;
+}
+
+.kbd {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 6px;
+  border: 1px solid var(--mantine-color-dark-5);
+  border-bottom-width: 2px;
+  border-radius: var(--mantine-radius-sm);
+  background-color: var(--mantine-color-dark-6);
+  color: var(--mantine-color-dark-1);
+}

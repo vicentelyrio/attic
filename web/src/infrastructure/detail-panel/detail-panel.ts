@@ -1,17 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+
+import { useHotkeys } from '@mantine/hooks'
 
 import type { Entry } from '@domain'
 
-function isTypingTarget(target: EventTarget | null) {
-  const el = target as HTMLElement | null
-  return (
-    el?.tagName === 'INPUT' ||
-    el?.tagName === 'TEXTAREA' ||
-    el?.isContentEditable === true
-  )
-}
+import { SHORTCUTS } from '../shortcuts'
 
-export function useDetailPanel(selected: Set<string>, entries?: Entry[]) {
+export function useDetailPanel(
+  selected: Set<string>,
+  entries?: Entry[],
+  suspended = false,
+) {
   const [open, setOpen] = useState(false)
 
   const selectedFile = useMemo(() => {
@@ -20,19 +19,15 @@ export function useDetailPanel(selected: Set<string>, entries?: Entry[]) {
     return entries?.find((e) => e.name === name && !e.is_dir)
   }, [selected, entries])
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return
-      if (e.code === 'Space' && selectedFile) {
-        e.preventDefault()
-        setOpen((prev) => !prev)
-      } else if (e.key === 'Escape' && open) {
-        setOpen(false)
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [selectedFile, open])
+  useHotkeys([
+    [
+      SHORTCUTS.quickLook.hotkey,
+      () => {
+        if (!suspended && selectedFile) setOpen((prev) => !prev)
+      },
+    ],
+    ['Escape', () => !suspended && setOpen(false), { preventDefault: false }],
+  ])
 
   return {
     entry: open ? selectedFile : undefined,

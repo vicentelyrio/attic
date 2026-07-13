@@ -1,4 +1,4 @@
-import type { SelectMods } from '@infrastructure'
+import { type SelectMods, SHORTCUTS } from '@infrastructure'
 
 import { useHotkeys } from '@mantine/hooks'
 
@@ -37,7 +37,7 @@ export function useContextMenu({
   useHotkeys([
     ['Delete', trashSelected],
     ['Backspace', trashSelected],
-    ['mod+Backspace', trashSelected],
+    [SHORTCUTS.trash.hotkey, trashSelected],
   ])
 
   return { ...target, ...clipboard, ...meta, ...mutations }

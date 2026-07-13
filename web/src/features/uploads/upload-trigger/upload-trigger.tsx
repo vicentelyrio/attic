@@ -1,3 +1,5 @@
+import { useShortcut } from '@infrastructure'
+
 import { Button, Kbd } from '@mantine/core'
 
 import { PlusIcon } from '@phosphor-icons/react'
@@ -20,7 +22,7 @@ export function UploadTrigger({ onOpen }: { onOpen: () => void }) {
             },
           }}
         >
-          ⌘U
+          {useShortcut('upload')}
         </Kbd>
       }
       onClick={onOpen}

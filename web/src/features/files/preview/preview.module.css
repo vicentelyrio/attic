@@ -1,0 +1,27 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-dark-9) 92%,
+    transparent
+  );
+  backdrop-filter: blur(6px);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.stageWrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}

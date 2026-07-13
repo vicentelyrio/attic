@@ -20,26 +20,26 @@ export function MultiEntryMenu({ entries, state }: MultiEntryMenuProps) {
 
       <Menu.Item
         onClick={() => copy(entries)}
-        rightSection={<Shortcut>⌘C</Shortcut>}
+        rightSection={<Shortcut id="copy" />}
       >
         Copy
       </Menu.Item>
       <Menu.Item
         onClick={() => cut(entries)}
-        rightSection={<Shortcut>⌘X</Shortcut>}
+        rightSection={<Shortcut id="cut" />}
       >
         Cut
       </Menu.Item>
       <Menu.Item
         disabled={!hasClipboard}
         onClick={paste}
-        rightSection={<Shortcut>⌘V</Shortcut>}
+        rightSection={<Shortcut id="paste" />}
       >
         Paste
       </Menu.Item>
       <Menu.Item
         onClick={() => duplicate(entries)}
-        rightSection={<Shortcut>⌘D</Shortcut>}
+        rightSection={<Shortcut id="duplicate" />}
       >
         Duplicate
       </Menu.Item>
@@ -49,7 +49,7 @@ export function MultiEntryMenu({ entries, state }: MultiEntryMenuProps) {
       <Menu.Item
         className={classes.danger}
         onClick={() => openTrash(entries)}
-        rightSection={<Shortcut>⌘⌫</Shortcut>}
+        rightSection={<Shortcut id="trash" />}
       >
         Move to Trash
       </Menu.Item>

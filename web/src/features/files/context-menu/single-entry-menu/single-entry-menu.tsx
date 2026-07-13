@@ -11,6 +11,7 @@ type SingleEntryMenuProps = {
   state: ContextMenuState
   onOpen: (entry: Entry) => void
   onQuickLook: () => void
+  onPreview: () => void
 }
 
 export function SingleEntryMenu({
@@ -18,6 +19,7 @@ export function SingleEntryMenu({
   state,
   onOpen,
   onQuickLook,
+  onPreview,
 }: SingleEntryMenuProps) {
   const {
     openHref,
@@ -41,7 +43,7 @@ export function SingleEntryMenu({
       {entry.is_dir ? (
         <Menu.Item
           onClick={() => onOpen(entry)}
-          rightSection={<Shortcut>↵</Shortcut>}
+          rightSection={<Shortcut id="open" />}
         >
           Open
         </Menu.Item>
@@ -51,7 +53,7 @@ export function SingleEntryMenu({
           href={openHref(entry)}
           target="_blank"
           rel="noreferrer"
-          rightSection={<Shortcut>↵</Shortcut>}
+          rightSection={<Shortcut id="open" />}
         >
           Open in New Tab
         </Menu.Item>
@@ -60,35 +62,42 @@ export function SingleEntryMenu({
       <Menu.Item
         disabled={entry.is_dir}
         onClick={onQuickLook}
-        rightSection={<Shortcut>Space</Shortcut>}
+        rightSection={<Shortcut id="quickLook" />}
       >
         Quick Look
+      </Menu.Item>
+      <Menu.Item
+        disabled={entry.is_dir}
+        onClick={onPreview}
+        rightSection={<Shortcut id="fullscreen" />}
+      >
+        Full Screen
       </Menu.Item>
 
       <Menu.Divider />
 
       <Menu.Item
         onClick={() => copy([entry])}
-        rightSection={<Shortcut>⌘C</Shortcut>}
+        rightSection={<Shortcut id="copy" />}
       >
         Copy
       </Menu.Item>
       <Menu.Item
         onClick={() => cut([entry])}
-        rightSection={<Shortcut>⌘X</Shortcut>}
+        rightSection={<Shortcut id="cut" />}
       >
         Cut
       </Menu.Item>
       <Menu.Item
         disabled={!hasClipboard}
         onClick={paste}
-        rightSection={<Shortcut>⌘V</Shortcut>}
+        rightSection={<Shortcut id="paste" />}
       >
         Paste
       </Menu.Item>
       <Menu.Item
         onClick={() => duplicate([entry])}
-        rightSection={<Shortcut>⌘D</Shortcut>}
+        rightSection={<Shortcut id="duplicate" />}
       >
         Duplicate
       </Menu.Item>
@@ -105,7 +114,7 @@ export function SingleEntryMenu({
         component="a"
         href={downloadHref(entry, true)}
         disabled={entry.is_dir}
-        rightSection={<Shortcut>⌘↓</Shortcut>}
+        rightSection={<Shortcut id="download" />}
       >
         Download
       </Menu.Item>
@@ -118,7 +127,7 @@ export function SingleEntryMenu({
       <Menu.Item
         className={classes.danger}
         onClick={() => openTrash([entry])}
-        rightSection={<Shortcut>⌘⌫</Shortcut>}
+        rightSection={<Shortcut id="trash" />}
       >
         Move to Trash
       </Menu.Item>

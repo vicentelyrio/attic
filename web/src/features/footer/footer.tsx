@@ -1,3 +1,5 @@
+import { SHORTCUTS } from '@infrastructure'
+
 import { ActionIcon, Group, Text } from '@mantine/core'
 import { useHotkeys } from '@mantine/hooks'
 
@@ -24,7 +26,9 @@ export function Footer({
 }: FooterProps) {
   const fullPath = path ? `/${root}/${path}` : `/${root}`
 
-  useHotkeys([['mod+shift+.', () => onShowHiddenChange(!showHidden)]])
+  useHotkeys([
+    [SHORTCUTS.showHidden.hotkey, () => onShowHiddenChange(!showHidden)],
+  ])
 
   return (
     <Group className={classes.footer}>
