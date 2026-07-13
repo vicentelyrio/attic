@@ -1,4 +1,10 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef } from 'react'
+import {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { fileKind } from '@infrastructure'
 
@@ -26,20 +32,36 @@ export type PreviewStageProps = {
 
 function PdfStage({ zoom, children }: { zoom: number; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
+  const [aspect, setAspect] = useState<number>()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: zoom drives the re-center; the body reads the DOM, not zoom
+  useEffect(() => {
+    const canvas = ref.current?.querySelector('canvas')
+    if (!canvas) return
+    const read = () => {
+      if (canvas.width && canvas.height) setAspect(canvas.width / canvas.height)
+    }
+    read()
+    const observer = new MutationObserver(read)
+    observer.observe(canvas, {
+      attributes: true,
+      attributeFilter: ['width', 'height'],
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: zoom/aspect drive the re-center; the body reads the DOM
   useEffect(() => {
     const el = ref.current
     if (!el) return
     el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
     el.scrollTop = (el.scrollHeight - el.clientHeight) / 2
-  }, [zoom])
+  }, [zoom, aspect])
 
   return (
     <Box
       ref={ref}
       className={classes.document}
-      style={{ '--pdf-zoom': zoom } as CSSProperties}
+      style={{ '--pdf-zoom': zoom, '--pdf-aspect': aspect } as CSSProperties}
     >
       {children}
     </Box>
