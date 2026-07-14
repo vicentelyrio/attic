@@ -7,7 +7,7 @@ export function Logo() {
         Attic
       </Text>
       <Text size="xs" c="dimmed">
-        v0.1
+        v0.1.3
       </Text>
     </Group>
   )

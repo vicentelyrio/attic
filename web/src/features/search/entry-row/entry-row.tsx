@@ -7,7 +7,7 @@ import type { RecentEntry } from '@domain'
 import { EntryIcon } from '@features'
 
 import { crumb } from '../helpers'
-import classes from '../search.module.css'
+import classes from './entry-row.module.css'
 
 export function EntryRow({ hit }: { hit: RecentEntry }) {
   return (

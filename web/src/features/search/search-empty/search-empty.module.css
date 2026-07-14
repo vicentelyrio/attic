@@ -1,0 +1,13 @@
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--mantine-spacing-xs) / 2);
+  text-align: center;
+  padding: var(--mantine-spacing-xl) var(--mantine-spacing-xl);
+}
+
+.noResultsIcon {
+  color: var(--mantine-color-dark-4);
+  margin-bottom: var(--mantine-spacing-xs);
+}
