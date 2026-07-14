@@ -21,6 +21,7 @@ const paths = {
   upload: '/api/upload',
   mkdir: '/api/mkdir',
   file: '/api/file',
+  rename: '/api/rename',
   delete: '/api/delete',
   favorites: '/api/favorites',
   login: '/api/auth/login',
@@ -143,6 +144,17 @@ export const createFolder = (req: NewItemReq): Promise<Created> =>
 
 export const createFile = (req: NewItemReq): Promise<Created> =>
   postJson(paths.file, req)
+
+export interface RenameReq {
+  root: string
+  /** Path of the entry to rename, relative to the root. */
+  path: string
+  /** The new (bare) name. */
+  name: string
+}
+
+export const renameEntry = (req: RenameReq): Promise<Created> =>
+  postJson(paths.rename, req)
 
 export async function trashEntries(
   root: string,

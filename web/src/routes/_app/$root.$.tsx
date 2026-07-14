@@ -21,6 +21,7 @@ import {
   Grid,
   Header,
   List,
+  useRename,
 } from '@features'
 
 export const Route = createFileRoute('/_app/$root/$')({
@@ -61,6 +62,7 @@ function Index() {
 
   const preview = useFullscreenPreview(selected, entries)
   const detail = useDetailPanel(selected, entries, !!preview.entry)
+  const rename = useRename(root, path)
 
   const open = (item: Entry) => {
     if (!item.is_dir) return
@@ -84,6 +86,7 @@ function Index() {
           onOpen={open}
           onQuickLook={detail.open}
           onPreview={preview.open}
+          onRename={rename.begin}
         >
           {view === 'grid' ? (
             <Grid
@@ -94,6 +97,7 @@ function Index() {
               selected={selected}
               onSelect={onSelect}
               onClearSelection={clear}
+              rename={rename}
             />
           ) : (
             <List
@@ -102,6 +106,7 @@ function Index() {
               selected={selected}
               onSelect={onSelect}
               onClearSelection={clear}
+              rename={rename}
             />
           )}
         </ContextMenu>

@@ -4,6 +4,7 @@ import { Table } from '@mantine/core'
 
 import type { Entry } from '@domain'
 
+import type { RenameControls } from '../rename'
 import classes from './list.module.css'
 import { ListRow } from './list-row'
 
@@ -13,6 +14,7 @@ export type ListProps = {
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
+  rename: RenameControls
 }
 
 export function List({
@@ -21,6 +23,7 @@ export function List({
   selected,
   onSelect,
   onClearSelection,
+  rename,
 }: ListProps) {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area
@@ -53,6 +56,10 @@ export function List({
               selected={selected.has(entry.name)}
               onOpen={onOpen}
               onSelect={onSelect}
+              renaming={rename.renaming === entry.name}
+              renamePending={rename.pending}
+              onRenameSubmit={rename.submit}
+              onRenameCancel={rename.cancel}
             />
           ))}
         </Table.Tbody>

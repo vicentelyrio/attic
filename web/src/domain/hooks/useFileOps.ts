@@ -5,6 +5,7 @@ import {
   createFolder,
   type Entry,
   paste,
+  renameEntry,
   trashEntries,
 } from '@domain'
 
@@ -39,6 +40,12 @@ export function useFileOps(root: string, path: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['jobs'] }),
   })
 
+  const rename = useMutation({
+    mutationFn: ({ entry, name }: { entry: Entry; name: string }) =>
+      renameEntry({ root, path: rel(entry.name), name }),
+    onSuccess: refresh,
+  })
+
   const remove = useMutation({
     mutationFn: (entries: Entry[]) =>
       trashEntries(
@@ -48,5 +55,5 @@ export function useFileOps(root: string, path: string) {
     onSuccess: refresh,
   })
 
-  return { mkdir, touch, duplicate, remove }
+  return { mkdir, touch, duplicate, rename, remove }
 }

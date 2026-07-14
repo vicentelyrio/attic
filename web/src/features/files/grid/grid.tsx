@@ -5,6 +5,7 @@ import { Box, Stack } from '@mantine/core'
 import type { Entry } from '@domain'
 
 import { Card } from '../card'
+import type { RenameControls } from '../rename'
 import classes from './grid.module.css'
 import { GridSection } from './grid-section'
 import { useGrid } from './hooks'
@@ -17,6 +18,7 @@ export type GridProps = {
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
+  rename: RenameControls
 }
 
 export function Grid({
@@ -27,12 +29,20 @@ export function Grid({
   selected,
   onSelect,
   onClearSelection,
+  rename,
 }: GridProps) {
   const { folders, files, handleSelect, handleOpen } = useGrid(
     data,
     onSelect,
     onOpen,
   )
+
+  const cardRename = (entry: Entry) => ({
+    renaming: rename.renaming === entry.name,
+    renamePending: rename.pending,
+    onRenameSubmit: rename.submit,
+    onRenameCancel: rename.cancel,
+  })
 
   return (
     <Box
@@ -52,6 +62,7 @@ export function Grid({
                 selected={selected.has(entry.name)}
                 onSelect={handleSelect}
                 onOpen={handleOpen}
+                {...cardRename(entry)}
               />
             ))}
           </GridSection>
@@ -68,6 +79,7 @@ export function Grid({
                 selected={selected.has(entry.name)}
                 onSelect={handleSelect}
                 onOpen={handleOpen}
+                {...cardRename(entry)}
               />
             ))}
           </GridSection>
