@@ -5,7 +5,7 @@ import { spotlight } from '@mantine/spotlight'
 
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 
-import classes from '../search.module.css'
+import classes from './search-trigger.module.css'
 
 export function SearchTrigger() {
   return (
@@ -15,8 +15,8 @@ export function SearchTrigger() {
       pointer
       className={classes.trigger}
       leftSection={<MagnifyingGlassIcon />}
-      rightSection={<Kbd>{useShortcut('search')}</Kbd>}
-      rightSectionWidth={48}
+      rightSection={<Kbd className={classes.kbd}>{useShortcut('search')}</Kbd>}
+      rightSectionWidth={64}
       onClick={spotlight.open}
     >
       Search

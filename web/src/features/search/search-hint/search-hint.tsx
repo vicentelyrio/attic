@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Group, Kbd, Text } from '@mantine/core'
 
-import classes from '../search.module.css'
+import classes from './search-hint.module.css'
 
 export function SearchHint({
   keys,

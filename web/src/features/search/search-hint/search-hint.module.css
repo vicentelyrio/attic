@@ -1,0 +1,5 @@
+.hintKeys {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--mantine-spacing-xs) / 2);
+}

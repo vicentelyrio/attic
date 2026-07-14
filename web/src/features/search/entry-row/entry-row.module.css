@@ -1,0 +1,36 @@
+.row {
+  width: 100%;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.openHint {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  flex-shrink: 0;
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid
+    color-mix(in srgb, var(--mantine-color-indigo-6) 45%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 12%,
+    transparent
+  );
+  color: var(--mantine-color-indigo-2);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  opacity: 0;
+}
+
+[data-selected] .openHint {
+  opacity: 1;
+}

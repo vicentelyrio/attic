@@ -3,7 +3,7 @@ import { Spotlight } from '@mantine/spotlight'
 
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 
-import classes from '../search.module.css'
+import classes from './search-empty.module.css'
 
 export function SearchEmpty({ term }: { term: string }) {
   return (

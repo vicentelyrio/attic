@@ -2,7 +2,7 @@ import { Group, Text } from '@mantine/core'
 import { Spotlight } from '@mantine/spotlight'
 
 import type { ActionDef } from '../helpers'
-import classes from '../search.module.css'
+import classes from './quick-action.module.css'
 
 export function QuickAction({ icon, label, onClick }: ActionDef) {
   return (

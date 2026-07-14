@@ -174,8 +174,7 @@ export const theme = createTheme({
           props.variant === 'filled' || props.variant === undefined
             ? {
                 // inner highlight + indigo glow, like the Vault primary buttons
-                boxShadow:
-                  'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 10px rgba(94, 106, 210, 0.35)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 10px rgba(94, 106, 210, 0.35)',
                 fontWeight: 600,
               }
             : {
@@ -240,6 +239,8 @@ export const theme = createTheme({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          whiteSpace: 'nowrap',
+          maxWidth: 'auto',
           paddingInline: '6px',
           paddingTop: '6px',
           paddingBottom: '2px',

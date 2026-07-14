@@ -1,0 +1,7 @@
+.trigger {
+  color: var(--mantine-color-dark-3);
+}
+
+.kbd {
+  padding-inline: var(--mantine-spacing-xs);
+}
