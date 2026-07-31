@@ -3,7 +3,7 @@ use std::path::Path;
 use axum::{extract::State, http::StatusCode, response::Json};
 use serde::{Deserialize, Serialize};
 
-use crate::fs::{resolve_within_root, safe_name};
+use crate::fs::{internal, resolve_within_root, safe_name};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -78,7 +78,7 @@ fn resolve_new(
     req: &NewItemReq,
 ) -> Result<(std::path::PathBuf, String), StatusCode> {
     let name = safe_name(&req.name).ok_or(StatusCode::BAD_REQUEST)?;
-    let dir = resolve_within_root(&state.roots, &req.root, &req.dir).ok_or(StatusCode::FORBIDDEN)?;
+    let dir = resolve_within_root(&state.roots, &req.root, &req.dir)?;
     if !dir.is_dir() {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -118,7 +118,7 @@ pub(super) async fn rename(
     Json(req): Json<RenameReq>,
 ) -> Result<Json<Created>, StatusCode> {
     let name = safe_name(&req.name).ok_or(StatusCode::BAD_REQUEST)?;
-    let src = resolve_within_root(&state.roots, &req.root, &req.path).ok_or(StatusCode::FORBIDDEN)?;
+    let src = resolve_within_root(&state.roots, &req.root, &req.path)?;
 
     // Renaming a root itself would move the mount point — never allowed.
     if state.roots.values().any(|r| *r == src) {
@@ -154,7 +154,7 @@ pub(super) async fn delete(
 ) -> Result<Json<Deleted>, StatusCode> {
     let mut targets = Vec::with_capacity(req.paths.len());
     for p in &req.paths {
-        let real = resolve_within_root(&state.roots, &req.root, p).ok_or(StatusCode::FORBIDDEN)?;
+        let real = resolve_within_root(&state.roots, &req.root, p)?;
         if state.roots.values().any(|r| *r == real) {
             return Err(StatusCode::BAD_REQUEST);
         }
@@ -164,8 +164,8 @@ pub(super) async fn delete(
     let count = targets.len();
     tokio::task::spawn_blocking(move || trash::delete_all(&targets))
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| internal("delete task", e))?
+        .map_err(|e| internal("move to trash", e))?;
 
     Ok(Json(Deleted { count }))
 }

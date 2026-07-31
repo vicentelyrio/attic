@@ -11,10 +11,6 @@ use crate::state::AppState;
 
 type ApiError = (StatusCode, String);
 
-fn forbidden(msg: &str) -> ApiError {
-    (StatusCode::FORBIDDEN, msg.to_string())
-}
-
 fn bad_request(msg: &str) -> ApiError {
     (StatusCode::BAD_REQUEST, msg.to_string())
 }
@@ -50,7 +46,7 @@ pub async fn add(
     Json(req): Json<AddReq>,
 ) -> Result<Json<Favorite>, ApiError> {
     let resolved = crate::fs::resolve_within_root(&state.roots, &req.root, &req.path)
-        .ok_or_else(|| forbidden("folder not found or outside root"))?;
+        .map_err(|e| e.api_error("folder not found or outside root"))?;
 
     if !resolved.is_dir() {
         return Err(bad_request("favorite must be a folder"));

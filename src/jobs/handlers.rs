@@ -14,10 +14,6 @@ use crate::state::AppState;
 
 type ApiError = (StatusCode, String);
 
-fn forbidden(msg: &str) -> ApiError {
-    (StatusCode::FORBIDDEN, msg.to_string())
-}
-
 fn bad_request(msg: &str) -> ApiError {
     (StatusCode::BAD_REQUEST, msg.to_string())
 }
@@ -97,9 +93,9 @@ pub async fn paste(
     Json(req): Json<PasteReq>,
 ) -> Result<Json<JobView>, ApiError> {
     let src = crate::fs::resolve_within_root(&state.roots, &req.src_root, &req.src_path)
-        .ok_or_else(|| forbidden("source not found or outside root"))?;
+        .map_err(|e| e.api_error("source not found or outside root"))?;
     let dst_dir = crate::fs::resolve_within_root(&state.roots, &req.dst_root, &req.dst_dir)
-        .ok_or_else(|| forbidden("destination not found or outside root"))?;
+        .map_err(|e| e.api_error("destination not found or outside root"))?;
 
     if !dst_dir.is_dir() {
         return Err(bad_request("destination is not a directory"));

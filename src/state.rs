@@ -55,7 +55,12 @@ fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
     }
 
     if roots.is_empty() {
-        tracing::warn!("no roots found under {}", base.display());
+        tracing::error!(
+            "no drives found under roots_dir '{}' — every file request will fail with 503 \
+             until a subdirectory exists there; check that roots_dir matches where the \
+             drives are actually mounted",
+            base.display()
+        );
     }
     roots
 }

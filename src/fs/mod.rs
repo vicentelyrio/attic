@@ -15,6 +15,13 @@ use crate::state::AppState;
 
 pub(crate) use resolve::resolve_within_root;
 
+/// Turns an unexpected failure into a 500, logging the cause first — a bare
+/// 500 in the log is impossible to diagnose from a running deployment.
+pub(crate) fn internal(ctx: &str, e: impl std::fmt::Display) -> axum::http::StatusCode {
+    tracing::error!("{ctx}: {e}");
+    axum::http::StatusCode::INTERNAL_SERVER_ERROR
+}
+
 /// Accepts a filename only if it's a single, ordinary path component, so a
 /// client can't escape a resolved directory through the name itself.
 pub(crate) fn safe_name(name: &str) -> Option<&str> {

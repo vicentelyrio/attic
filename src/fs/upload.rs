@@ -11,7 +11,7 @@ use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
 
-use crate::fs::{resolve_within_root, safe_name};
+use crate::fs::{internal, resolve_within_root, safe_name};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -42,7 +42,7 @@ pub(super) async fn upload(
     body: Body,
 ) -> Result<Json<Uploaded>, StatusCode> {
     let name = safe_name(&q.name).ok_or(StatusCode::BAD_REQUEST)?;
-    let dir = resolve_within_root(&state.roots, &q.root, &q.dir).ok_or(StatusCode::FORBIDDEN)?;
+    let dir = resolve_within_root(&state.roots, &q.root, &q.dir)?;
     if !dir.is_dir() {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -52,7 +52,7 @@ pub(super) async fn upload(
 
     let mut file = tokio::fs::File::create(&part)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| internal(&format!("create '{}'", part.display()), e))?;
 
     let mut written: u64 = 0;
     let mut stream = body.into_data_stream();
@@ -69,21 +69,21 @@ pub(super) async fn upload(
             let _ = tokio::fs::remove_file(&part).await;
             return Err(StatusCode::PAYLOAD_TOO_LARGE);
         }
-        if file.write_all(&chunk).await.is_err() {
+        if let Err(e) = file.write_all(&chunk).await {
             let _ = tokio::fs::remove_file(&part).await;
-            return Err(StatusCode::INTERNAL_SERVER_ERROR);
+            return Err(internal(&format!("write '{}'", part.display()), e));
         }
     }
 
-    if file.sync_all().await.is_err() {
+    if let Err(e) = file.sync_all().await {
         let _ = tokio::fs::remove_file(&part).await;
-        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+        return Err(internal(&format!("sync '{}'", part.display()), e));
     }
     drop(file);
 
-    tokio::fs::rename(&part, &dest).await.map_err(|_| {
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    tokio::fs::rename(&part, &dest)
+        .await
+        .map_err(|e| internal(&format!("rename '{}' into place", part.display()), e))?;
 
     Ok(Json(Uploaded { name: name.to_string(), size: written }))
 }
