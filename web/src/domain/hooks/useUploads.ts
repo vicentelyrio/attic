@@ -1,14 +1,29 @@
 import { useRef, useState } from 'react'
+
 import { useQueryClient } from '@tanstack/react-query'
 
-import { type Upload, UploadStatusMap, uploadFile } from '@domain'
+import {
+  createFolderPath,
+  type Picked,
+  type Upload,
+  UploadStatusMap,
+  uploadFile,
+} from '@domain'
 
 const CONCURRENCY = 2
 
 let seq = 0
 const nextId = () => `up_${Date.now()}_${seq++}`
 
-const ACTIVE: Upload['status'][] = [UploadStatusMap.waiting, UploadStatusMap.uploading]
+const ACTIVE: Upload['status'][] = [
+  UploadStatusMap.waiting,
+  UploadStatusMap.uploading,
+]
+
+const baseName = (path: string) => path.slice(path.lastIndexOf('/') + 1)
+const parentOf = (path: string) =>
+  path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : ''
+const joinRel = (rel: string, name: string) => (rel ? `${rel}/${name}` : name)
 
 export function useUploads(root: string, path: string) {
   const qc = useQueryClient()
@@ -31,22 +46,32 @@ export function useUploads(root: string, path: string) {
     const ctrl = new AbortController()
     controllers.current.set(item.id, ctrl)
 
-    uploadFile(
-      { root, dir: path, name: item.name, file: item.file },
-      {
-        signal: ctrl.signal,
-        onProgress: (loaded) => patch(item.id, { loaded }),
-      },
-    )
+    const started = item.file
+      ? uploadFile(
+          { root, dir: path, rel: item.rel, name: item.name, file: item.file },
+          {
+            signal: ctrl.signal,
+            onProgress: (loaded) => patch(item.id, { loaded }),
+          },
+        )
+      : createFolderPath(
+          { root, dir: path, rel: joinRel(item.rel, item.name) },
+          ctrl.signal,
+        )
+
+    started
       .then(() => {
         patch(item.id, { status: UploadStatusMap.done, loaded: item.size })
-        qc.invalidateQueries({ queryKey: ['list', root, path] })
+        qc.invalidateQueries({ queryKey: ['list', root] })
       })
       .catch((err: unknown) => {
         if (ctrl.signal.aborted) {
           patch(item.id, { status: UploadStatusMap.canceled })
         } else {
-          const message = err instanceof Error ? err.message : 'upload failed'
+          const fallback = item.file
+            ? 'upload failed'
+            : 'could not create folder'
+          const message = err instanceof Error ? err.message : fallback
           patch(item.id, { status: UploadStatusMap.error, error: message })
         }
       })
@@ -57,7 +82,9 @@ export function useUploads(root: string, path: string) {
   }
 
   function pump() {
-    let active = ref.current.filter((it) => it.status === UploadStatusMap.uploading).length
+    let active = ref.current.filter(
+      (it) => it.status === UploadStatusMap.uploading,
+    ).length
     const starts: Upload[] = []
     ref.current = ref.current.map((it) => {
       if (it.status === UploadStatusMap.waiting && active < CONCURRENCY) {
@@ -72,15 +99,28 @@ export function useUploads(root: string, path: string) {
     for (const it of starts) run(it)
   }
 
-  function add(files: File[]) {
-    const queued: Upload[] = files.map((file) => ({
-      id: nextId(),
-      file,
-      name: file.name,
-      size: file.size,
-      loaded: 0,
-      status: UploadStatusMap.waiting,
-    }))
+  function add({ files, dirs }: Picked) {
+    const queued: Upload[] = [
+      ...files.map(({ file, rel }) => ({
+        id: nextId(),
+        file,
+        isDir: false,
+        name: file.name,
+        rel,
+        size: file.size,
+        loaded: 0,
+        status: UploadStatusMap.waiting,
+      })),
+      ...dirs.map((full) => ({
+        id: nextId(),
+        isDir: true,
+        name: baseName(full),
+        rel: parentOf(full),
+        size: 0,
+        loaded: 0,
+        status: UploadStatusMap.waiting,
+      })),
+    ]
     ref.current = [...ref.current, ...queued]
     commit()
     pump()
@@ -112,6 +152,6 @@ export function useUploads(root: string, path: string) {
     add,
     cancel,
     cancelAll,
-    clear
+    clear,
   }
 }

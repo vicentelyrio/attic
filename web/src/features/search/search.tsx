@@ -25,7 +25,16 @@ export function Search() {
         type="file"
         multiple
         hidden
-        onChange={(e) => s.pickFiles(e.currentTarget.files)}
+        onChange={s.onPicked}
+      />
+
+      <input
+        ref={s.folderRef}
+        type="file"
+        multiple
+        hidden
+        webkitdirectory=""
+        onChange={s.onPicked}
       />
 
       <NewEntryDialog

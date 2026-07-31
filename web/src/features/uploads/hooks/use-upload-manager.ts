@@ -10,8 +10,8 @@ export function useUploadManager(root: string, path: string): UploadsState {
   const view = useUploadView()
   const stats = useUploadStats(items)
 
-  const picker = useFilePicker((files) => {
-    add(files)
+  const picker = useFilePicker((picked) => {
+    add(picked)
     view.setView('modal')
   })
 
@@ -44,8 +44,10 @@ export function useUploadManager(root: string, path: string): UploadsState {
     cancel,
     cancelAll,
     inputRef: picker.inputRef,
+    folderRef: picker.folderRef,
     dragging: picker.dragging,
     openPicker: picker.openPicker,
+    openFolderPicker: picker.openFolderPicker,
     onInputChange: picker.onInputChange,
     onDrop: picker.onDrop,
     onDragOver: picker.onDragOver,

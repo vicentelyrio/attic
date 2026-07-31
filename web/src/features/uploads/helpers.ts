@@ -1,6 +1,6 @@
 import type { ChangeEvent, DragEvent, RefObject } from 'react'
 
-import type { Upload } from '@domain'
+import type { Picked, Upload } from '@domain'
 
 export type UploadView = 'hidden' | 'modal' | 'collapsed'
 
@@ -27,12 +27,14 @@ export type UploadsState = {
   done: () => void
   location: string
   items: Upload[]
-  add: (files: File[]) => void
+  add: (picked: Picked) => void
   cancel: (id: string) => void
   cancelAll: () => void
   inputRef: RefObject<HTMLInputElement | null>
+  folderRef: RefObject<HTMLInputElement | null>
   dragging: boolean
   openPicker: () => void
+  openFolderPicker: () => void
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void
   onDrop: (e: DragEvent) => void
   onDragOver: (e: DragEvent) => void

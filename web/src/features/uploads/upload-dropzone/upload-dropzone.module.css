@@ -12,13 +12,11 @@
   background-color: transparent;
   border: 1.5px dashed var(--mantine-color-dark-5);
   border-radius: var(--mantine-radius-lg);
-  cursor: pointer;
   transition:
     border-color 150ms ease,
     background-color 150ms ease;
 }
 
-.dropzone:hover,
 .dropzoneActive {
   border-color: var(--mantine-color-indigo-6);
   background-color: color-mix(
@@ -41,9 +39,4 @@
     var(--mantine-color-indigo-6) 18%,
     transparent
   );
-}
-
-.browse {
-  color: var(--mantine-color-indigo-4);
-  font-weight: 600;
 }

@@ -1,14 +1,15 @@
-import { useRef, useState } from 'react'
+import { type ChangeEvent, useRef, useState } from 'react'
 
 import { spotlight } from '@mantine/spotlight'
 
 import {
   FilePlusIcon,
   FolderPlusIcon,
+  FolderSimpleIcon,
   UploadSimpleIcon,
 } from '@phosphor-icons/react'
 
-import { useFileOps, useUploads } from '@domain'
+import { pickFiles, useFileOps, useUploads } from '@domain'
 
 import type { NewEntryKind } from '../../files/context-menu/new-entry-dialog'
 import type { ActionDef } from '../helpers'
@@ -21,14 +22,15 @@ export function useQuickActions(
 ) {
   const [newEntry, setNewEntry] = useState<NewEntryKind | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const folderRef = useRef<HTMLInputElement>(null)
 
   const fileOps = useFileOps(root, path)
   const uploads = useUploads(root, path)
 
-  const pickFiles = (list: FileList | null) => {
-    const files = list ? Array.from(list) : []
-    if (files.length) uploads.add(files)
-    if (inputRef.current) inputRef.current.value = ''
+  const onPicked = (e: ChangeEvent<HTMLInputElement>) => {
+    const picked = pickFiles(e.currentTarget.files)
+    if (picked.files.length > 0) uploads.add(picked)
+    e.currentTarget.value = ''
     spotlight.close()
   }
 
@@ -58,6 +60,11 @@ export function useQuickActions(
       label: 'Upload…',
       onClick: () => inputRef.current?.click(),
     },
+    {
+      icon: <FolderSimpleIcon weight="fill" />,
+      label: 'Upload folder…',
+      onClick: () => folderRef.current?.click(),
+    },
   ]
 
   const shownActions = isCommand
@@ -75,6 +82,7 @@ export function useQuickActions(
     createEntry,
     creating,
     inputRef,
-    pickFiles,
+    folderRef,
+    onPicked,
   }
 }

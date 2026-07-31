@@ -20,6 +20,7 @@ const paths = {
   jobs: '/api/jobs',
   upload: '/api/upload',
   mkdir: '/api/mkdir',
+  mkdirp: '/api/mkdirp',
   file: '/api/file',
   rename: '/api/rename',
   delete: '/api/delete',
@@ -68,11 +69,16 @@ async function getJson<T>(url: string): Promise<T> {
   return (await apiFetch(url)).json()
 }
 
-async function postJson<T>(url: string, body?: unknown): Promise<T> {
+async function postJson<T>(
+  url: string,
+  body?: unknown,
+  signal?: AbortSignal,
+): Promise<T> {
   const res = await apiFetch(url, {
     method: 'POST',
     headers: jsonHeaders,
     body: body === undefined ? undefined : JSON.stringify(body),
+    signal,
   })
   return res.status === 204 ? (undefined as T) : res.json()
 }
@@ -144,6 +150,17 @@ export const createFolder = (req: NewItemReq): Promise<Created> =>
 
 export const createFile = (req: NewItemReq): Promise<Created> =>
   postJson(paths.file, req)
+
+export interface MkdirPathReq {
+  root: string
+  dir: string
+  rel: string
+}
+
+export const createFolderPath = (
+  req: MkdirPathReq,
+  signal?: AbortSignal,
+): Promise<void> => postJson(paths.mkdirp, req, signal)
 
 export interface RenameReq {
   root: string
@@ -262,6 +279,7 @@ export async function deleteUser(id: string): Promise<void> {
 export interface UploadReq {
   root: string
   dir: string
+  rel: string
   name: string
   file: File
 }
@@ -272,11 +290,12 @@ export interface UploadOpts {
 }
 
 export function uploadFile(
-  { root, dir, name, file }: UploadReq,
+  { root, dir, rel, name, file }: UploadReq,
   { onProgress, signal }: UploadOpts = {},
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const params = new URLSearchParams({ root, dir, name })
+    if (rel) params.set('rel', rel)
     const xhr = new XMLHttpRequest()
     xhr.open('POST', `${paths.upload}?${params}`)
 
