@@ -11,7 +11,7 @@ use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
 
-use crate::fs::{internal, resolve_within_root, safe_name};
+use crate::fs::{ensure_dir, internal, safe_name};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -19,6 +19,8 @@ pub(super) struct UploadQuery {
     root: String,
     #[serde(default)]
     dir: String,
+    #[serde(default)]
+    rel: String,
     name: String,
 }
 
@@ -42,10 +44,7 @@ pub(super) async fn upload(
     body: Body,
 ) -> Result<Json<Uploaded>, StatusCode> {
     let name = safe_name(&q.name).ok_or(StatusCode::BAD_REQUEST)?;
-    let dir = resolve_within_root(&state.roots, &q.root, &q.dir)?;
-    if !dir.is_dir() {
-        return Err(StatusCode::BAD_REQUEST);
-    }
+    let dir = ensure_dir(&state, &q.root, &q.dir, &q.rel).await?;
 
     let dest = dir.join(name);
     let part = part_path(&dest);
