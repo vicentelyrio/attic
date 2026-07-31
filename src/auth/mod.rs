@@ -72,7 +72,10 @@ pub async fn require_auth(
 
     let user = store::session_user(&state.pool, &session::hash_token(&token))
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .map_err(|e| {
+            tracing::error!("session lookup failed: {e}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
     if user.status != AccountStatus::Active {

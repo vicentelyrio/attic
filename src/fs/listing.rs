@@ -8,7 +8,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::fs::resolve_within_root;
+use crate::fs::{internal, resolve_within_root};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -57,14 +57,14 @@ pub(super) async fn list_dir(
     State(state): State<AppState>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Listing>, StatusCode> {
-    let dir = resolve_within_root(&state.roots, &q.root, &q.path).ok_or(StatusCode::FORBIDDEN)?;
+    let dir = resolve_within_root(&state.roots, &q.root, &q.path)?;
     let mut read_dir = tokio::fs::read_dir(&dir).await.map_err(|_| StatusCode::NOT_FOUND)?;
 
     let mut entries = Vec::new();
     while let Some(item) = read_dir
         .next_entry()
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .map_err(|e| internal(&format!("read '{}'", dir.display()), e))?
     {
         let meta = match item.metadata().await {
             Ok(m) => m,

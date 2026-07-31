@@ -106,9 +106,9 @@ async fn process(
     cancel: &Arc<AtomicBool>,
 ) -> Result<Outcome, JobError> {
     let src_top = crate::fs::resolve_within_root(&state.roots, &job.src_root, &job.src_path)
-        .ok_or_else(|| JobError::Path("source no longer resolvable".into()))?;
+        .map_err(|e| JobError::Path(format!("source no longer resolvable: {}", e.message())))?;
     let dst_dir = crate::fs::resolve_within_root(&state.roots, &job.dst_root, &job.dst_dir)
-        .ok_or_else(|| JobError::Path("destination no longer resolvable".into()))?;
+        .map_err(|e| JobError::Path(format!("destination no longer resolvable: {}", e.message())))?;
     let src_parent = src_top
         .parent()
         .map(Path::to_path_buf)

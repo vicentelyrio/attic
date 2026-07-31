@@ -8,7 +8,7 @@ use serde::Deserialize;
 use tower::ServiceExt;
 use tower_http::services::ServeFile;
 
-use crate::fs::resolve_within_root;
+use crate::fs::{internal, resolve_within_root};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -25,7 +25,7 @@ pub(super) async fn download(
     Query(q): Query<DownloadQuery>,
     req: Request<Body>,
 ) -> Result<Response, StatusCode> {
-    let path = resolve_within_root(&state.roots, &q.root, &q.path).ok_or(StatusCode::FORBIDDEN)?;
+    let path = resolve_within_root(&state.roots, &q.root, &q.path)?;
 
     let meta = tokio::fs::metadata(&path).await.map_err(|_| StatusCode::NOT_FOUND)?;
     if meta.is_dir() {
@@ -35,7 +35,7 @@ pub(super) async fn download(
     let mut response = ServeFile::new(&path)
         .oneshot(req)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .map_err(|e| internal(&format!("serve '{}'", path.display()), e))?
         .into_response();
 
     if q.dl
