@@ -25,8 +25,10 @@ export function UploadModal({ state }: { state: UploadsState }) {
     cancelAll,
     done,
     inputRef,
+    folderRef,
     onInputChange,
     openPicker,
+    openFolderPicker,
     dragging,
     onDrop,
     onDragOver,
@@ -60,6 +62,7 @@ export function UploadModal({ state }: { state: UploadsState }) {
             <UploadDropzone
               dragging={dragging}
               onOpen={openPicker}
+              onOpenFolder={openFolderPicker}
               onDrop={onDrop}
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
@@ -70,6 +73,15 @@ export function UploadModal({ state }: { state: UploadsState }) {
               type="file"
               multiple
               hidden
+              onChange={onInputChange}
+            />
+
+            <input
+              ref={folderRef}
+              type="file"
+              multiple
+              hidden
+              webkitdirectory=""
               onChange={onInputChange}
             />
 

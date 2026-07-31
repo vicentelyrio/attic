@@ -3,7 +3,7 @@ use std::path::Path;
 use axum::{extract::State, http::StatusCode, response::Json};
 use serde::{Deserialize, Serialize};
 
-use crate::fs::{internal, resolve_within_root, safe_name};
+use crate::fs::{ensure_dir, internal, resolve_within_root, safe_name};
 use crate::state::AppState;
 
 #[derive(Deserialize)]
@@ -17,6 +17,14 @@ pub(super) struct NewItemReq {
 #[derive(Serialize)]
 pub(super) struct Created {
     name: String,
+}
+
+#[derive(Deserialize)]
+pub(super) struct MkdirPathReq {
+    root: String,
+    #[serde(default)]
+    dir: String,
+    rel: String,
 }
 
 #[derive(Deserialize)]
@@ -96,6 +104,19 @@ pub(super) async fn mkdir(
         .await
         .map_err(|e| io_status(&path, &e))?;
     Ok(Json(Created { name }))
+}
+
+// Unlike `mkdir`, idempotent and multi-level: an upload's empty folders have no
+// file to imply them, and no unique-name dance is wanted.
+pub(super) async fn mkdir_path(
+    State(state): State<AppState>,
+    Json(req): Json<MkdirPathReq>,
+) -> Result<StatusCode, StatusCode> {
+    if req.rel.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    ensure_dir(&state, &req.root, &req.dir, &req.rel).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub(super) async fn create_file(

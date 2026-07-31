@@ -6,7 +6,10 @@ mod roots;
 mod search;
 mod upload;
 
+use std::path::PathBuf;
+
 use axum::{
+    http::StatusCode,
     routing::{get, post},
     Router,
 };
@@ -35,6 +38,49 @@ pub(crate) fn safe_name(name: &str) -> Option<&str> {
     Some(name)
 }
 
+fn rel_components(rel: &str) -> Option<Vec<&str>> {
+    rel.split('/')
+        .filter(|s| !s.trim().is_empty())
+        .map(safe_name)
+        .collect()
+}
+
+/// Descends one level at a time because an existing component may be a symlink
+/// out of the root, which has to be caught before anything is created through it.
+pub(crate) async fn ensure_dir(
+    state: &AppState,
+    root_name: &str,
+    dir: &str,
+    rel: &str,
+) -> Result<PathBuf, StatusCode> {
+    let base = resolve_within_root(&state.roots, root_name, dir)?;
+    if !base.is_dir() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let parts = rel_components(rel).ok_or(StatusCode::BAD_REQUEST)?;
+    let root = state.roots.get(root_name).ok_or(StatusCode::FORBIDDEN)?;
+
+    let mut dir = base;
+    for part in parts {
+        let next = dir.join(part);
+        if !next.exists()
+            && let Err(e) = tokio::fs::create_dir(&next).await
+            && e.kind() != std::io::ErrorKind::AlreadyExists
+        {
+            return Err(internal(&format!("create '{}'", next.display()), e));
+        }
+        dir = tokio::fs::canonicalize(&next)
+            .await
+            .map_err(|_| StatusCode::BAD_REQUEST)?;
+        if !dir.starts_with(root) || !dir.is_dir() {
+            return Err(StatusCode::FORBIDDEN);
+        }
+    }
+
+    Ok(dir)
+}
+
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/api/roots", get(roots::list_roots))
@@ -43,7 +89,30 @@ pub fn routes() -> Router<AppState> {
         .route("/api/download", get(download::download))
         .route("/api/upload", post(upload::upload))
         .route("/api/mkdir", post(mutate::mkdir))
+        .route("/api/mkdirp", post(mutate::mkdir_path))
         .route("/api/file", post(mutate::create_file))
         .route("/api/rename", post(mutate::rename))
         .route("/api/delete", post(mutate::delete))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::rel_components;
+
+    #[test]
+    fn accepts_nested_folders() {
+        assert_eq!(rel_components("a/b/c"), Some(vec!["a", "b", "c"]));
+    }
+
+    #[test]
+    fn ignores_empty_segments() {
+        assert_eq!(rel_components(""), Some(vec![]));
+        assert_eq!(rel_components("/a//b/"), Some(vec!["a", "b"]));
+    }
+
+    #[test]
+    fn rejects_traversal() {
+        assert_eq!(rel_components("a/../../etc"), None);
+        assert_eq!(rel_components(".."), None);
+    }
 }

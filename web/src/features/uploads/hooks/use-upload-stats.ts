@@ -15,7 +15,13 @@ export function useUploadStats(items: Upload[]) {
     (n, it) => n + (it.status === 'done' ? it.size : it.loaded),
     0,
   )
-  const aggPercent = bytesTotal > 0 ? (bytesDone / bytesTotal) * 100 : 0
+  // A queue of only empty folders carries no bytes, so fall back to item count.
+  const aggPercent =
+    bytesTotal > 0
+      ? (bytesDone / bytesTotal) * 100
+      : items.length > 0
+        ? (doneCount / items.length) * 100
+        : 0
   const speed = useRate(bytesDone, busy)
   const eta = speed > 0 ? formatEta((bytesTotal - bytesDone) / speed) : ''
 

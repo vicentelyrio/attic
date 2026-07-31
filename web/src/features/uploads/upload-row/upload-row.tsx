@@ -39,7 +39,7 @@ export function UploadRow({ item, onCancel }: UploadRowProps) {
 
   return (
     <Group gap="sm" wrap="nowrap" py="xs" className={classes.row}>
-      <EntryIcon name={item.name} isDir={false} />
+      <EntryIcon name={item.name} isDir={item.isDir} />
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
@@ -55,9 +55,14 @@ export function UploadRow({ item, onCancel }: UploadRowProps) {
             size="sm"
             c={isDone ? 'dark.1' : 'dark.0'}
             truncate
-            title={item.name}
+            title={item.rel ? `${item.rel}/${item.name}` : item.name}
             style={{ flex: 1, minWidth: 0 }}
           >
+            {item.rel && (
+              <Text span size="sm" c="dark.3">
+                {item.rel}/
+              </Text>
+            )}
             {item.name}
           </Text>
           <span style={{ flexShrink: 0 }}>
@@ -111,6 +116,13 @@ export function UploadRow({ item, onCancel }: UploadRowProps) {
 }
 
 function RowMeta({ item }: { item: Upload }) {
+  if (item.isDir) {
+    return (
+      <Text size="xs" c="dark.4" ff="monospace">
+        {item.status === 'done' ? 'Folder' : 'Empty folder'}
+      </Text>
+    )
+  }
   if (item.status === 'done') {
     return (
       <Text size="xs" c="dark.4" ff="monospace">
