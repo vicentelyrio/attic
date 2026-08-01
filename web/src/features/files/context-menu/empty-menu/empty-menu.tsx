@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Menu } from '@mantine/core'
 
 import { ReadOnly, Shortcut } from '../menu-parts'
@@ -16,6 +18,8 @@ export function EmptyMenu({
   onPaste,
   onNew,
 }: EmptyMenuProps) {
+  const { LL } = useI18nContext()
+
   return (
     <>
       <Menu.Item
@@ -23,7 +27,7 @@ export function EmptyMenu({
         onClick={onPaste}
         rightSection={<Shortcut id="paste" />}
       >
-        Paste
+        {LL.common.paste()}
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item
@@ -31,14 +35,14 @@ export function EmptyMenu({
         onClick={() => onNew('folder')}
         rightSection={writable ? undefined : <ReadOnly />}
       >
-        New Folder
+        {LL.menu.newFolder()}
       </Menu.Item>
       <Menu.Item
         disabled={!writable}
         onClick={() => onNew('file')}
         rightSection={writable ? undefined : <ReadOnly />}
       >
-        New File
+        {LL.menu.newFile()}
       </Menu.Item>
     </>
   )

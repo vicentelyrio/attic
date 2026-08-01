@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { ActionIcon, Affix, Divider, Group, Paper, Text } from '@mantine/core'
 
 import { XIcon } from '@phosphor-icons/react'
@@ -9,6 +11,7 @@ import { TransferSummary } from '../transfer-summary'
 import classes from './expanded-dock.module.css'
 
 export function ExpandedDock({ state }: { state: TransfersState }) {
+  const { LL } = useI18nContext()
   const { busy, title, subtitle, list, setView } = state
 
   return (
@@ -40,7 +43,7 @@ export function ExpandedDock({ state }: { state: TransfersState }) {
             color="gray"
             className={classes.iconBtn}
             onClick={() => setView('hidden')}
-            aria-label="Dismiss transfers"
+            aria-label={LL.transfers.dismiss()}
           >
             <XIcon />
           </ActionIcon>
@@ -56,7 +59,7 @@ export function ExpandedDock({ state }: { state: TransfersState }) {
           </>
         ) : (
           <Text size="sm" c="dimmed" ta="center" py="lg">
-            No transfers yet
+            {LL.transfers.empty()}
           </Text>
         )}
       </Paper>

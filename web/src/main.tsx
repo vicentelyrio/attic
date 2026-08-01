@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 
 import { createRoot } from 'react-dom/client'
 
+import { I18nProvider } from '@i18n'
 import { shikiAdapter } from '@infrastructure'
 import {
   QueryCache,
@@ -51,13 +52,15 @@ declare module '@tanstack/react-router' {
 // biome-ignore lint/style/noNonNullAssertion: #root is guaranteed by index.html
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="dark" theme={theme}>
-        <Notifications position="bottom-right" />
-        <CodeHighlightAdapterProvider adapter={shikiAdapter}>
-          <RouterProvider router={router} />
-        </CodeHighlightAdapterProvider>
-      </MantineProvider>
-    </QueryClientProvider>
+    <I18nProvider>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider defaultColorScheme="dark" theme={theme}>
+          <Notifications position="bottom-right" />
+          <CodeHighlightAdapterProvider adapter={shikiAdapter}>
+            <RouterProvider router={router} />
+          </CodeHighlightAdapterProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </I18nProvider>
   </StrictMode>,
 )

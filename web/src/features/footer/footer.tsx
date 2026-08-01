@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { SHORTCUTS } from '@infrastructure'
 
 import { ActionIcon, Group, Text } from '@mantine/core'
@@ -24,6 +25,7 @@ export function Footer({
   showHidden,
   onShowHiddenChange,
 }: FooterProps) {
+  const { LL } = useI18nContext()
   const fullPath = path ? `/${root}/${path}` : `/${root}`
 
   useHotkeys([
@@ -37,15 +39,17 @@ export function Footer({
       </Text>
       <Group className={classes.count}>
         <Text size="xs" c="dimmed" ff="monospace">
-          {count.toLocaleString()} {count === 1 ? 'file' : 'files'}
-          {hidden > 0 && ` (${hidden.toLocaleString()} hidden)`}
+          {LL.files.fileCount({ count })}
+          {hidden > 0 && ` ${LL.files.hiddenCount({ count: hidden })}`}
         </Text>
         <ActionIcon
           size="sm"
           variant="subtle"
           color="gray"
           c="dimmed"
-          aria-label={showHidden ? 'Hide hidden files' : 'Show hidden files'}
+          aria-label={
+            showHidden ? LL.files.hideHidden() : LL.files.showHidden()
+          }
           onClick={() => onShowHiddenChange(!showHidden)}
         >
           {showHidden ? <EyeIcon size={14} /> : <EyeSlashIcon size={14} />}

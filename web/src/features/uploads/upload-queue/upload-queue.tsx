@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import { Group, ScrollArea, Stack, Text } from '@mantine/core'
@@ -20,11 +21,13 @@ export function UploadQueue({
   speed,
   onCancel,
 }: UploadQueueProps) {
+  const { LL } = useI18nContext()
+
   return (
     <>
       <Group justify="space-between" wrap="nowrap">
         <Text size="xs" c="dimmed" fw={600} className={classes.queueLabel}>
-          QUEUE · {doneCount} of {items.length} done
+          {LL.uploads.queue({ done: doneCount, total: items.length })}
         </Text>
         {speed > 0 && (
           <Text size="xs" c="dimmed" ff="monospace">

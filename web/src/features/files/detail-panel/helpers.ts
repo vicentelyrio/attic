@@ -1,3 +1,4 @@
+import type { TranslationFunctions } from '@i18n'
 import { dayjs, relativeTime } from '@infrastructure'
 
 import type { Entry } from '@domain'
@@ -5,6 +6,7 @@ import type { Entry } from '@domain'
 export type MetaRow = { label: string; value: string }
 
 export function buildRows(
+  LL: TranslationFunctions,
   entry: Entry,
   root: string,
   path: string,
@@ -14,11 +16,17 @@ export function buildRows(
   const where = [root, ...(path ? path.split('/') : [])].join(' / ')
 
   return [
-    { label: 'Kind', value: kindLabel },
-    { label: 'Size', value: `${entry.size.toLocaleString()} bytes` },
-    dims && { label: 'Dimensions', value: dims },
-    { label: 'Created', value: dayjs.unix(entry.created).format('ll') },
-    { label: 'Modified', value: relativeTime(entry.modified) },
-    { label: 'Where', value: where },
+    { label: LL.common.kind(), value: kindLabel },
+    {
+      label: LL.common.size(),
+      value: LL.detail.bytes({ value: entry.size.toLocaleString() }),
+    },
+    dims && { label: LL.detail.dimensions(), value: dims },
+    {
+      label: LL.detail.created(),
+      value: dayjs.unix(entry.created).format('ll'),
+    },
+    { label: LL.common.modified(), value: relativeTime(entry.modified) },
+    { label: LL.detail.where(), value: where },
   ].filter(Boolean) as MetaRow[]
 }

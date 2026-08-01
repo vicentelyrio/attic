@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Button, Group, Modal, PasswordInput, Stack, Text } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
@@ -14,10 +16,12 @@ export function ResetPasswordModal({
   onClose,
   onSubmit,
 }: ResetPasswordModalProps) {
+  const { LL } = useI18nContext()
+
   const form = useForm({
     initialValues: { password: '' },
     validate: {
-      password: (v) => (v.length >= 8 ? null : 'At least 8 characters'),
+      password: (v) => (v.length >= 8 ? null : LL.auth.minPassword()),
     },
   })
 
@@ -28,7 +32,7 @@ export function ResetPasswordModal({
         form.reset()
         onClose()
       }}
-      title={`Reset password — ${user?.username ?? ''}`}
+      title={LL.admin.resetPasswordTitle({ username: user?.username ?? '' })}
       centered
     >
       <form
@@ -39,16 +43,15 @@ export function ResetPasswordModal({
       >
         <Stack>
           <Text size="sm" c="dimmed">
-            Set a new password for this account. Their existing sessions will be
-            revoked.
+            {LL.admin.resetPasswordBody()}
           </Text>
           <PasswordInput
-            label="New password"
-            placeholder="At least 8 characters"
+            label={LL.admin.newPassword()}
+            placeholder={LL.auth.minPassword()}
             {...form.getInputProps('password')}
           />
           <Group justify="flex-end">
-            <Button type="submit">Reset password</Button>
+            <Button type="submit">{LL.admin.resetPassword()}</Button>
           </Group>
         </Stack>
       </form>

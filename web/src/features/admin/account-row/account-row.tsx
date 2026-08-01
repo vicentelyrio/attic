@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Badge, Button, Group, Table, Text } from '@mantine/core'
 
 import type { User } from '@domain'
@@ -12,6 +14,7 @@ export function AccountRow({
   user: User
   state: AccountsState
 }) {
+  const { LL } = useI18nContext()
   const { me, approve, disable, openReset, openRemove } = state
   const isSelf = user.id === me?.id
 
@@ -22,12 +25,12 @@ export function AccountRow({
       </Table.Td>
       <Table.Td>
         <Badge color={roleColor[user.role]} variant="light" size="sm">
-          {user.role}
+          {LL.admin.roles[user.role]()}
         </Badge>
       </Table.Td>
       <Table.Td>
         <Badge color={statusColor[user.status]} variant="light" size="sm">
-          {user.status}
+          {LL.admin.statuses[user.status]()}
         </Badge>
       </Table.Td>
       <Table.Td>
@@ -40,7 +43,9 @@ export function AccountRow({
               loading={approve.isPending && approve.variables === user.id}
               onClick={() => approve.mutate(user.id)}
             >
-              {user.status === 'pending' ? 'Approve' : 'Enable'}
+              {user.status === 'pending'
+                ? LL.admin.approve()
+                : LL.admin.enable()}
             </Button>
           )}
           {user.status === 'active' && !isSelf && (
@@ -50,7 +55,7 @@ export function AccountRow({
               loading={disable.isPending && disable.variables === user.id}
               onClick={() => disable.mutate(user.id)}
             >
-              Disable
+              {LL.admin.disable()}
             </Button>
           )}
           <Button
@@ -58,7 +63,7 @@ export function AccountRow({
             variant="default"
             onClick={() => openReset(user)}
           >
-            Reset password
+            {LL.admin.resetPassword()}
           </Button>
           {!isSelf && (
             <Button
@@ -67,7 +72,7 @@ export function AccountRow({
               color="red"
               onClick={() => openRemove(user)}
             >
-              Remove
+              {LL.common.remove()}
             </Button>
           )}
         </Group>

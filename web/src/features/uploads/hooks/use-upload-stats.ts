@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import type { Upload } from '@domain'
@@ -6,6 +7,7 @@ import { ACTIVE, formatEta } from '../helpers'
 import { useRate } from './use-rate'
 
 export function useUploadStats(items: Upload[]) {
+  const { LL } = useI18nContext()
   const activeItems = items.filter((it) => ACTIVE.includes(it.status))
   const doneCount = items.filter((it) => it.status === 'done').length
   const busy = activeItems.length > 0
@@ -23,7 +25,7 @@ export function useUploadStats(items: Upload[]) {
         ? (doneCount / items.length) * 100
         : 0
   const speed = useRate(bytesDone, busy)
-  const eta = speed > 0 ? formatEta((bytesTotal - bytesDone) / speed) : ''
+  const eta = speed > 0 ? formatEta(LL, (bytesTotal - bytesDone) / speed) : ''
 
   const collapsedSubtitle = [
     `${Math.round(aggPercent)}%`,

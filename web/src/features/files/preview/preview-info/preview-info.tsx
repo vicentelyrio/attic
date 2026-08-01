@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import {
   ActionIcon,
   Button,
@@ -32,6 +34,8 @@ export function PreviewInfo({
   onShare,
   onClose,
 }: PreviewInfoProps) {
+  const { LL } = useI18nContext()
+
   return (
     <Stack className={classes.info} gap={0}>
       <Group
@@ -40,13 +44,13 @@ export function PreviewInfo({
         wrap="nowrap"
       >
         <Text size="xs" c="dark.3" className={classes.infoTitle}>
-          Info
+          {LL.detail.info()}
         </Text>
         <ActionIcon
           variant="subtle"
           color="gray"
           onClick={onClose}
-          aria-label="Hide info"
+          aria-label={LL.detail.hideInfo()}
         >
           <XIcon size={16} />
         </ActionIcon>
@@ -64,7 +68,7 @@ export function PreviewInfo({
           leftSection={<ShareNetworkIcon size={16} />}
           onClick={onShare}
         >
-          {copied ? 'Copied' : 'Share'}
+          {copied ? LL.common.copied() : LL.common.share()}
         </Button>
         <Button
           component="a"
@@ -74,7 +78,7 @@ export function PreviewInfo({
           variant="default"
           leftSection={<ArrowSquareOutIcon size={16} />}
         >
-          Open
+          {LL.common.open()}
         </Button>
       </Group>
     </Stack>

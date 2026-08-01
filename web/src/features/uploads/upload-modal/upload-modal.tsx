@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import { ActionIcon, Button, Group, Modal, Stack, Text } from '@mantine/core'
@@ -10,6 +11,7 @@ import { UploadQueue } from '../upload-queue'
 import classes from './upload-modal.module.css'
 
 export function UploadModal({ state }: { state: UploadsState }) {
+  const { LL } = useI18nContext()
   const {
     view,
     close,
@@ -41,7 +43,8 @@ export function UploadModal({ state }: { state: UploadsState }) {
       <Modal.Content>
         <Modal.Header>
           <Modal.Title className={classes.title}>
-            Upload to <span className={classes.location}>{location}</span>
+            {LL.uploads.to()}{' '}
+            <span className={classes.location}>{location}</span>
           </Modal.Title>
           <Group gap={4} wrap="nowrap">
             <ActionIcon
@@ -49,7 +52,7 @@ export function UploadModal({ state }: { state: UploadsState }) {
               color="gray"
               className={classes.iconBtn}
               onClick={minimize}
-              aria-label="Minimize"
+              aria-label={LL.uploads.minimize()}
             >
               <MinusIcon />
             </ActionIcon>
@@ -98,7 +101,7 @@ export function UploadModal({ state }: { state: UploadsState }) {
               <Text size="xs" c="dimmed">
                 {items.length > 0 && (
                   <>
-                    Total{' '}
+                    {LL.common.total()}{' '}
                     <Text span ff="monospace" c="dark.2">
                       {size(bytesTotal)}
                     </Text>
@@ -109,11 +112,11 @@ export function UploadModal({ state }: { state: UploadsState }) {
               <Group gap="xs" wrap="nowrap">
                 {busy && (
                   <Button variant="default" size="xs" onClick={cancelAll}>
-                    Cancel all
+                    {LL.common.cancelAll()}
                   </Button>
                 )}
                 <Button size="xs" onClick={done}>
-                  Done
+                  {LL.common.done()}
                 </Button>
               </Group>
             </Group>

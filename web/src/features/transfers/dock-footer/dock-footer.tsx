@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import { Button, Group, Text } from '@mantine/core'
@@ -5,13 +6,14 @@ import { Button, Group, Text } from '@mantine/core'
 import type { TransfersState } from '../helpers'
 
 export function DockFooter({ state }: { state: TransfersState }) {
+  const { LL } = useI18nContext()
   const { bytesTotal, hasFinished, busy, clear, clearPending, cancelAll } =
     state
 
   return (
     <Group justify="space-between" wrap="nowrap" px="sm" py="xs">
       <Text size="xs" c="dimmed">
-        Total{' '}
+        {LL.common.total()}{' '}
         <Text span ff="monospace" c="dark.2">
           {size(bytesTotal)}
         </Text>
@@ -25,7 +27,7 @@ export function DockFooter({ state }: { state: TransfersState }) {
             onClick={clear}
             disabled={clearPending}
           >
-            Clear
+            {LL.common.clear()}
           </Button>
         )}
         {busy && (
@@ -35,7 +37,7 @@ export function DockFooter({ state }: { state: TransfersState }) {
             size="compact-xs"
             onClick={cancelAll}
           >
-            Cancel all
+            {LL.common.cancelAll()}
           </Button>
         )}
       </Group>

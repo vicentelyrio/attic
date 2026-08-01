@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import {
@@ -24,6 +25,7 @@ type TransferRowProps = {
 }
 
 export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
+  const { LL } = useI18nContext()
   const name = basename(job.src_path)
   const isDone = job.status === 'done'
   const isFailed = job.status === 'failed'
@@ -72,7 +74,7 @@ export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
             color="yellow"
             onClick={onResolve}
           >
-            Resolve conflicts
+            {LL.transfers.resolveConflicts()}
           </Button>
         ) : isFailed && job.error ? (
           <Text size="xs" c="red" truncate title={job.error}>
@@ -99,7 +101,7 @@ export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
           size="sm"
           className={classes.iconBtn}
           onClick={onCancel}
-          aria-label="Cancel transfer"
+          aria-label={LL.transfers.cancelTransfer()}
         >
           <XIcon />
         </ActionIcon>
@@ -109,6 +111,8 @@ export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
 }
 
 function RowMeta({ job }: { job: Job }) {
+  const { LL } = useI18nContext()
+
   if (job.status === 'done') {
     return (
       <Text size="xs" c="dark.4" ff="monospace">
@@ -126,7 +130,7 @@ function RowMeta({ job }: { job: Job }) {
     }
     return (
       <Text size="xs" c="dark.4" ff="monospace">
-        Waiting
+        {LL.common.waiting()}
       </Text>
     )
   }

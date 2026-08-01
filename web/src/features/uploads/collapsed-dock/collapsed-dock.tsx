@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import {
   ActionIcon,
   Affix,
@@ -16,6 +18,7 @@ import type { UploadsState } from '../helpers'
 import classes from './collapsed-dock.module.css'
 
 export function CollapsedDock({ state }: { state: UploadsState }) {
+  const { LL } = useI18nContext()
   const { aggPercent, busy, activeItems, collapsedSubtitle, expand } = state
 
   return (
@@ -48,8 +51,8 @@ export function CollapsedDock({ state }: { state: UploadsState }) {
           <Box flex={1} miw={0}>
             <Text size="sm" fw={600} truncate>
               {busy
-                ? `Uploading ${activeItems.length} file${activeItems.length === 1 ? '' : 's'}`
-                : 'Upload complete'}
+                ? LL.uploads.uploading({ count: activeItems.length })
+                : LL.uploads.complete()}
             </Text>
             <Text size="xs" c="dimmed" ff="monospace">
               {collapsedSubtitle}
@@ -60,7 +63,7 @@ export function CollapsedDock({ state }: { state: UploadsState }) {
             color="gray"
             className={classes.iconBtn}
             onClick={expand}
-            aria-label="Expand uploads"
+            aria-label={LL.uploads.expand()}
           >
             <CaretUpIcon />
           </ActionIcon>

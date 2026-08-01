@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Menu } from '@mantine/core'
 
 import type { Entry } from '@domain'
@@ -12,6 +14,7 @@ type MultiEntryMenuProps = {
 }
 
 export function MultiEntryMenu({ entries, state }: MultiEntryMenuProps) {
+  const { LL } = useI18nContext()
   const { copy, cut, paste, hasClipboard, duplicate, openTrash } = state
 
   return (
@@ -22,26 +25,26 @@ export function MultiEntryMenu({ entries, state }: MultiEntryMenuProps) {
         onClick={() => copy(entries)}
         rightSection={<Shortcut id="copy" />}
       >
-        Copy
+        {LL.common.copy()}
       </Menu.Item>
       <Menu.Item
         onClick={() => cut(entries)}
         rightSection={<Shortcut id="cut" />}
       >
-        Cut
+        {LL.common.cut()}
       </Menu.Item>
       <Menu.Item
         disabled={!hasClipboard}
         onClick={paste}
         rightSection={<Shortcut id="paste" />}
       >
-        Paste
+        {LL.common.paste()}
       </Menu.Item>
       <Menu.Item
         onClick={() => duplicate(entries)}
         rightSection={<Shortcut id="duplicate" />}
       >
-        Duplicate
+        {LL.common.duplicate()}
       </Menu.Item>
 
       <Menu.Divider />
@@ -51,7 +54,7 @@ export function MultiEntryMenu({ entries, state }: MultiEntryMenuProps) {
         onClick={() => openTrash(entries)}
         rightSection={<Shortcut id="trash" />}
       >
-        Move to Trash
+        {LL.menu.moveToTrash()}
       </Menu.Item>
     </>
   )

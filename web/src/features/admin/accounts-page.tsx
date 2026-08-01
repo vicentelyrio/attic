@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Alert, Box, Stack, Text, Title } from '@mantine/core'
 
 import { AccountsTable } from './accounts-table'
@@ -6,6 +8,7 @@ import { RemoveAccountModal } from './remove-account-modal'
 import { ResetPasswordModal } from './reset-password-modal'
 
 export function AccountsPage() {
+  const { LL } = useI18nContext()
   const state = useAccounts()
   const {
     pending,
@@ -24,9 +27,9 @@ export function AccountsPage() {
     <Box style={{ overflow: 'auto', flex: 1 }} p="xl">
       <Stack gap="xl" maw={860}>
         <Stack gap={4}>
-          <Title order={3}>Accounts</Title>
+          <Title order={3}>{LL.admin.title()}</Title>
           <Text size="sm" c="dimmed">
-            Approve new sign-ups and manage existing accounts.
+            {LL.admin.subtitle()}
           </Text>
         </Stack>
 
@@ -38,12 +41,16 @@ export function AccountsPage() {
 
         {pending.length > 0 && (
           <AccountsTable
-            title="Pending approval"
+            title={LL.admin.pendingApproval()}
             rows={pending}
             state={state}
           />
         )}
-        <AccountsTable title="Members" rows={members} state={state} />
+        <AccountsTable
+          title={LL.admin.members()}
+          rows={members}
+          state={state}
+        />
       </Stack>
 
       <ResetPasswordModal

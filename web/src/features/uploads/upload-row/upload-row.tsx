@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import {
@@ -23,6 +24,7 @@ type UploadRowProps = {
 }
 
 export function UploadRow({ item, onCancel }: UploadRowProps) {
+  const { LL } = useI18nContext()
   const isDone = item.status === 'done'
   const isError = item.status === 'error'
   const isCanceled = item.status === 'canceled'
@@ -104,7 +106,7 @@ export function UploadRow({ item, onCancel }: UploadRowProps) {
               radius="xl"
               className={`${classes.iconBtn} ${classes.waitCancel}`}
               onClick={onCancel}
-              aria-label="Remove from queue"
+              aria-label={LL.uploads.removeFromQueue()}
             >
               <XIcon />
             </ActionIcon>
@@ -116,10 +118,14 @@ export function UploadRow({ item, onCancel }: UploadRowProps) {
 }
 
 function RowMeta({ item }: { item: Upload }) {
+  const { LL } = useI18nContext()
+
   if (item.isDir) {
     return (
       <Text size="xs" c="dark.4" ff="monospace">
-        {item.status === 'done' ? 'Folder' : 'Empty folder'}
+        {item.status === 'done'
+          ? LL.uploads.folder()
+          : LL.uploads.emptyFolder()}
       </Text>
     )
   }
@@ -140,14 +146,14 @@ function RowMeta({ item }: { item: Upload }) {
   if (item.status === 'waiting') {
     return (
       <Text size="xs" c="dark.4" ff="monospace">
-        Waiting
+        {LL.common.waiting()}
       </Text>
     )
   }
   if (item.status === 'canceled') {
     return (
       <Text size="xs" c="dark.4" ff="monospace">
-        Canceled
+        {LL.common.canceled()}
       </Text>
     )
   }

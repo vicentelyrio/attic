@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Button, Group, Stack } from '@mantine/core'
 
 import { DownloadSimpleIcon, ShareNetworkIcon } from '@phosphor-icons/react'
@@ -15,18 +17,20 @@ export function DetailActions({
   copied: boolean
   onShare: () => void
 }) {
+  const { LL } = useI18nContext()
+
   return (
     <Stack className={classes.footer} gap="sm">
       <Group gap="sm" grow>
         <Button component="a" href={viewUrl} target="_blank" rel="noreferrer">
-          Open
+          {LL.common.open()}
         </Button>
         <Button
           variant="default"
           leftSection={<ShareNetworkIcon size={16} />}
           onClick={onShare}
         >
-          {copied ? 'Copied' : 'Share'}
+          {copied ? LL.common.copied() : LL.common.share()}
         </Button>
       </Group>
       <Button
@@ -35,7 +39,7 @@ export function DetailActions({
         variant="default"
         leftSection={<DownloadSimpleIcon size={16} />}
       >
-        Download
+        {LL.common.download()}
       </Button>
     </Stack>
   )

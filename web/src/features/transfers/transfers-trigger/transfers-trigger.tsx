@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import {
   Badge,
   Group,
@@ -15,6 +17,7 @@ import type { TransfersState } from '../helpers'
 import classes from './transfers-trigger.module.css'
 
 export function TransfersTrigger({ state }: { state: TransfersState }) {
+  const { LL } = useI18nContext()
   const { busy, activeCount, count, aggPercent, sidebarStatus, toggle } = state
 
   return (
@@ -26,7 +29,7 @@ export function TransfersTrigger({ state }: { state: TransfersState }) {
       withBorder
       onClick={toggle}
       className={classes.trigger}
-      aria-label="Transfers"
+      aria-label={LL.transfers.title()}
     >
       <Stack gap="xs">
         <Group justify="space-between" wrap="nowrap">
@@ -38,7 +41,7 @@ export function TransfersTrigger({ state }: { state: TransfersState }) {
                 <ArrowsDownUpIcon />
               </ThemeIcon>
             )}
-            <Text size="sm">Transfers</Text>
+            <Text size="sm">{LL.transfers.title()}</Text>
           </Group>
           {busy && (
             <Badge color="indigo" variant="light" size="sm" radius="sm">

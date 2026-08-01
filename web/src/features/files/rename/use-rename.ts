@@ -1,19 +1,22 @@
 import { useState } from 'react'
 
+import { type TranslationFunctions, useI18nContext } from '@i18n'
+
 import { notifications } from '@mantine/notifications'
 
 import { type Entry, HttpError, useFileOps } from '@domain'
 
-function renameError(error: unknown): string {
+function renameError(LL: TranslationFunctions, error: unknown): string {
   if (error instanceof HttpError) {
-    if (error.status === 409) return 'An item with that name already exists.'
-    if (error.status === 400) return 'That name isn’t allowed.'
-    if (error.status === 403) return 'You don’t have permission to rename this.'
+    if (error.status === 409) return LL.files.rename.conflict()
+    if (error.status === 400) return LL.files.rename.invalid()
+    if (error.status === 403) return LL.files.rename.forbidden()
   }
-  return 'Could not rename the item.'
+  return LL.files.rename.generic()
 }
 
 export function useRename(root: string, path: string) {
+  const { LL } = useI18nContext()
   const { rename } = useFileOps(root, path)
   const [renaming, setRenaming] = useState<string | null>(null)
 
@@ -31,15 +34,15 @@ export function useRename(root: string, path: string) {
           setRenaming(null)
           notifications.show({
             color: 'teal',
-            message: `Renamed to “${finalName}”.`,
+            message: LL.files.rename.success({ name: finalName }),
           })
         },
         onError: (error) => {
           setRenaming(null)
           notifications.show({
             color: 'red',
-            title: 'Rename failed',
-            message: renameError(error),
+            title: LL.files.rename.failedTitle(),
+            message: renameError(LL, error),
           })
         },
       },

@@ -1,9 +1,3 @@
-export interface FileKind {
-  label: string
-  category: string
-  color: string
-}
-
 const KIND_COLORS = {
   image: '#57ab5a',
   video: '#e5704b',
@@ -23,161 +17,178 @@ const KIND_COLORS = {
   text: '#8b909a',
 } as const
 
-type Category = keyof typeof KIND_COLORS
+/** Broad grouping, also shown verbatim on file placeholders. */
+export type Category = keyof typeof KIND_COLORS | 'folder' | 'file'
 
-const k = (label: string, category: Category): FileKind => ({
-  label,
+const k = <K extends string>(key: K, category: keyof typeof KIND_COLORS) => ({
+  key,
   category,
   color: KIND_COLORS[category],
 })
 
-export const EXTENSION_KINDS: Record<string, FileKind> = {
+const KINDS = {
   // Images
-  jpg: k('JPEG image', 'image'),
-  jpeg: k('JPEG image', 'image'),
-  png: k('PNG image', 'image'),
-  gif: k('GIF image', 'image'),
-  webp: k('WebP image', 'image'),
-  svg: k('SVG image', 'image'),
-  bmp: k('Bitmap image', 'image'),
-  tiff: k('TIFF image', 'image'),
-  tif: k('TIFF image', 'image'),
-  ico: k('Icon', 'image'),
-  heic: k('HEIC image', 'image'),
-  avif: k('AVIF image', 'image'),
-  raw: k('RAW image', 'image'),
+  jpg: k('jpegImage', 'image'),
+  jpeg: k('jpegImage', 'image'),
+  png: k('pngImage', 'image'),
+  gif: k('gifImage', 'image'),
+  webp: k('webpImage', 'image'),
+  svg: k('svgImage', 'image'),
+  bmp: k('bitmapImage', 'image'),
+  tiff: k('tiffImage', 'image'),
+  tif: k('tiffImage', 'image'),
+  ico: k('icon', 'image'),
+  heic: k('heicImage', 'image'),
+  avif: k('avifImage', 'image'),
+  raw: k('rawImage', 'image'),
 
   // Video
-  mp4: k('MPEG-4 movie', 'video'),
-  m4v: k('MPEG-4 movie', 'video'),
-  mov: k('QuickTime movie', 'video'),
-  mkv: k('Matroska video', 'video'),
-  avi: k('AVI video', 'video'),
-  webm: k('WebM video', 'video'),
-  flv: k('Flash video', 'video'),
-  wmv: k('Windows Media video', 'video'),
-  mpg: k('MPEG video', 'video'),
-  mpeg: k('MPEG video', 'video'),
-  '3gp': k('3GP video', 'video'),
+  mp4: k('mpeg4Movie', 'video'),
+  m4v: k('mpeg4Movie', 'video'),
+  mov: k('quicktimeMovie', 'video'),
+  mkv: k('matroskaVideo', 'video'),
+  avi: k('aviVideo', 'video'),
+  webm: k('webmVideo', 'video'),
+  flv: k('flashVideo', 'video'),
+  wmv: k('windowsMediaVideo', 'video'),
+  mpg: k('mpegVideo', 'video'),
+  mpeg: k('mpegVideo', 'video'),
+  '3gp': k('threeGpVideo', 'video'),
 
   // Audio
-  mp3: k('MP3 audio', 'audio'),
-  wav: k('WAV audio', 'audio'),
-  flac: k('FLAC audio', 'audio'),
-  aac: k('AAC audio', 'audio'),
-  ogg: k('Ogg audio', 'audio'),
-  m4a: k('MPEG-4 audio', 'audio'),
-  wma: k('Windows Media audio', 'audio'),
-  opus: k('Opus audio', 'audio'),
-  aiff: k('AIFF audio', 'audio'),
+  mp3: k('mp3Audio', 'audio'),
+  wav: k('wavAudio', 'audio'),
+  flac: k('flacAudio', 'audio'),
+  aac: k('aacAudio', 'audio'),
+  ogg: k('oggAudio', 'audio'),
+  m4a: k('mpeg4Audio', 'audio'),
+  wma: k('windowsMediaAudio', 'audio'),
+  opus: k('opusAudio', 'audio'),
+  aiff: k('aiffAudio', 'audio'),
 
   // Documents
-  pdf: k('PDF document', 'pdf'),
-  doc: k('Word document', 'doc'),
-  docx: k('Word document', 'doc'),
-  odt: k('OpenDocument text', 'doc'),
-  rtf: k('Rich text', 'text'),
-  txt: k('Plain text', 'text'),
-  xls: k('Excel spreadsheet', 'sheet'),
-  xlsx: k('Excel spreadsheet', 'sheet'),
-  ods: k('OpenDocument sheet', 'sheet'),
-  ppt: k('PowerPoint presentation', 'slide'),
-  pptx: k('PowerPoint presentation', 'slide'),
-  odp: k('OpenDocument slides', 'slide'),
-  epub: k('EPUB book', 'doc'),
+  pdf: k('pdfDocument', 'pdf'),
+  doc: k('wordDocument', 'doc'),
+  docx: k('wordDocument', 'doc'),
+  odt: k('openDocumentText', 'doc'),
+  rtf: k('richText', 'text'),
+  txt: k('plainText', 'text'),
+  xls: k('excelSpreadsheet', 'sheet'),
+  xlsx: k('excelSpreadsheet', 'sheet'),
+  ods: k('openDocumentSheet', 'sheet'),
+  ppt: k('powerpointPresentation', 'slide'),
+  pptx: k('powerpointPresentation', 'slide'),
+  odp: k('openDocumentSlides', 'slide'),
+  epub: k('epubBook', 'doc'),
 
   // Markdown
-  md: k('Markdown', 'markdown'),
-  markdown: k('Markdown', 'markdown'),
-  mdx: k('MDX', 'markdown'),
+  md: k('markdown', 'markdown'),
+  markdown: k('markdown', 'markdown'),
+  mdx: k('mdx', 'markdown'),
 
   // Code
-  js: k('JavaScript', 'code'),
-  mjs: k('JavaScript', 'code'),
-  cjs: k('JavaScript', 'code'),
-  jsx: k('JavaScript React', 'code'),
-  ts: k('TypeScript', 'code'),
-  tsx: k('TypeScript React', 'code'),
-  go: k('Go source', 'code'),
-  rs: k('Rust source', 'code'),
-  py: k('Python source', 'code'),
-  rb: k('Ruby source', 'code'),
-  java: k('Java source', 'code'),
-  kt: k('Kotlin source', 'code'),
-  c: k('C source', 'code'),
-  h: k('C header', 'code'),
-  cpp: k('C++ source', 'code'),
-  cc: k('C++ source', 'code'),
-  cxx: k('C++ source', 'code'),
-  hpp: k('C++ header', 'code'),
-  cs: k('C# source', 'code'),
-  php: k('PHP source', 'code'),
-  swift: k('Swift source', 'code'),
-  sh: k('Shell script', 'code'),
-  bash: k('Shell script', 'code'),
-  sql: k('SQL', 'code'),
-  lua: k('Lua source', 'code'),
-  r: k('R source', 'code'),
-  dart: k('Dart source', 'code'),
-  vue: k('Vue component', 'code'),
-  svelte: k('Svelte component', 'code'),
+  js: k('javascript', 'code'),
+  mjs: k('javascript', 'code'),
+  cjs: k('javascript', 'code'),
+  jsx: k('javascriptReact', 'code'),
+  ts: k('typescript', 'code'),
+  tsx: k('typescriptReact', 'code'),
+  go: k('goSource', 'code'),
+  rs: k('rustSource', 'code'),
+  py: k('pythonSource', 'code'),
+  rb: k('rubySource', 'code'),
+  java: k('javaSource', 'code'),
+  kt: k('kotlinSource', 'code'),
+  c: k('cSource', 'code'),
+  h: k('cHeader', 'code'),
+  cpp: k('cppSource', 'code'),
+  cc: k('cppSource', 'code'),
+  cxx: k('cppSource', 'code'),
+  hpp: k('cppHeader', 'code'),
+  cs: k('csharpSource', 'code'),
+  php: k('phpSource', 'code'),
+  swift: k('swiftSource', 'code'),
+  sh: k('shellScript', 'code'),
+  bash: k('shellScript', 'code'),
+  sql: k('sql', 'code'),
+  lua: k('luaSource', 'code'),
+  r: k('rSource', 'code'),
+  dart: k('dartSource', 'code'),
+  vue: k('vueComponent', 'code'),
+  svelte: k('svelteComponent', 'code'),
 
   // Markup & styles
-  html: k('HTML document', 'markup'),
-  htm: k('HTML document', 'markup'),
-  css: k('Stylesheet', 'markup'),
-  scss: k('Sass stylesheet', 'markup'),
-  sass: k('Sass stylesheet', 'markup'),
-  less: k('Less stylesheet', 'markup'),
+  html: k('htmlDocument', 'markup'),
+  htm: k('htmlDocument', 'markup'),
+  css: k('stylesheet', 'markup'),
+  scss: k('sassStylesheet', 'markup'),
+  sass: k('sassStylesheet', 'markup'),
+  less: k('lessStylesheet', 'markup'),
 
   // Data & config
-  json: k('JSON', 'data'),
-  json5: k('JSON', 'data'),
-  yml: k('YAML', 'data'),
-  yaml: k('YAML', 'data'),
-  toml: k('TOML', 'data'),
-  xml: k('XML', 'data'),
-  csv: k('CSV', 'data'),
-  tsv: k('TSV', 'data'),
-  ini: k('INI config', 'data'),
-  env: k('Env file', 'data'),
-  conf: k('Config', 'data'),
+  json: k('json', 'data'),
+  json5: k('json', 'data'),
+  yml: k('yaml', 'data'),
+  yaml: k('yaml', 'data'),
+  toml: k('toml', 'data'),
+  xml: k('xml', 'data'),
+  csv: k('csv', 'data'),
+  tsv: k('tsv', 'data'),
+  ini: k('iniConfig', 'data'),
+  env: k('envFile', 'data'),
+  conf: k('config', 'data'),
 
   // Archives
-  zip: k('Archive', 'archive'),
-  tar: k('Archive', 'archive'),
-  gz: k('Archive', 'archive'),
-  tgz: k('Archive', 'archive'),
-  rar: k('Archive', 'archive'),
-  '7z': k('Archive', 'archive'),
-  bz2: k('Archive', 'archive'),
-  xz: k('Archive', 'archive'),
-  zst: k('Archive', 'archive'),
+  zip: k('archive', 'archive'),
+  tar: k('archive', 'archive'),
+  gz: k('archive', 'archive'),
+  tgz: k('archive', 'archive'),
+  rar: k('archive', 'archive'),
+  '7z': k('archive', 'archive'),
+  bz2: k('archive', 'archive'),
+  xz: k('archive', 'archive'),
+  zst: k('archive', 'archive'),
 
   // Binaries & disk images
-  exe: k('Executable', 'binary'),
-  appimage: k('Executable', 'binary'),
-  deb: k('Debian package', 'binary'),
-  rpm: k('RPM package', 'binary'),
-  dmg: k('Disk image', 'binary'),
-  iso: k('Disk image', 'binary'),
-  log: k('Log file', 'text'),
+  exe: k('executable', 'binary'),
+  appimage: k('executable', 'binary'),
+  deb: k('debianPackage', 'binary'),
+  rpm: k('rpmPackage', 'binary'),
+  dmg: k('diskImage', 'binary'),
+  iso: k('diskImage', 'binary'),
+  log: k('logFile', 'text'),
 
   // 3D models
-  stl: k('STL model', 'model'),
-  obj: k('OBJ model', 'model'),
-  ply: k('PLY model', 'model'),
-  glb: k('glTF model', 'model'),
+  stl: k('stlModel', 'model'),
+  obj: k('objModel', 'model'),
+  ply: k('plyModel', 'model'),
+  glb: k('gltfModel', 'model'),
 
   // Fonts
-  ttf: k('Font', 'font'),
-  otf: k('Font', 'font'),
-  woff: k('Font', 'font'),
-  woff2: k('Font', 'font'),
+  ttf: k('font', 'font'),
+  otf: k('font', 'font'),
+  woff: k('font', 'font'),
+  woff2: k('font', 'font'),
 }
 
+/** Key into the `kinds` translation namespace, e.g. `jpegImage`. */
+export type KindKey =
+  | (typeof KINDS)[keyof typeof KINDS]['key']
+  | 'file'
+  | 'folder'
+
+export interface FileKind {
+  key: KindKey
+  category: Category
+  color: string
+  /** Set only for unrecognised extensions, which fall back to "{EXT} file". */
+  ext?: string
+}
+
+export const EXTENSION_KINDS: Record<string, FileKind> = KINDS
+
 export const FOLDER_KIND: FileKind = {
-  label: 'Folder',
+  key: 'folder',
   category: 'folder',
   color: '#6ea8fe',
 }
@@ -203,9 +214,10 @@ export function fileKind(name: string): FileKind {
   const ext = fileExt(name)
   return (
     EXTENSION_KINDS[ext] ?? {
-      label: ext ? `${ext.toUpperCase()} file` : 'File',
+      key: 'file',
       category: 'file',
       color: KIND_COLORS.text,
+      ext: ext ? ext.toUpperCase() : undefined,
     }
   )
 }

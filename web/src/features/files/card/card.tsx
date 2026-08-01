@@ -5,6 +5,7 @@ import {
   type ReactNode,
 } from 'react'
 
+import { useI18nContext } from '@i18n'
 import { sizeParts } from '@infrastructure'
 
 import {
@@ -143,6 +144,7 @@ function Preview({
 }
 
 function FolderCard(props: CardProps) {
+  const { LL } = useI18nContext()
   const { entry } = props
   const items = entry.items ?? 0
 
@@ -155,7 +157,7 @@ function FolderCard(props: CardProps) {
         <Stack gap={2} flex={1} miw={0}>
           <CardName {...props} />
           <Text size="sm" c="dark.2">
-            {items.toLocaleString()} {items === 1 ? 'item' : 'items'}
+            {LL.files.items({ count: items })}
           </Text>
         </Stack>
       </Group>

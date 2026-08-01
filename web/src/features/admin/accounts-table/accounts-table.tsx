@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Stack, Table, Text } from '@mantine/core'
 
 import type { User } from '@domain'
@@ -14,6 +16,8 @@ export function AccountsTable({
   rows: User[]
   state: AccountsState
 }) {
+  const { LL } = useI18nContext()
+
   return (
     <Stack gap="sm">
       <Text fw={600} size="sm" c="dimmed">
@@ -22,9 +26,9 @@ export function AccountsTable({
       <Table verticalSpacing="sm" highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Username</Table.Th>
-            <Table.Th>Role</Table.Th>
-            <Table.Th>Status</Table.Th>
+            <Table.Th>{LL.auth.username()}</Table.Th>
+            <Table.Th>{LL.admin.role()}</Table.Th>
+            <Table.Th>{LL.admin.status()}</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
@@ -37,7 +41,7 @@ export function AccountsTable({
             <Table.Tr>
               <Table.Td colSpan={4}>
                 <Text size="sm" c="dimmed" ta="center" py="md">
-                  No accounts
+                  {LL.admin.noAccounts()}
                 </Text>
               </Table.Td>
             </Table.Tr>

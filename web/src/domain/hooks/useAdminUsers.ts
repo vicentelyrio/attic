@@ -10,7 +10,8 @@ import {
 
 export function useAdminUsers() {
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'users'] })
+  const invalidate = () =>
+    qc.invalidateQueries({ queryKey: ['admin', 'users'] })
 
   const users = useQuery({
     queryKey: ['admin', 'users'],

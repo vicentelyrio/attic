@@ -1,5 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 
+import type { TranslationFunctions } from '@i18n'
+
 import type { Job, JobStatus, JobView, ResolveReq } from '@domain'
 
 export const TRANSFERRING: JobStatus[] = ['planning', 'queued', 'running']
@@ -19,10 +21,11 @@ export function percent(job: Job): number {
   return Math.min(100, (job.bytes_done / job.bytes_total) * 100)
 }
 
-export function formatEta(seconds: number): string {
+export function formatEta(LL: TranslationFunctions, seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return ''
-  if (seconds < 60) return `${Math.round(seconds)}s left`
-  return `about ${Math.round(seconds / 60)}m left`
+  if (seconds < 60)
+    return LL.transfers.etaSeconds({ count: Math.round(seconds) })
+  return LL.transfers.etaMinutes({ count: Math.round(seconds / 60) })
 }
 
 export type TransfersState = {
