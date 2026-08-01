@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Group } from '@mantine/core'
 import { Spotlight } from '@mantine/spotlight'
 
@@ -14,6 +16,7 @@ import { SearchLoading } from './search-loading'
 import { SearchTrigger } from './search-trigger'
 
 export function Search() {
+  const { LL } = useI18nContext()
   const s = useSearchPalette()
 
   return (
@@ -59,13 +62,13 @@ export function Search() {
         }}
       >
         <Spotlight.Search
-          placeholder="Search files, or type / for actions…"
+          placeholder={LL.search.placeholder()}
           leftSection={<MagnifyingGlassIcon size={22} />}
         />
 
         <Spotlight.ActionsList>
           {s.showActions && (
-            <Spotlight.ActionsGroup label="Quick actions">
+            <Spotlight.ActionsGroup label={LL.search.quickActions()}>
               {s.actions.map((action) => (
                 <QuickAction key={action.label} {...action} />
               ))}
@@ -76,7 +79,7 @@ export function Search() {
 
           {s.showFiles && (
             <Spotlight.ActionsGroup
-              label={`Files · ${s.hits.length} ${s.hits.length === 1 ? 'match' : 'matches'}`}
+              label={LL.search.matches({ count: s.hits.length })}
             >
               {s.hits.map((hit) => (
                 <Spotlight.Action
@@ -90,7 +93,7 @@ export function Search() {
           )}
 
           {s.showRecent && (
-            <Spotlight.ActionsGroup label="Recent">
+            <Spotlight.ActionsGroup label={LL.search.recent()}>
               {s.recent.map((hit) => (
                 <Spotlight.Action
                   key={`${hit.root}/${hit.path}`}
@@ -107,10 +110,10 @@ export function Search() {
 
         <Spotlight.Footer>
           <Group gap="lg" wrap="nowrap">
-            <SearchHint keys={['↑', '↓']} label="navigate" />
-            <SearchHint keys={['↵']} label="open" />
-            <SearchHint keys={['/']} label="actions" />
-            <SearchHint keys={['esc']} label="close" />
+            <SearchHint keys={['↑', '↓']} label={LL.search.hints.navigate()} />
+            <SearchHint keys={['↵']} label={LL.search.hints.open()} />
+            <SearchHint keys={['/']} label={LL.search.hints.actions()} />
+            <SearchHint keys={['esc']} label={LL.search.hints.close()} />
           </Group>
         </Spotlight.Footer>
       </Spotlight.Root>

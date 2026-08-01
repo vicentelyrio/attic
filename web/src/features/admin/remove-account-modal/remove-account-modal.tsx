@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Button, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { User } from '@domain'
@@ -15,19 +17,26 @@ export function RemoveAccountModal({
   onConfirm,
   onClose,
 }: RemoveAccountModalProps) {
+  const { LL } = useI18nContext()
+
   return (
-    <Modal opened={!!user} onClose={onClose} title="Remove account" centered>
+    <Modal
+      opened={!!user}
+      onClose={onClose}
+      title={LL.admin.removeTitle()}
+      centered
+    >
       <Stack>
         <Text size="sm">
-          Remove <b>{user?.username}</b>? This deletes their account and signs
-          them out everywhere. This cannot be undone.
+          {LL.admin.removeQuestion({ username: user?.username ?? '' })}{' '}
+          {LL.admin.removeBody()}
         </Text>
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {LL.common.cancel()}
           </Button>
           <Button color="red" loading={pending} onClick={onConfirm}>
-            Remove
+            {LL.common.remove()}
           </Button>
         </Group>
       </Stack>

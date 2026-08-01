@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { useShortcut } from '@infrastructure'
 
 import { Input, Kbd } from '@mantine/core'
@@ -8,6 +9,8 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import classes from './search-trigger.module.css'
 
 export function SearchTrigger() {
+  const { LL } = useI18nContext()
+
   return (
     <Input
       component="button"
@@ -19,7 +22,7 @@ export function SearchTrigger() {
       rightSectionWidth={64}
       onClick={spotlight.open}
     >
-      Search
+      {LL.search.label()}
     </Input>
   )
 }

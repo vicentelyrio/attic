@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import { useI18nContext } from '@i18n'
 import { fileKind } from '@infrastructure'
 
 import { Box, Portal } from '@mantine/core'
@@ -43,6 +44,7 @@ export function FilePreview({
   onNext,
   onClose,
 }: FilePreviewProps) {
+  const { LL } = useI18nContext()
   const { rows, viewUrl, downloadHref, copied, share } = useDetailPanel(
     entry,
     root,
@@ -91,7 +93,7 @@ export function FilePreview({
       <Box className={classes.overlay}>
         <PreviewToolbar
           entry={entry}
-          position={`${index + 1} of ${total}`}
+          position={LL.preview.position({ index: index + 1, total })}
           location={location}
           zoom={zoom}
           zoomable={zoomable}

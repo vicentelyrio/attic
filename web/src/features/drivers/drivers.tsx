@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { size } from '@infrastructure'
 
 import { Box, Stack, Text } from '@mantine/core'
@@ -41,12 +42,13 @@ function DriveItem({ root }: { root: Root }) {
 }
 
 export function Drivers() {
+  const { LL } = useI18nContext()
   const { data: roots = [] } = useRoots()
 
   return (
     <Stack gap={4}>
       <Text size="xs" fw={600} c="dimmed">
-        Drives
+        {LL.sidebar.drives()}
       </Text>
       {roots.map((root) => (
         <DriveItem key={root.name} root={root} />

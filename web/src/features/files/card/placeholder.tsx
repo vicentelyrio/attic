@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { fileKind } from '@infrastructure'
 
 import { Center, Text, ThemeIcon } from '@mantine/core'
@@ -9,6 +10,7 @@ import type { Entry } from '@domain'
 import classes from './card.module.css'
 
 export function FilePlaceholder({ entry }: { entry: Entry }) {
+  const { LL } = useI18nContext()
   const { category, color } = fileKind(entry.name)
 
   return (
@@ -24,7 +26,7 @@ export function FilePlaceholder({ entry }: { entry: Entry }) {
         </ThemeIcon>
       ) : (
         <Text className={classes.category} c={color}>
-          {category}
+          {LL.categories[category]()}
         </Text>
       )}
     </Center>

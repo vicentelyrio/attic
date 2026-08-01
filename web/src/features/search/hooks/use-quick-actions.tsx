@@ -1,5 +1,7 @@
 import { type ChangeEvent, useRef, useState } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import { spotlight } from '@mantine/spotlight'
 
 import {
@@ -20,6 +22,7 @@ export function useQuickActions(
   isCommand: boolean,
   term: string,
 ) {
+  const { LL } = useI18nContext()
   const [newEntry, setNewEntry] = useState<NewEntryKind | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const folderRef = useRef<HTMLInputElement>(null)
@@ -47,22 +50,22 @@ export function useQuickActions(
   const actions: ActionDef[] = [
     {
       icon: <FilePlusIcon />,
-      label: 'New file',
+      label: LL.search.newFile(),
       onClick: () => setNewEntry('file'),
     },
     {
       icon: <FolderPlusIcon weight="fill" />,
-      label: 'New folder',
+      label: LL.search.newFolder(),
       onClick: () => setNewEntry('folder'),
     },
     {
       icon: <UploadSimpleIcon />,
-      label: 'Upload…',
+      label: LL.search.upload(),
       onClick: () => inputRef.current?.click(),
     },
     {
       icon: <FolderSimpleIcon weight="fill" />,
-      label: 'Upload folder…',
+      label: LL.search.uploadFolder(),
       onClick: () => folderRef.current?.click(),
     },
   ]

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import {
   Button,
   Group,
@@ -18,21 +20,23 @@ export type ConflictDialogProps = {
   onClose: () => void
 }
 
-const POLICY_DATA = [
-  { label: 'Overwrite all', value: 'overwrite_all' },
-  { label: 'Skip all', value: 'skip_all' },
-]
-
-const FILE_DATA = [
-  { label: 'Overwrite', value: 'overwrite' },
-  { label: 'Skip', value: 'skip' },
-]
-
 /** Prompt shown when a paste collides with existing files. Picks a default
  *  policy (overwrite/skip all) with optional per-file overrides, then hands a
  *  minimal `ResolveReq` (only the overrides that differ from the policy) back. */
 export function ConflictDialog({ job, onApply, onClose }: ConflictDialogProps) {
+  const { LL } = useI18nContext()
   const conflicts = job.files.filter((f) => f.conflict)
+
+  const policyData = [
+    { label: LL.conflicts.overwriteAll(), value: 'overwrite_all' },
+    { label: LL.conflicts.skipAll(), value: 'skip_all' },
+  ]
+
+  const fileData = [
+    { label: LL.conflicts.overwrite(), value: 'overwrite' },
+    { label: LL.conflicts.skip(), value: 'skip' },
+  ]
+
   const [policy, setPolicy] = useState<Policy>('overwrite_all')
   const [overrides, setOverrides] = useState<Record<string, Resolution>>({})
 
@@ -55,20 +59,19 @@ export function ConflictDialog({ job, onApply, onClose }: ConflictDialogProps) {
     <Modal
       opened
       onClose={onClose}
-      title="Resolve conflicts"
+      title={LL.conflicts.title()}
       size="lg"
       centered
     >
       <Stack>
         <Text size="sm" c="dimmed">
-          {conflicts.length} item{conflicts.length === 1 ? '' : 's'} already
-          exist at the destination.
+          {LL.conflicts.body({ count: conflicts.length })}
         </Text>
 
         <SegmentedControl
           value={policy}
           onChange={(v) => setPolicy(v as Policy)}
-          data={POLICY_DATA}
+          data={policyData}
         />
 
         <ScrollArea.Autosize mah={320}>
@@ -82,7 +85,7 @@ export function ConflictDialog({ job, onApply, onClose }: ConflictDialogProps) {
                   size="xs"
                   value={choiceFor(f.rel_path)}
                   onChange={(v) => setChoice(f.rel_path, v as Resolution)}
-                  data={FILE_DATA}
+                  data={fileData}
                 />
               </Group>
             ))}
@@ -91,9 +94,9 @@ export function ConflictDialog({ job, onApply, onClose }: ConflictDialogProps) {
 
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {LL.common.cancel()}
           </Button>
-          <Button onClick={apply}>Apply</Button>
+          <Button onClick={apply}>{LL.common.apply()}</Button>
         </Group>
       </Stack>
     </Modal>

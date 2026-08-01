@@ -1,7 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { defineConfig } from 'vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+import { fileURLToPath } from 'node:url'
 
 const src = (p: string) => fileURLToPath(new URL(`src/${p}`, import.meta.url))
 
@@ -18,6 +19,7 @@ export default defineConfig({
       '@': src(''),
       '@domain': src('domain'),
       '@features': src('features'),
+      '@i18n': src('i18n'),
       '@infrastructure': src('infrastructure'),
       '@templates': src('templates'),
       '@theme': src('theme'),

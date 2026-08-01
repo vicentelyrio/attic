@@ -1,5 +1,7 @@
 import { type ReactNode, useMemo } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import { Breadcrumbs as Bread, Menu, Text, UnstyledButton } from '@mantine/core'
 
 import { CaretRightIcon, DotsThreeIcon } from '@phosphor-icons/react'
@@ -20,6 +22,7 @@ const TAIL = 5
 const MAX_VISIBLE = HEAD + TAIL + 1
 
 export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
+  const { LL } = useI18nContext()
   const crumbs = useMemo<Crumb[]>(() => {
     const parts = path ? path.split('/') : []
 
@@ -63,7 +66,7 @@ export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
         <Menu.Target>
           <UnstyledButton
             className={classes.ellipsis}
-            aria-label="Show hidden folders"
+            aria-label={LL.files.showHiddenFolders()}
           >
             <DotsThreeIcon size={16} weight="bold" />
           </UnstyledButton>
@@ -87,7 +90,7 @@ export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
       </Menu>,
       ...tail.map((crumb, i) => link(crumb, i === tail.length - 1)),
     ]
-  }, [crumbs, root])
+  }, [crumbs, root, LL])
 
   const separator = (
     <CaretRightIcon className={classes.separator} size={12} weight="bold" />

@@ -1,3 +1,4 @@
+import { kindLabel, useI18nContext } from '@i18n'
 import {
   FOLDER_KIND,
   fileKind,
@@ -34,6 +35,8 @@ export function ListRow({
   onRenameSubmit: (entry: Entry, name: string) => void
   onRenameCancel: () => void
 }) {
+  const { LL } = useI18nContext()
+
   return (
     <Table.Tr
       data-name={entry.name}
@@ -75,7 +78,7 @@ export function ListRow({
         <SizeCell entry={entry} />
       </Table.Td>
       <Table.Td className={classes.muted}>
-        {entry.is_dir ? FOLDER_KIND.label : fileKind(entry.name).label}
+        {kindLabel(LL, entry.is_dir ? FOLDER_KIND : fileKind(entry.name))}
       </Table.Td>
       <Table.Td className={classes.muted}>
         {relativeTime(entry.modified)}

@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { ActionIcon, Button, Group, Text } from '@mantine/core'
 
 import {
@@ -35,6 +37,8 @@ export function PreviewToolbar({
   onZoomOut,
   onClose,
 }: PreviewToolbarProps) {
+  const { LL } = useI18nContext()
+
   return (
     <Group className={classes.toolbar} gap="sm" wrap="nowrap">
       <EntryIcon name={entry.name} isDir={false} />
@@ -52,7 +56,7 @@ export function PreviewToolbar({
               variant="subtle"
               color="gray"
               onClick={onZoomOut}
-              aria-label="Zoom out"
+              aria-label={LL.preview.zoomOut()}
             >
               <MinusIcon size={16} />
             </ActionIcon>
@@ -63,7 +67,7 @@ export function PreviewToolbar({
               variant="subtle"
               color="gray"
               onClick={onZoomIn}
-              aria-label="Zoom in"
+              aria-label={LL.preview.zoomIn()}
             >
               <PlusIcon size={16} />
             </ActionIcon>
@@ -76,7 +80,7 @@ export function PreviewToolbar({
           variant="default"
           leftSection={<DownloadSimpleIcon size={16} />}
         >
-          Download
+          {LL.common.download()}
         </Button>
 
         <ActionIcon
@@ -84,7 +88,7 @@ export function PreviewToolbar({
           color="gray"
           size="lg"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={LL.common.close()}
         >
           <XIcon size={18} />
         </ActionIcon>

@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import type { SelectMods } from '@infrastructure'
 
 import { Table } from '@mantine/core'
@@ -25,6 +26,8 @@ export function List({
   onClearSelection,
   rename,
 }: ListProps) {
+  const { LL } = useI18nContext()
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area
     <div
@@ -40,12 +43,12 @@ export function List({
       >
         <Table.Thead className={classes.thead}>
           <Table.Tr>
-            <Table.Th className={classes.head}>Name</Table.Th>
+            <Table.Th className={classes.head}>{LL.common.name()}</Table.Th>
             <Table.Th className={`${classes.head} ${classes.sizeCol}`}>
-              Size
+              {LL.common.size()}
             </Table.Th>
-            <Table.Th className={classes.head}>Kind</Table.Th>
-            <Table.Th className={classes.head}>Modified</Table.Th>
+            <Table.Th className={classes.head}>{LL.common.kind()}</Table.Th>
+            <Table.Th className={classes.head}>{LL.common.modified()}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

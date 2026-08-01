@@ -3,11 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   cancelJob,
   clearJobs,
+  type Job,
   listJobs,
   paste,
-  resolveJob,
   type ResolveReq,
-  type Job,
+  resolveJob,
 } from '@domain'
 
 const ACTIVE: Job['status'][] = [

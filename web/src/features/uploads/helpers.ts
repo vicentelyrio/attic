@@ -1,5 +1,7 @@
 import type { ChangeEvent, DragEvent, RefObject } from 'react'
 
+import type { TranslationFunctions } from '@i18n'
+
 import type { Picked, Upload } from '@domain'
 
 export type UploadView = 'hidden' | 'modal' | 'collapsed'
@@ -12,10 +14,10 @@ export function percent(item: Upload): number {
   return Math.min(100, (item.loaded / item.size) * 100)
 }
 
-export function formatEta(seconds: number): string {
+export function formatEta(LL: TranslationFunctions, seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return ''
-  if (seconds < 60) return `${Math.round(seconds)}s left`
-  return `${Math.round(seconds / 60)}m left`
+  if (seconds < 60) return LL.uploads.etaSeconds({ count: Math.round(seconds) })
+  return LL.uploads.etaMinutes({ count: Math.round(seconds / 60) })
 }
 
 export type UploadsState = {

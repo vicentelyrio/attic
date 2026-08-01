@@ -7,6 +7,8 @@ import {
   useState,
 } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import type { Entry } from '@domain'
 
 import classes from './rename-field.module.css'
@@ -31,6 +33,7 @@ export function RenameField({
   onSubmit,
   onCancel,
 }: RenameFieldProps) {
+  const { LL } = useI18nContext()
   const [value, setValue] = useState(entry.name)
   const ref = useRef<HTMLInputElement>(null)
   const done = useRef(false)
@@ -86,7 +89,7 @@ export function RenameField({
       className={classes.field}
       value={value}
       disabled={pending}
-      aria-label="New name"
+      aria-label={LL.files.newName()}
       spellCheck={false}
       onChange={(event) => setValue(event.currentTarget.value)}
       onKeyDown={handleKeyDown}

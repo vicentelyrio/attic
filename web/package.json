@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "i18n": "pnpm --package=typescript@5.9.3 --package=typesafe-i18n@5.27.1 dlx typesafe-i18n --no-watch",
+    "i18n:watch": "pnpm --package=typescript@5.9.3 --package=typesafe-i18n@5.27.1 dlx typesafe-i18n"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +37,8 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "shiki": "^4.3.0",
-    "three": "^0.185.0"
+    "three": "^0.185.0",
+    "typesafe-i18n": "^5.27.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.1",

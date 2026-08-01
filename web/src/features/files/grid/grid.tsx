@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import type { SelectMods } from '@infrastructure'
 
 import { Box, Stack } from '@mantine/core'
@@ -31,6 +32,7 @@ export function Grid({
   onClearSelection,
   rename,
 }: GridProps) {
+  const { LL } = useI18nContext()
   const { folders, files, handleSelect, handleOpen } = useGrid(
     data,
     onSelect,
@@ -52,7 +54,7 @@ export function Grid({
     >
       <Stack gap="xl">
         {folders.length > 0 && (
-          <GridSection label="Folders" autoFill>
+          <GridSection label={LL.files.folders()} autoFill>
             {folders.map((entry) => (
               <Card
                 key={entry.name}
@@ -69,7 +71,7 @@ export function Grid({
         )}
 
         {files.length > 0 && (
-          <GridSection label="Files">
+          <GridSection label={LL.files.files()}>
             {files.map((entry) => (
               <Card
                 key={entry.name}

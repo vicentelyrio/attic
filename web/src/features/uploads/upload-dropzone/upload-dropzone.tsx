@@ -1,5 +1,7 @@
 import type { DragEvent } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import { Button, Group, Text } from '@mantine/core'
 
 import { ArrowUpIcon, FileIcon, FolderIcon } from '@phosphor-icons/react'
@@ -23,9 +25,11 @@ export function UploadDropzone({
   onDragOver,
   onDragLeave,
 }: UploadDropzoneProps) {
+  const { LL } = useI18nContext()
+
   return (
     <section
-      aria-label="Upload drop zone"
+      aria-label={LL.uploads.dropzoneLabel()}
       className={`${classes.dropzone} ${dragging ? classes.dropzoneActive : ''}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -35,7 +39,7 @@ export function UploadDropzone({
         <ArrowUpIcon size={20} weight="bold" />
       </span>
       <Text size="lg" fw={500}>
-        Drop files or folders here
+        {LL.uploads.dropHere()}
       </Text>
       <Group gap="xs">
         <Button
@@ -44,7 +48,7 @@ export function UploadDropzone({
           leftSection={<FileIcon />}
           onClick={onOpen}
         >
-          Browse files
+          {LL.uploads.browseFiles()}
         </Button>
         <Button
           variant="light"
@@ -52,11 +56,11 @@ export function UploadDropzone({
           leftSection={<FolderIcon weight="fill" />}
           onClick={onOpenFolder}
         >
-          Browse folder
+          {LL.uploads.browseFolder()}
         </Button>
       </Group>
       <Text size="xs" c="dimmed" ff="monospace">
-        Up to 5 GB per file · resumable · chunked
+        {LL.uploads.limits()}
       </Text>
     </section>
   )

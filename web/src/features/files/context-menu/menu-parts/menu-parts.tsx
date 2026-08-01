@@ -1,3 +1,4 @@
+import { kindLabel, useI18nContext } from '@i18n'
 import {
   FOLDER_KIND,
   fileKind,
@@ -18,18 +19,21 @@ export function Shortcut({ id }: { id: ShortcutId }) {
 }
 
 export function ReadOnly() {
+  const { LL } = useI18nContext()
+
   return (
     <Text size="xs" c="dimmed">
-      Read-only
+      {LL.menu.readOnly()}
     </Text>
   )
 }
 
 export function EntryHeader({ entry }: { entry: Entry }) {
+  const { LL } = useI18nContext()
   const kind = entry.is_dir ? FOLDER_KIND : fileKind(entry.name)
   const meta = entry.is_dir
-    ? `Folder · ${entry.items} ${entry.items === 1 ? 'item' : 'items'}`
-    : `${kind.label} · ${size(entry.size)}`
+    ? LL.menu.folderMeta({ count: entry.items })
+    : LL.menu.fileMeta({ kind: kindLabel(LL, kind), size: size(entry.size) })
 
   return (
     <Group gap="sm" wrap="nowrap" p="xs" className={classes.header}>
@@ -47,10 +51,12 @@ export function EntryHeader({ entry }: { entry: Entry }) {
 }
 
 export function CountHeader({ count }: { count: number }) {
+  const { LL } = useI18nContext()
+
   return (
     <Group gap="sm" wrap="nowrap" p="xs" className={classes.header}>
       <Text size="sm" fw={600} c="dark.0">
-        {count} items selected
+        {LL.menu.selectedCount({ count })}
       </Text>
     </Group>
   )

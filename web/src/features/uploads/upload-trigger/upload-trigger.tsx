@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { useShortcut } from '@infrastructure'
 
 import { Button, Kbd } from '@mantine/core'
@@ -5,6 +6,8 @@ import { Button, Kbd } from '@mantine/core'
 import { PlusIcon } from '@phosphor-icons/react'
 
 export function UploadTrigger({ onOpen }: { onOpen: () => void }) {
+  const { LL } = useI18nContext()
+
   return (
     <Button
       fullWidth
@@ -27,7 +30,7 @@ export function UploadTrigger({ onOpen }: { onOpen: () => void }) {
       }
       onClick={onOpen}
     >
-      Upload
+      {LL.uploads.trigger()}
     </Button>
   )
 }

@@ -1,5 +1,7 @@
 import type { MouseEvent } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import { CloseButton, Stack, Text } from '@mantine/core'
 
 import { type Favorite, useFavorites } from '@domain'
@@ -15,6 +17,8 @@ function FavoriteItem({
   favorite: Favorite
   onRemove: (id: string) => void
 }) {
+  const { LL } = useI18nContext()
+
   const remove = (event: MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
@@ -34,7 +38,7 @@ function FavoriteItem({
           className={classes.remove}
           size="xs"
           onClick={remove}
-          aria-label={`Remove ${favorite.name} from favorites`}
+          aria-label={LL.sidebar.removeFavorite({ name: favorite.name })}
         />
       }
     />
@@ -42,6 +46,7 @@ function FavoriteItem({
 }
 
 export function Favorites() {
+  const { LL } = useI18nContext()
   const { items, remove } = useFavorites()
 
   if (!items.length) return null
@@ -49,7 +54,7 @@ export function Favorites() {
   return (
     <Stack gap={4}>
       <Text size="xs" fw={600} c="dimmed">
-        Favorites
+        {LL.sidebar.favorites()}
       </Text>
       {items.map((favorite) => (
         <FavoriteItem

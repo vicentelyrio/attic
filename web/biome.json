@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!src/i18n/i18n-*",
+      "!src/i18n/formatters.ts",
+      "!src/routeTree.gen.ts"
+    ]
   },
   "formatter": {
     "enabled": true,

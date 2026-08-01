@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react'
 
+import { useI18nContext } from '@i18n'
 import { fileKind } from '@infrastructure'
 
 import { ActionIcon, Box } from '@mantine/core'
@@ -157,6 +158,8 @@ export function PreviewStage({
   onToggleZoom,
   canNavigate,
 }: PreviewStageProps) {
+  const { LL } = useI18nContext()
+
   return (
     <Box className={classes.stage}>
       {canNavigate && (
@@ -166,7 +169,7 @@ export function PreviewStage({
           radius="xl"
           size="xl"
           onClick={onPrev}
-          aria-label="Previous"
+          aria-label={LL.common.previous()}
         >
           <CaretLeftIcon size={20} />
         </ActionIcon>
@@ -187,7 +190,7 @@ export function PreviewStage({
           radius="xl"
           size="xl"
           onClick={onNext}
-          aria-label="Next"
+          aria-label={LL.common.next()}
         >
           <CaretRightIcon size={20} />
         </ActionIcon>

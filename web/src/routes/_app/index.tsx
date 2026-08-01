@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { Stack, Text } from '@mantine/core'
@@ -17,11 +18,13 @@ export const Route = createFileRoute('/_app/')({
 })
 
 function NoDrives() {
+  const { LL } = useI18nContext()
+
   return (
     <Stack gap={4} p="md">
-      <Text fw={600}>No drives</Text>
+      <Text fw={600}>{LL.files.noDrives()}</Text>
       <Text size="sm" c="dimmed">
-        Add a directory or symlink under the server's roots_dir, then restart.
+        {LL.files.noDrivesBody()}
       </Text>
     </Stack>
   )

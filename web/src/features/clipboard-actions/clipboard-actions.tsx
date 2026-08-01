@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Button, Group } from '@mantine/core'
 import { useHotkeys } from '@mantine/hooks'
 
@@ -20,6 +22,7 @@ export function ClipboardActions({
   path,
   selected,
 }: ClipboardActionsProps) {
+  const { LL } = useI18nContext()
   const { clipboard, copy, cut, clear } = useClipboard()
   const pasteJob = usePaste()
 
@@ -66,7 +69,7 @@ export function ClipboardActions({
         disabled={!hasSelection}
         onClick={doCopy}
       >
-        Copy
+        {LL.common.copy()}
       </Button>
       <Button
         size="xs"
@@ -75,7 +78,7 @@ export function ClipboardActions({
         disabled={!hasSelection}
         onClick={doCut}
       >
-        Cut
+        {LL.common.cut()}
       </Button>
       <Button
         size="xs"
@@ -85,7 +88,7 @@ export function ClipboardActions({
         loading={pasteJob.isPending}
         onClick={doPaste}
       >
-        Paste
+        {LL.common.paste()}
       </Button>
     </Group>
   )

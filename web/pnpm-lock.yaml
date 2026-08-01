@@ -65,6 +65,9 @@ importers:
       three:
         specifier: ^0.185.0
         version: 0.185.0
+      typesafe-i18n:
+        specifier: ^5.27.1
+        version: 5.27.1(typescript@7.0.1-rc)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.5.1
@@ -1292,6 +1295,12 @@ packages:
     resolution: {integrity: sha512-1URUxUqfHFM1c+zfSPsa3gnkO7Aq21qyH75SIduNYz4SzY964rn1X2vCMQaHSHhktiw+0kPa2iyb6PUpXqB6Vg==}
     engines: {node: '>=20'}
 
+  typesafe-i18n@5.27.1:
+    resolution: {integrity: sha512-749uWo2ZXETT//kWjVYPm8QPYR8xLh8G0wLfoAyCAtAmysX67uCaAyLjAjAWojL6fuJpE5B6yIjwvO9orXzUPg==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=3.5.1'
+
   typescript@7.0.1-rc:
     resolution: {integrity: sha512-drEP77wK7CCDlPfXZH4e008UUQOsw1DFmHmZOZjuNA+yoDLLnSNMZRXi90NbV/1LVo7SbNLq1bs3jjvk49TEqQ==}
     engines: {node: '>=16.20.0'}
@@ -2504,6 +2513,10 @@ snapshots:
   type-fest@5.7.0:
     dependencies:
       tagged-tag: 1.0.0
+
+  typesafe-i18n@5.27.1(typescript@7.0.1-rc):
+    dependencies:
+      typescript: 7.0.1-rc
 
   typescript@7.0.1-rc:
     optionalDependencies:

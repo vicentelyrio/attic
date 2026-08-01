@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Button, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { Entry } from '@domain'
@@ -15,29 +17,29 @@ export function ConfirmTrashDialog({
   onConfirm,
   onClose,
 }: ConfirmTrashDialogProps) {
+  const { LL } = useI18nContext()
   const count = entries?.length ?? 0
-  const label =
-    count === 1 && entries ? `“${entries[0].name}”` : `${count} items`
-  const them = count === 1 ? 'it' : 'them'
 
   return (
     <Modal
       opened={!!entries}
       onClose={onClose}
-      title="Move to Trash"
+      title={LL.menu.moveToTrash()}
       size="sm"
       centered
     >
       <Stack gap="lg">
         <Text size="sm">
-          Move {label} to the Trash? You can restore {them} from the Trash.
+          {count === 1 && entries
+            ? LL.menu.trashOne({ name: entries[0].name })
+            : LL.menu.trashMany({ count })}
         </Text>
         <Group justify="flex-end" gap="sm">
           <Button variant="default" onClick={onClose}>
-            Cancel
+            {LL.common.cancel()}
           </Button>
           <Button color="red" loading={pending} onClick={onConfirm}>
-            Move to Trash
+            {LL.menu.moveToTrash()}
           </Button>
         </Group>
       </Stack>

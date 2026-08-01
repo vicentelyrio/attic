@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n'
+
 import { Group, Text } from '@mantine/core'
 
 import { ArrowElbowDownLeftIcon } from '@phosphor-icons/react'
@@ -10,6 +12,8 @@ import { crumb } from '../helpers'
 import classes from './entry-row.module.css'
 
 export function EntryRow({ hit }: { hit: RecentEntry }) {
+  const { LL } = useI18nContext()
+
   return (
     <Group gap="sm" wrap="nowrap" className={classes.row}>
       <EntryIcon name={hit.name} isDir={hit.is_dir} size={30} />
@@ -23,7 +27,7 @@ export function EntryRow({ hit }: { hit: RecentEntry }) {
       </div>
       <span className={classes.openHint}>
         <ArrowElbowDownLeftIcon />
-        open
+        {LL.search.openHint()}
       </span>
     </Group>
   )

@@ -1,5 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 
+import { useI18nContext } from '@i18n'
+
 import { Box } from '@mantine/core'
 
 import { downloadUrl, type Entry } from '@domain'
@@ -15,6 +17,7 @@ export type FontPreviewProps = {
 }
 
 export function FontPreview({ entry, root, path }: FontPreviewProps) {
+  const { LL } = useI18nContext()
   const filePath = path ? `${path}/${entry.name}` : entry.name
   const url = downloadUrl(root, filePath)
   const family = `font-preview-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
@@ -52,9 +55,7 @@ export function FontPreview({ entry, root, path }: FontPreviewProps) {
       style={ready ? { fontFamily: `"${family}"` } : undefined}
     >
       <div className={classes.fontHero}>Ag</div>
-      <div className={classes.fontPangram}>
-        The quick brown fox jumps over the lazy dog
-      </div>
+      <div className={classes.fontPangram}>{LL.files.fontPangram()}</div>
       <div className={classes.fontGlyphs}>
         ABCDEFGHIJKLM abcdefghijklm 0123456789
       </div>
