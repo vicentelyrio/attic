@@ -11,7 +11,7 @@ export function Logo() {
         {LL.app.name()}
       </Text>
       <Text size="xs" c="dimmed">
-        v0.1.3
+        v{__APP_VERSION__}
       </Text>
     </Group>
   )
