@@ -1,6 +1,6 @@
 use axum::http::header::HeaderValue;
-use rand::rngs::OsRng;
 use rand::RngCore;
+use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
 
 pub const COOKIE_NAME: &str = "vault_session";

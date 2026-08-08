@@ -15,9 +15,13 @@ import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 import { downloadUrl, type Entry } from '@domain'
 
-import { FilePlaceholder, PdfPreview, previewStrategies } from '../../card'
-import { useImageFit } from './use-image-fit'
 import classes from './preview-stage.module.css'
+import { useImageFit } from './use-image-fit'
+import {
+  FilePlaceholder,
+  PdfPreview,
+  previewStrategies,
+} from '@/features/files/card'
 
 const PDF_FULLSCREEN_WIDTH = 1600
 

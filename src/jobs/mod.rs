@@ -5,8 +5,8 @@ mod plan;
 pub mod store;
 pub mod worker;
 
-use axum::routing::{get, post};
 use axum::Router;
+use axum::routing::{get, post};
 
 use crate::state::AppState;
 

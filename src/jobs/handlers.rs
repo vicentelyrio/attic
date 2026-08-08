@@ -123,8 +123,12 @@ pub async fn paste(
     let dst_base = dst_name.clone().unwrap_or_else(|| base_name.clone());
 
     let manifest = {
-        let (src, dst_dir, src_base, dst_base) =
-            (src.clone(), dst_dir.clone(), base_name.clone(), dst_base.clone());
+        let (src, dst_dir, src_base, dst_base) = (
+            src.clone(),
+            dst_dir.clone(),
+            base_name.clone(),
+            dst_base.clone(),
+        );
         tokio::task::spawn_blocking(move || plan::build(&src, &dst_dir, &src_base, &dst_base))
             .await
             .map_err(internal)?

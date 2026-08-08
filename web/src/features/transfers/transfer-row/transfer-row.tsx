@@ -18,9 +18,9 @@ import {
 
 import { type Job, useUndoMove } from '@domain'
 
-import { EntryIcon } from '../../files/entry-icon'
 import { basename, percent, TRANSFERRING, transferTooltip } from '../helpers'
 import classes from './transfer-row.module.css'
+import { EntryIcon } from '@/features/files/entry-icon'
 
 type TransferRowProps = {
   job: Job

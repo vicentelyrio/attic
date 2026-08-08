@@ -1,0 +1,12 @@
+{
+  "name": "attic",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "lefthook": "^1.13.6"
+  }
+}

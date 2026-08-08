@@ -4,8 +4,8 @@ import { AspectRatio, Badge, Box } from '@mantine/core'
 
 import type { Entry } from '@domain'
 
-import { FilePlaceholder, previewStrategies } from '../../card'
 import classes from '../detail-panel.module.css'
+import { FilePlaceholder, previewStrategies } from '@/features/files/card'
 
 export function DetailPreview({
   entry,

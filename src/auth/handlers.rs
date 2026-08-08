@@ -1,13 +1,13 @@
 use std::net::SocketAddr;
 
 use axum::extract::{ConnectInfo, Path, Query, State};
-use axum::http::{header, StatusCode};
+use axum::http::{StatusCode, header};
 use axum::response::{IntoResponse, Json, Response};
 use axum_extra::extract::CookieJar;
 use serde::Deserialize;
 
 use super::model::{AccountStatus, Role, User};
-use super::{password, session, store, CurrentUser};
+use super::{CurrentUser, password, session, store};
 use crate::state::AppState;
 
 type ApiError = (StatusCode, String);
@@ -163,9 +163,14 @@ pub async fn login(
     };
 
     let token = session::generate_token();
-    store::create_session(&state.pool, &session::hash_token(&token), &user.id, ttl_secs)
-        .await
-        .map_err(internal)?;
+    store::create_session(
+        &state.pool,
+        &session::hash_token(&token),
+        &user.id,
+        ttl_secs,
+    )
+    .await
+    .map_err(internal)?;
     state.login_limiter.clear(ip);
 
     if let Err(e) = store::sweep_expired_sessions(&state.pool).await {
@@ -181,10 +186,7 @@ pub async fn login(
     Ok(resp)
 }
 
-pub async fn logout(
-    State(state): State<AppState>,
-    jar: CookieJar,
-) -> Result<Response, ApiError> {
+pub async fn logout(State(state): State<AppState>, jar: CookieJar) -> Result<Response, ApiError> {
     if let Some(cookie) = jar.get(session::COOKIE_NAME) {
         store::delete_session(&state.pool, &session::hash_token(cookie.value()))
             .await

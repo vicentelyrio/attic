@@ -84,5 +84,8 @@ pub(super) async fn upload(
         .await
         .map_err(|e| internal(&format!("rename '{}' into place", part.display()), e))?;
 
-    Ok(Json(Uploaded { name: name.to_string(), size: written }))
+    Ok(Json(Uploaded {
+        name: name.to_string(),
+        size: written,
+    }))
 }

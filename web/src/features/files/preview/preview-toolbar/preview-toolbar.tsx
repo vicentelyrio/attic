@@ -11,8 +11,8 @@ import {
 
 import type { Entry } from '@domain'
 
-import { EntryIcon } from '../../entry-icon'
 import classes from './preview-toolbar.module.css'
+import { EntryIcon } from '@/features/files/entry-icon'
 
 export type PreviewToolbarProps = {
   entry: Entry

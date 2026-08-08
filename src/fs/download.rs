@@ -1,7 +1,7 @@
 use axum::{
     body::Body,
     extract::{Query, Request, State},
-    http::{header, StatusCode},
+    http::{StatusCode, header},
     response::{IntoResponse, Response},
 };
 use serde::Deserialize;
@@ -27,7 +27,9 @@ pub(super) async fn download(
 ) -> Result<Response, StatusCode> {
     let path = resolve_within_root(&state.roots, &q.root, &q.path)?;
 
-    let meta = tokio::fs::metadata(&path).await.map_err(|_| StatusCode::NOT_FOUND)?;
+    let meta = tokio::fs::metadata(&path)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
     if meta.is_dir() {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -42,7 +44,9 @@ pub(super) async fn download(
         && let Some(name) = path.file_name().and_then(|n| n.to_str())
         && let Ok(value) = content_disposition(name).parse()
     {
-        response.headers_mut().insert(header::CONTENT_DISPOSITION, value);
+        response
+            .headers_mut()
+            .insert(header::CONTENT_DISPOSITION, value);
     }
 
     Ok(response)
@@ -54,7 +58,13 @@ pub(super) async fn download(
 fn content_disposition(name: &str) -> String {
     let ascii: String = name
         .chars()
-        .map(|c| if c.is_control() || c == '"' || c == '\\' { '_' } else { c })
+        .map(|c| {
+            if c.is_control() || c == '"' || c == '\\' {
+                '_'
+            } else {
+                c
+            }
+        })
         .collect();
     format!(
         "attachment; filename=\"{ascii}\"; filename*=UTF-8''{}",
@@ -93,6 +103,10 @@ mod tests {
 
     #[test]
     fn control_bytes_cannot_reach_header() {
-        assert!(content_disposition("a\nb").parse::<axum::http::HeaderValue>().is_ok());
+        assert!(
+            content_disposition("a\nb")
+                .parse::<axum::http::HeaderValue>()
+                .is_ok()
+        );
     }
 }

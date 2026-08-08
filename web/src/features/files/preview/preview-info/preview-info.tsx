@@ -15,9 +15,9 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 
-import { DetailMeta } from '../../detail-panel/detail-meta'
-import type { MetaRow } from '../../detail-panel/helpers'
 import classes from './preview-info.module.css'
+import { DetailMeta } from '@/features/files/detail-panel/detail-meta'
+import type { MetaRow } from '@/features/files/detail-panel/helpers'
 
 export type PreviewInfoProps = {
   rows: MetaRow[]
