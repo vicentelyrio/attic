@@ -5,7 +5,7 @@ import { Box, Stack, Text } from '@mantine/core'
 
 import { type Root, useRoots } from '@domain'
 
-import { NavLink } from '@features'
+import { NavLink, useDroppableFolder } from '@features'
 
 import classes from './drivers.module.css'
 
@@ -17,27 +17,35 @@ function dotColor(usedPercent: number) {
 
 function DriveItem({ root }: { root: Root }) {
   const usedPercent = root.total > 0 ? (root.used / root.total) * 100 : 0
+  const drop = useDroppableFolder({ root: root.name, dir: '' })
 
   return (
-    <NavLink
-      className={classes.navItem}
-      activeProps={{ className: classes.navItemActive }}
-      to="/$root/$"
-      params={{ root: root.name, _splat: '' }}
-      label={root.name}
-      color="gray"
-      leftSection={
-        <Box
-          className={classes.dot}
-          style={{ backgroundColor: dotColor(usedPercent) }}
-        />
-      }
-      rightSection={
-        <Text size="xs" c="dimmed">
-          {size(root.total)}
-        </Text>
-      }
-    />
+    <div
+      ref={drop.setNodeRef}
+      className={classes.dropTarget}
+      data-drop-active={drop.dropActive || undefined}
+      data-drop-invalid={drop.dropInvalid || undefined}
+    >
+      <NavLink
+        className={classes.navItem}
+        activeProps={{ className: classes.navItemActive }}
+        to="/$root/$"
+        params={{ root: root.name, _splat: '' }}
+        label={root.name}
+        color="gray"
+        leftSection={
+          <Box
+            className={classes.dot}
+            style={{ backgroundColor: dotColor(usedPercent) }}
+          />
+        }
+        rightSection={
+          <Text size="xs" c="dimmed">
+            {size(root.total)}
+          </Text>
+        }
+      />
+    </div>
   )
 }
 

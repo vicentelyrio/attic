@@ -6,6 +6,27 @@
   color: var(--mantine-color-dark-0);
 }
 
+.dropTarget {
+  border-radius: var(--mantine-radius-sm);
+}
+
+.dropTarget[data-drop-active] {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 22%,
+    transparent
+  );
+  box-shadow: inset 0 0 0 1px var(--mantine-color-indigo-5);
+}
+
+.dropTarget[data-drop-invalid] {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-red-6) 12%,
+    transparent
+  );
+}
+
 .dot {
   width: 8px;
   height: 8px;
