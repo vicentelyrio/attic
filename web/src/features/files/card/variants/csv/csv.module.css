@@ -17,7 +17,8 @@
 
 .csvTable :global(th),
 .csvTable :global(td) {
-  padding: 4px 8px;
+  padding: calc(var(--mantine-spacing-xs) * 0.4)
+    calc(var(--mantine-spacing-xs) * 0.8);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -130,6 +130,18 @@ const es = {
       forbidden: 'No tienes permiso para renombrar esto.',
       generic: 'No se pudo renombrar el elemento.',
     },
+    dnd: {
+      confirmTitle: 'Mover elementos',
+      moveOne: '¿Mover «{name}» de {from} a {to}?',
+      moveMany: '¿Mover {count} elementos de {from} a {to}?',
+      dontAskAgain: 'No volver a preguntar',
+      move: 'Mover',
+      movedOne: 'Se movió «{name}» a {to}.',
+      movedMany: 'Se movieron {count} elementos a {to}.',
+      moveFailed:
+        'No se pudieron mover {count|n} {{count:elemento|elementos}}.',
+      undo: 'Deshacer',
+    },
   },
 
   menu: {
@@ -216,6 +228,7 @@ const es = {
     complete: '{count} {{completada|completadas}}',
     resolveConflicts: 'Resolver conflictos',
     cancelTransfer: 'Cancelar transferencia',
+    undo: 'Deshacer movimiento',
     etaSeconds: 'quedan {count}s',
     etaMinutes: 'quedan unos {count}min',
   },

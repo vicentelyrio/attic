@@ -130,6 +130,17 @@ const ptBR = {
       forbidden: 'Você não tem permissão para renomear isto.',
       generic: 'Não foi possível renomear o item.',
     },
+    dnd: {
+      confirmTitle: 'Mover itens',
+      moveOne: 'Mover “{name}” de {from} para {to}?',
+      moveMany: 'Mover {count} itens de {from} para {to}?',
+      dontAskAgain: 'Não perguntar novamente',
+      move: 'Mover',
+      movedOne: 'Movido “{name}” para {to}.',
+      movedMany: '{count} itens movidos para {to}.',
+      moveFailed: 'Não foi possível mover {count|n} {{count:item|itens}}.',
+      undo: 'Desfazer',
+    },
   },
 
   menu: {
@@ -216,6 +227,7 @@ const ptBR = {
     complete: '{count} {{concluída|concluídas}}',
     resolveConflicts: 'Resolver conflitos',
     cancelTransfer: 'Cancelar transferência',
+    undo: 'Desfazer movimentação',
     etaSeconds: 'faltam {count}s',
     etaMinutes: 'faltam cerca de {count}min',
   },

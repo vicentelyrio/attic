@@ -2,7 +2,7 @@
 .font {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(var(--mantine-spacing-xs) * 0.8);
   height: 100%;
   width: 100%;
   overflow: hidden;

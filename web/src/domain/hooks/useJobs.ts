@@ -37,6 +37,25 @@ export function usePaste() {
   })
 }
 
+export function useUndoMove() {
+  const pasteMut = usePaste()
+
+  return (job: Job) => {
+    const i = job.src_path.lastIndexOf('/')
+    const name = i === -1 ? job.src_path : job.src_path.slice(i + 1)
+    const srcDir = i === -1 ? '' : job.src_path.slice(0, i)
+    const dstPath = job.dst_dir ? `${job.dst_dir}/${name}` : name
+
+    pasteMut.mutate({
+      op: 'move',
+      src_root: job.dst_root,
+      src_path: dstPath,
+      dst_root: job.src_root,
+      dst_dir: srcDir,
+    })
+  }
+}
+
 export function useResolveJob() {
   const qc = useQueryClient()
   return useMutation({

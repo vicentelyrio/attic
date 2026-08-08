@@ -1,12 +1,13 @@
 import { type ReactNode, useMemo } from 'react'
 
 import { useI18nContext } from '@i18n'
+import { useNavigate } from '@tanstack/react-router'
 
 import { Breadcrumbs as Bread, Menu, Text, UnstyledButton } from '@mantine/core'
 
 import { CaretRightIcon, DotsThreeIcon } from '@phosphor-icons/react'
 
-import { AnchorLink } from '@features'
+import { AnchorLink, useDroppableFolder, useHoverNavigate } from '@features'
 
 import classes from './breadcrumbs.module.css'
 
@@ -20,6 +21,50 @@ type Crumb = { label: string; target: string }
 const HEAD = 1
 const TAIL = 5
 const MAX_VISIBLE = HEAD + TAIL + 1
+
+function CrumbLink({
+  crumb,
+  isLast,
+  root,
+}: {
+  crumb: Crumb
+  isLast: boolean
+  root: string
+}) {
+  const navigate = useNavigate()
+  const drop = useDroppableFolder({
+    scope: 'crumb',
+    root,
+    dir: crumb.target,
+    disabled: isLast,
+  })
+
+  const { blinking } = useHoverNavigate(drop.dropActive, () => {
+    navigate({ to: '/$root/$', params: { root, _splat: crumb.target } })
+  })
+
+  if (isLast) {
+    return <Text className={classes.current}>{crumb.label}</Text>
+  }
+
+  return (
+    <span
+      ref={drop.setNodeRef}
+      className={classes.dropTarget}
+      data-drop-active={drop.dropActive || undefined}
+      data-drop-invalid={drop.dropInvalid || undefined}
+      data-drop-blink={blinking || undefined}
+    >
+      <AnchorLink
+        className={classes.link}
+        to="/$root/$"
+        params={{ root, _splat: crumb.target }}
+      >
+        {crumb.label}
+      </AnchorLink>
+    </span>
+  )
+}
 
 export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
   const { LL } = useI18nContext()
@@ -36,21 +81,9 @@ export function Breadcrumbs({ path, root }: BreadcrumbsProps) {
   }, [path, root])
 
   const items = useMemo<ReactNode[]>(() => {
-    const link = (crumb: Crumb, isLast: boolean) =>
-      isLast ? (
-        <Text key={crumb.target} className={classes.current}>
-          {crumb.label}
-        </Text>
-      ) : (
-        <AnchorLink
-          key={crumb.target}
-          className={classes.link}
-          to="/$root/$"
-          params={{ root, _splat: crumb.target }}
-        >
-          {crumb.label}
-        </AnchorLink>
-      )
+    const link = (crumb: Crumb, isLast: boolean) => (
+      <CrumbLink key={crumb.target} crumb={crumb} isLast={isLast} root={root} />
+    )
 
     if (crumbs.length <= MAX_VISIBLE) {
       return crumbs.map((crumb, i) => link(crumb, i === crumbs.length - 1))

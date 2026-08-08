@@ -15,6 +15,7 @@ export const SHORTCUTS = {
   cut: { keys: ['mod', 'X'], hotkey: 'mod+X' },
   paste: { keys: ['mod', 'V'], hotkey: 'mod+V' },
   duplicate: { keys: ['mod', 'D'], hotkey: 'mod+D' },
+  undo: { keys: ['mod', 'Z'], hotkey: 'mod+Z' },
   download: { keys: ['mod', '↓'] },
   trash: { keys: ['mod', '⌫'], hotkey: 'mod+Backspace' },
   showHidden: { keys: ['mod', '⇧', '.'], hotkey: 'mod+shift+.' },

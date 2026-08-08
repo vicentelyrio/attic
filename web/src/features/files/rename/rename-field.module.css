@@ -10,7 +10,8 @@
   background-color: var(--mantine-color-dark-8);
   border: 1px solid var(--mantine-color-indigo-5);
   border-radius: var(--mantine-radius-sm);
-  padding: 2px 6px;
+  padding: calc(var(--mantine-spacing-xs) * 0.2)
+    calc(var(--mantine-spacing-xs) * 0.6);
   outline: none;
 }
 
