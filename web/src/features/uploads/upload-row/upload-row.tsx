@@ -14,9 +14,9 @@ import { CheckIcon, XIcon } from '@phosphor-icons/react'
 
 import type { Upload } from '@domain'
 
-import { EntryIcon } from '../../files/entry-icon'
 import { percent } from '../helpers'
 import classes from './upload-row.module.css'
+import { EntryIcon } from '@/features/files/entry-icon'
 
 type UploadRowProps = {
   item: Upload

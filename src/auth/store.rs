@@ -239,9 +239,24 @@ mod tests {
     #[tokio::test]
     async fn create_pending_rejects_duplicate_username() {
         let pool = pool().await;
-        assert!(create_pending(&pool, "alice", "hash").await.unwrap().is_some());
-        assert!(create_pending(&pool, "alice", "hash").await.unwrap().is_none());
-        assert!(create_pending(&pool, "ALICE", "hash").await.unwrap().is_none());
+        assert!(
+            create_pending(&pool, "alice", "hash")
+                .await
+                .unwrap()
+                .is_some()
+        );
+        assert!(
+            create_pending(&pool, "alice", "hash")
+                .await
+                .unwrap()
+                .is_none()
+        );
+        assert!(
+            create_pending(&pool, "ALICE", "hash")
+                .await
+                .unwrap()
+                .is_none()
+        );
     }
 
     #[tokio::test]
@@ -262,7 +277,10 @@ mod tests {
     #[tokio::test]
     async fn deleting_a_user_cascades_their_sessions() {
         let pool = pool().await;
-        let user = create_pending(&pool, "carol", "hash").await.unwrap().unwrap();
+        let user = create_pending(&pool, "carol", "hash")
+            .await
+            .unwrap()
+            .unwrap();
         create_session(&pool, "tok", &user.id, 3600).await.unwrap();
 
         delete_user(&pool, &user.id).await.unwrap();

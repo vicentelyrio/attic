@@ -108,7 +108,9 @@ async fn process(
     let src_top = crate::fs::resolve_within_root(&state.roots, &job.src_root, &job.src_path)
         .map_err(|e| JobError::Path(format!("source no longer resolvable: {}", e.message())))?;
     let dst_dir = crate::fs::resolve_within_root(&state.roots, &job.dst_root, &job.dst_dir)
-        .map_err(|e| JobError::Path(format!("destination no longer resolvable: {}", e.message())))?;
+        .map_err(|e| {
+            JobError::Path(format!("destination no longer resolvable: {}", e.message()))
+        })?;
     let src_parent = src_top
         .parent()
         .map(Path::to_path_buf)

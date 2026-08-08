@@ -58,7 +58,9 @@ pub(super) async fn list_dir(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<Listing>, StatusCode> {
     let dir = resolve_within_root(&state.roots, &q.root, &q.path)?;
-    let mut read_dir = tokio::fs::read_dir(&dir).await.map_err(|_| StatusCode::NOT_FOUND)?;
+    let mut read_dir = tokio::fs::read_dir(&dir)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
 
     let mut entries = Vec::new();
     while let Some(item) = read_dir
@@ -71,7 +73,11 @@ pub(super) async fn list_dir(
             Err(_) => continue,
         };
         let is_dir = meta.is_dir();
-        let items = if is_dir { count_children(&item.path()).await } else { None };
+        let items = if is_dir {
+            count_children(&item.path()).await
+        } else {
+            None
+        };
 
         entries.push(Entry {
             name: item.file_name().to_string_lossy().into_owned(),
@@ -89,5 +95,8 @@ pub(super) async fn list_dir(
             .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
     });
 
-    Ok(Json(Listing { writable: is_writable(&dir), entries }))
+    Ok(Json(Listing {
+        writable: is_writable(&dir),
+        entries,
+    }))
 }

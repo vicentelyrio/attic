@@ -121,12 +121,11 @@ pub async fn list_jobs_for_user(
     user_id: &str,
     limit: i64,
 ) -> Result<Vec<Job>, sqlx::Error> {
-    let rows =
-        sqlx::query("SELECT * FROM jobs WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?")
-            .bind(user_id)
-            .bind(limit)
-            .fetch_all(pool)
-            .await?;
+    let rows = sqlx::query("SELECT * FROM jobs WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?")
+        .bind(user_id)
+        .bind(limit)
+        .fetch_all(pool)
+        .await?;
     Ok(rows.iter().map(row_to_job).collect())
 }
 
@@ -148,10 +147,7 @@ pub async fn clear_finished(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
     Ok(res.rows_affected())
 }
 
-pub async fn clear_finished_for_user(
-    pool: &SqlitePool,
-    user_id: &str,
-) -> Result<u64, sqlx::Error> {
+pub async fn clear_finished_for_user(pool: &SqlitePool, user_id: &str) -> Result<u64, sqlx::Error> {
     let mut tx = pool.begin().await?;
 
     sqlx::query(
@@ -180,11 +176,7 @@ pub async fn next_queued(pool: &SqlitePool) -> Result<Option<Job>, sqlx::Error> 
     Ok(row.as_ref().map(row_to_job))
 }
 
-pub async fn set_status(
-    pool: &SqlitePool,
-    id: &str,
-    status: Status,
-) -> Result<(), sqlx::Error> {
+pub async fn set_status(pool: &SqlitePool, id: &str, status: Status) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE jobs SET status = ?, updated_at = ? WHERE id = ?")
         .bind(status.as_str())
         .bind(now())
@@ -238,15 +230,13 @@ pub async fn update_progress(
     bytes_done: i64,
     current_file: Option<&str>,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query(
-        "UPDATE jobs SET bytes_done = ?, current_file = ?, updated_at = ? WHERE id = ?",
-    )
-    .bind(bytes_done)
-    .bind(current_file)
-    .bind(now())
-    .bind(id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE jobs SET bytes_done = ?, current_file = ?, updated_at = ? WHERE id = ?")
+        .bind(bytes_done)
+        .bind(current_file)
+        .bind(now())
+        .bind(id)
+        .execute(pool)
+        .await?;
     Ok(())
 }
 
@@ -286,11 +276,10 @@ pub async fn flag_conflict(pool: &SqlitePool, id: &str, rel: &str) -> Result<(),
 }
 
 pub async fn requeue_running(pool: &SqlitePool) -> Result<u64, sqlx::Error> {
-    let res = sqlx::query(
-        "UPDATE jobs SET status = 'queued', updated_at = ? WHERE status = 'running'",
-    )
-    .bind(now())
-    .execute(pool)
-    .await?;
+    let res =
+        sqlx::query("UPDATE jobs SET status = 'queued', updated_at = ? WHERE status = 'running'")
+            .bind(now())
+            .execute(pool)
+            .await?;
     Ok(res.rows_affected())
 }

@@ -9,9 +9,9 @@ mod upload;
 use std::path::PathBuf;
 
 use axum::{
+    Router,
     http::StatusCode,
     routing::{get, post},
-    Router,
 };
 
 use crate::state::AppState;

@@ -100,7 +100,13 @@ fn candidate_from(root_name: &str, root: &Path, abs: PathBuf, needle: &str) -> O
         .parent()
         .map(|p| p.to_string_lossy().replace('\\', "/"))
         .unwrap_or_default();
-    Some(Candidate { root: root_name.to_string(), path, name, parent, abs })
+    Some(Candidate {
+        root: root_name.to_string(),
+        path,
+        name,
+        parent,
+        abs,
+    })
 }
 
 /// Queries the Spotlight index; returns `false` only if `mdfind` can't be

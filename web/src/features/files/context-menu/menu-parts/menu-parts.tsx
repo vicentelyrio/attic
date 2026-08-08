@@ -11,8 +11,8 @@ import { Group, Stack, Text } from '@mantine/core'
 
 import type { Entry } from '@domain'
 
-import { EntryIcon } from '../../entry-icon'
 import classes from '../context-menu.module.css'
+import { EntryIcon } from '@/features/files/entry-icon'
 
 export function Shortcut({ id }: { id: ShortcutId }) {
   return <Text className={classes.shortcut}>{useShortcut(id)}</Text>

@@ -13,8 +13,8 @@ import {
 
 import { pickFiles, useFileOps, useUploads } from '@domain'
 
-import type { NewEntryKind } from '../../files/context-menu/new-entry-dialog'
 import type { ActionDef } from '../helpers'
+import type { NewEntryKind } from '@/features/files/context-menu/new-entry-dialog'
 
 export function useQuickActions(
   root: string,

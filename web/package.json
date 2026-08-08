@@ -11,6 +11,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
+    "validate": "pnpm typecheck && pnpm lint && pnpm build",
     "i18n": "pnpm --package=typescript@5.9.3 --package=typesafe-i18n@5.27.1 dlx typesafe-i18n --no-watch",
     "i18n:watch": "pnpm --package=typescript@5.9.3 --package=typesafe-i18n@5.27.1 dlx typesafe-i18n"
   },

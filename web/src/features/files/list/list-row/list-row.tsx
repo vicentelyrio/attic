@@ -12,11 +12,11 @@ import type { Entry } from '@domain'
 
 import { mergeRefs, useDraggableEntry, useDroppableFolder } from '@features'
 
-import { CountBadge } from '../../count-badge'
-import { EntryIcon } from '../../entry-icon'
-import { RenameField } from '../../rename'
 import classes from '../list.module.css'
 import { SizeCell } from '../size-cell'
+import { CountBadge } from '@/features/files/count-badge'
+import { EntryIcon } from '@/features/files/entry-icon'
+import { RenameField } from '@/features/files/rename'
 
 export function ListRow({
   entry,

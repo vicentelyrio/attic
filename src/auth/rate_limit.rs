@@ -44,9 +44,10 @@ impl RateLimiter {
     pub fn record(&self, ip: IpAddr) {
         let mut attempts = self.attempts.lock().unwrap();
         let now = Instant::now();
-        let entry = attempts
-            .entry(ip)
-            .or_insert(WindowCount { count: 0, window_start: now });
+        let entry = attempts.entry(ip).or_insert(WindowCount {
+            count: 0,
+            window_start: now,
+        });
         if now.duration_since(entry.window_start) >= self.window {
             entry.count = 0;
             entry.window_start = now;

@@ -33,14 +33,16 @@ pub(super) fn replace_top(rel: &str, from: &str, to: &str) -> String {
 /// Walks `src` into a flat file manifest, flagging files whose destination
 /// already exists. Empty directories, symlinks, and other special files are
 /// not carried over.
-pub fn build(
-    src: &Path,
-    dst_dir: &Path,
-    src_base: &str,
-    dst_base: &str,
-) -> std::io::Result<Plan> {
+pub fn build(src: &Path, dst_dir: &Path, src_base: &str, dst_base: &str) -> std::io::Result<Plan> {
     let mut files = Vec::new();
-    walk(src, dst_dir, src_base.to_string(), src_base, dst_base, &mut files)?;
+    walk(
+        src,
+        dst_dir,
+        src_base.to_string(),
+        src_base,
+        dst_base,
+        &mut files,
+    )?;
     let bytes_total = files.iter().map(|f| f.size).sum();
     Ok(Plan { files, bytes_total })
 }
@@ -67,7 +69,11 @@ fn walk(
     } else if ft.is_file() {
         let dst_rel = replace_top(&rel, src_base, dst_base);
         let conflict = dst_dir.join(&dst_rel).exists();
-        out.push(PlannedFile { rel_path: rel, size: meta.len() as i64, conflict });
+        out.push(PlannedFile {
+            rel_path: rel,
+            size: meta.len() as i64,
+            conflict,
+        });
     }
 
     Ok(())
@@ -116,8 +122,14 @@ mod tests {
     #[test]
     fn replace_top_rewrites_only_first_segment() {
         assert_eq!(replace_top("a.txt", "a.txt", "a copy.txt"), "a copy.txt");
-        assert_eq!(replace_top("movies/clip.mp4", "movies", "movies copy"), "movies copy/clip.mp4");
-        assert_eq!(replace_top("movies/clip.mp4", "movies", "movies"), "movies/clip.mp4");
+        assert_eq!(
+            replace_top("movies/clip.mp4", "movies", "movies copy"),
+            "movies copy/clip.mp4"
+        );
+        assert_eq!(
+            replace_top("movies/clip.mp4", "movies", "movies"),
+            "movies/clip.mp4"
+        );
     }
 
     #[test]

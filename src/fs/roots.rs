@@ -29,7 +29,12 @@ pub(super) async fn list_roots(State(state): State<AppState>) -> Json<Vec<Root>>
                 }
                 Err(_) => (0, 0, 0),
             };
-            Root { name: name.clone(), total, used, available }
+            Root {
+                name: name.clone(),
+                total,
+                used,
+                available,
+            }
         })
         .collect();
     roots.sort_by(|a, b| a.name.cmp(&b.name));

@@ -2,9 +2,9 @@ import type { MouseEvent } from 'react'
 
 import type { Entry } from '@domain'
 
-import { Card } from '../../card'
-import type { RenameControls } from '../../rename'
 import classes from '../grid.module.css'
+import { Card } from '@/features/files/card'
+import type { RenameControls } from '@/features/files/rename'
 
 export type GridRowProps = {
   entries: Entry[]

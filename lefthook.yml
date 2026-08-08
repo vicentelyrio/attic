@@ -1,0 +1,12 @@
+pre-push:
+  parallel: true
+  commands:
+    frontend-validate:
+      root: "web/"
+      run: pnpm validate
+    backend-fmt:
+      run: cargo fmt --all -- --check
+    backend-clippy:
+      run: cargo clippy --all-targets -- -D warnings
+    backend-test:
+      run: cargo test

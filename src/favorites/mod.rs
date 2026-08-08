@@ -2,8 +2,8 @@ mod handlers;
 pub mod model;
 pub mod store;
 
-use axum::routing::{delete, get};
 use axum::Router;
+use axum::routing::{delete, get};
 
 use crate::state::AppState;
 
