@@ -30,6 +30,8 @@ export function ListRow({
   renamePending,
   onRenameSubmit,
   onRenameCancel,
+  measureRef,
+  dataIndex,
 }: {
   entry: Entry
   root: string
@@ -42,6 +44,8 @@ export function ListRow({
   renamePending: boolean
   onRenameSubmit: (entry: Entry, name: string) => void
   onRenameCancel: () => void
+  measureRef?: (node: HTMLElement | null) => void
+  dataIndex?: number
 }) {
   const { LL } = useI18nContext()
 
@@ -61,7 +65,8 @@ export function ListRow({
 
   return (
     <Table.Tr
-      ref={mergeRefs(drag.setNodeRef, drop.setNodeRef)}
+      ref={mergeRefs(drag.setNodeRef, drop.setNodeRef, measureRef)}
+      data-index={dataIndex}
       data-name={entry.name}
       data-drop-active={drop.dropActive || undefined}
       data-drop-invalid={drop.dropInvalid || undefined}

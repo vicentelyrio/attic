@@ -17,6 +17,19 @@
 
 .table {
   --table-border-color: var(--mantine-color-dark-6);
+  table-layout: fixed;
+}
+
+.sizeColgroup {
+  width: 90px;
+}
+
+.kindColgroup {
+  width: 120px;
+}
+
+.modifiedColgroup {
+  width: 140px;
 }
 
 .thead {
@@ -85,11 +98,15 @@
   display: flex;
   align-items: center;
   gap: var(--mantine-spacing-sm);
+  min-width: 0;
 }
 
 .label {
   color: var(--mantine-color-dark-0);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sizeCol {

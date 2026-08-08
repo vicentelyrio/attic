@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="atticAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8B95E8"></stop>
+      <stop offset="1" stop-color="#5E6AD2"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#atticAccent)"></rect>
+  <path d="M32 13 L50 51 H41.5 L32 30.5 L22.5 51 H14 Z" fill="#0A0B0D"></path>
+  <rect x="24" y="38" width="16" height="6" rx="3" fill="#0A0B0D"></rect>
+</svg>

@@ -1,13 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { useI18nContext } from '@i18n'
 import type { SelectMods } from '@infrastructure'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 import { Table } from '@mantine/core'
 
 import type { Entry } from '@domain'
 
-import { useDroppableFolder } from '@features'
+import { mergeRefs, useDroppableFolder } from '@features'
 
 import type { RenameControls } from '../rename'
 import classes from './list.module.css'
@@ -23,6 +24,8 @@ export type ListProps = {
   onClearSelection: () => void
   rename: RenameControls
 }
+
+const ROW_ESTIMATE = 44
 
 export function List({
   data,
@@ -43,10 +46,22 @@ export function List({
 
   const drop = useDroppableFolder({ scope: 'background', root, dir: path })
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const rowVirtualizer = useVirtualizer({
+    count: data?.length ?? 0,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ROW_ESTIMATE,
+    overscan: 10,
+  })
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const paddingTop = virtualRows[0]?.start ?? 0
+  const paddingBottom =
+    rowVirtualizer.getTotalSize() - (virtualRows.at(-1)?.end ?? 0)
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area
     <div
-      ref={drop.setNodeRef}
+      ref={mergeRefs(scrollRef, drop.setNodeRef)}
       className={classes.scroll}
       data-drop-active={drop.dropActive || undefined}
       onClick={onClearSelection}
@@ -58,6 +73,12 @@ export function List({
         horizontalSpacing="md"
         stickyHeader
       >
+        <colgroup>
+          <col />
+          <col className={classes.sizeColgroup} />
+          <col className={classes.kindColgroup} />
+          <col className={classes.modifiedColgroup} />
+        </colgroup>
         <Table.Thead className={classes.thead}>
           <Table.Tr>
             <Table.Th className={classes.head}>{LL.common.name()}</Table.Th>
@@ -69,26 +90,48 @@ export function List({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data?.map((entry) => (
-            <ListRow
-              key={entry.name}
-              entry={entry}
-              root={root}
-              path={path}
-              dragEntries={
-                selected.has(entry.name) && selectedEntries.length > 1
-                  ? selectedEntries
-                  : [entry]
-              }
-              selected={selected.has(entry.name)}
-              onOpen={onOpen}
-              onSelect={onSelect}
-              renaming={rename.renaming === entry.name}
-              renamePending={rename.pending}
-              onRenameSubmit={rename.submit}
-              onRenameCancel={rename.cancel}
-            />
-          ))}
+          {paddingTop > 0 && (
+            <tr>
+              <td
+                colSpan={4}
+                style={{ height: paddingTop, padding: 0, border: 0 }}
+              />
+            </tr>
+          )}
+          {virtualRows.map((virtualRow) => {
+            const entry = data?.[virtualRow.index]
+            if (!entry) return null
+            return (
+              <ListRow
+                key={entry.name}
+                measureRef={rowVirtualizer.measureElement}
+                dataIndex={virtualRow.index}
+                entry={entry}
+                root={root}
+                path={path}
+                dragEntries={
+                  selected.has(entry.name) && selectedEntries.length > 1
+                    ? selectedEntries
+                    : [entry]
+                }
+                selected={selected.has(entry.name)}
+                onOpen={onOpen}
+                onSelect={onSelect}
+                renaming={rename.renaming === entry.name}
+                renamePending={rename.pending}
+                onRenameSubmit={rename.submit}
+                onRenameCancel={rename.cancel}
+              />
+            )
+          })}
+          {paddingBottom > 0 && (
+            <tr>
+              <td
+                colSpan={4}
+                style={{ height: paddingBottom, padding: 0, border: 0 }}
+              />
+            </tr>
+          )}
         </Table.Tbody>
       </Table>
     </div>
