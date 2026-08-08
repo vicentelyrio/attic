@@ -1,7 +1,7 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 1px calc(var(--mantine-spacing-xs) * 0.6);
   border-radius: var(--mantine-radius-sm);
   background-color: var(--mantine-color-dark-5);
   color: var(--mantine-color-dark-3);

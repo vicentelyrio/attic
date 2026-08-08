@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { useI18nContext } from '@i18n'
 import type { SelectMods } from '@infrastructure'
 
@@ -5,12 +7,16 @@ import { Table } from '@mantine/core'
 
 import type { Entry } from '@domain'
 
+import { useDroppableFolder } from '@features'
+
 import type { RenameControls } from '../rename'
 import classes from './list.module.css'
 import { ListRow } from './list-row'
 
 export type ListProps = {
   data?: Entry[]
+  root: string
+  path: string
   onOpen: (item: Entry) => void
   selected: Set<string>
   onSelect: (name: string, mods: SelectMods) => void
@@ -20,6 +26,8 @@ export type ListProps = {
 
 export function List({
   data,
+  root,
+  path,
   onOpen,
   selected,
   onSelect,
@@ -28,10 +36,19 @@ export function List({
 }: ListProps) {
   const { LL } = useI18nContext()
 
+  const selectedEntries = useMemo(
+    () => data?.filter((e) => selected.has(e.name)) ?? [],
+    [data, selected],
+  )
+
+  const drop = useDroppableFolder({ root, dir: path })
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area
     <div
+      ref={drop.setNodeRef}
       className={classes.scroll}
+      data-drop-active={drop.dropActive || undefined}
       onClick={onClearSelection}
       onKeyDown={(e) => e.key === 'Escape' && onClearSelection()}
     >
@@ -56,6 +73,13 @@ export function List({
             <ListRow
               key={entry.name}
               entry={entry}
+              root={root}
+              path={path}
+              dragEntries={
+                selected.has(entry.name) && selectedEntries.length > 1
+                  ? selectedEntries
+                  : [entry]
+              }
               selected={selected.has(entry.name)}
               onOpen={onOpen}
               onSelect={onSelect}

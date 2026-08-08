@@ -1,9 +1,13 @@
+import { useMemo } from 'react'
+
 import { useI18nContext } from '@i18n'
 import type { SelectMods } from '@infrastructure'
 
 import { Box, Stack } from '@mantine/core'
 
 import type { Entry } from '@domain'
+
+import { useDroppableFolder } from '@features'
 
 import { Card } from '../card'
 import type { RenameControls } from '../rename'
@@ -39,6 +43,15 @@ export function Grid({
     onOpen,
   )
 
+  const selectedEntries = useMemo(
+    () => data?.filter((e) => selected.has(e.name)) ?? [],
+    [data, selected],
+  )
+  const dragEntries = (entry: Entry) =>
+    selected.has(entry.name) && selectedEntries.length > 1
+      ? selectedEntries
+      : [entry]
+
   const cardRename = (entry: Entry) => ({
     renaming: rename.renaming === entry.name,
     renamePending: rename.pending,
@@ -46,9 +59,13 @@ export function Grid({
     onRenameCancel: rename.cancel,
   })
 
+  const drop = useDroppableFolder({ root, dir: path })
+
   return (
     <Box
+      ref={drop.setNodeRef}
       className={classes.scroll}
+      data-drop-active={drop.dropActive || undefined}
       onClick={onClearSelection}
       onKeyDown={(e) => e.key === 'Escape' && onClearSelection()}
     >
@@ -61,6 +78,7 @@ export function Grid({
                 entry={entry}
                 root={root}
                 path={path}
+                dragEntries={dragEntries(entry)}
                 selected={selected.has(entry.name)}
                 onSelect={handleSelect}
                 onOpen={handleOpen}
@@ -78,6 +96,7 @@ export function Grid({
                 entry={entry}
                 root={root}
                 path={path}
+                dragEntries={dragEntries(entry)}
                 selected={selected.has(entry.name)}
                 onSelect={handleSelect}
                 onOpen={handleOpen}
