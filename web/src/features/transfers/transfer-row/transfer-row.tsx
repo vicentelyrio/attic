@@ -10,12 +10,16 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 
-import { CheckIcon, XIcon } from '@phosphor-icons/react'
+import {
+  ArrowCounterClockwiseIcon,
+  CheckIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 
-import type { Job } from '@domain'
+import { type Job, useUndoMove } from '@domain'
 
 import { EntryIcon } from '../../files/entry-icon'
-import { basename, percent, TRANSFERRING } from '../helpers'
+import { basename, percent, TRANSFERRING, transferTooltip } from '../helpers'
 import classes from './transfer-row.module.css'
 
 type TransferRowProps = {
@@ -26,6 +30,7 @@ type TransferRowProps = {
 
 export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
   const { LL } = useI18nContext()
+  const undoMove = useUndoMove()
   const name = basename(job.src_path)
   const isDone = job.status === 'done'
   const isFailed = job.status === 'failed'
@@ -58,7 +63,7 @@ export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
             size="sm"
             c={isDone ? 'dark.1' : 'dark.0'}
             truncate
-            title={job.src_path}
+            title={transferTooltip(job)}
             style={{ flex: 1, minWidth: 0 }}
           >
             {name}
@@ -91,9 +96,23 @@ export function TransferRow({ job, onCancel, onResolve }: TransferRowProps) {
       </div>
 
       {isDone ? (
-        <ThemeIcon color="green" radius="xl" size={16} variant="filled">
-          <CheckIcon size={9} weight="bold" color="#08120d" />
-        </ThemeIcon>
+        <Group gap={4} wrap="nowrap">
+          {job.op === 'move' && (
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="sm"
+              className={classes.iconBtn}
+              onClick={() => undoMove(job)}
+              aria-label={LL.transfers.undo()}
+            >
+              <ArrowCounterClockwiseIcon size={13} />
+            </ActionIcon>
+          )}
+          <ThemeIcon color="green" radius="xl" size={16} variant="filled">
+            <CheckIcon size={9} weight="bold" color="#08120d" />
+          </ThemeIcon>
+        </Group>
       ) : isMoving ? (
         <ActionIcon
           variant="subtle"

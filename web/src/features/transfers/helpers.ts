@@ -15,6 +15,15 @@ export function basename(path: string): string {
   return parts[parts.length - 1] ?? path
 }
 
+export function transferTooltip(job: Job): string {
+  const name = basename(job.src_path)
+  const to = job.dst_dir ? `${job.dst_dir}/${name}` : name
+
+  return job.src_root === job.dst_root
+    ? `${job.src_path} → ${to}`
+    : `${job.src_root}/${job.src_path} → ${job.dst_root}/${to}`
+}
+
 export function percent(job: Job): number {
   if (job.status === 'done') return 100
   if (job.bytes_total <= 0) return 0
