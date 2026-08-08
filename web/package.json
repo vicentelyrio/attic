@@ -32,7 +32,7 @@
     "@tanstack/react-router": "^1.170.16",
     "@tanstack/react-router-devtools": "^1.167.0",
     "dayjs": "^1.11.21",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.12",
     "marked": "^18.0.5",
     "pdfjs-dist": "^6.1.200",
     "pretty-bytes": "^7.1.0",
