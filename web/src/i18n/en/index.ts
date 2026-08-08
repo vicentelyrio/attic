@@ -130,6 +130,17 @@ const en = {
       forbidden: 'You don’t have permission to rename this.',
       generic: 'Could not rename the item.',
     },
+    dnd: {
+      confirmTitle: 'Move items',
+      moveOne: 'Move “{name:string}” from {from:string} to {to:string}?',
+      moveMany: 'Move {count:number} items from {from:string} to {to:string}?',
+      dontAskAgain: 'Don’t ask again',
+      move: 'Move',
+      movedOne: 'Moved “{name:string}” to {to:string}.',
+      movedMany: 'Moved {count:number} items to {to:string}.',
+      moveFailed: 'Couldn’t move {count:number|n} {{count:item|items}}.',
+      undo: 'Undo',
+    },
   },
 
   menu: {
@@ -215,6 +226,7 @@ const en = {
     complete: '{count:number} complete',
     resolveConflicts: 'Resolve conflicts',
     cancelTransfer: 'Cancel transfer',
+    undo: 'Undo move',
     etaSeconds: '{count:number}s left',
     etaMinutes: 'about {count:number}m left',
   },

@@ -21,6 +21,8 @@ import { FolderSimpleIcon } from '@phosphor-icons/react'
 
 import type { Entry } from '@domain'
 
+import { mergeRefs, useDraggableEntry, useDroppableFolder } from '@features'
+
 import { EntryIcon } from '../entry-icon'
 import { RenameField } from '../rename'
 import classes from './card.module.css'
@@ -32,6 +34,7 @@ export type CardProps = {
   entry: Entry
   root: string
   path: string
+  dragEntries: Entry[]
   selected: boolean
   onSelect: (entry: Entry, event: MouseEvent) => void
   onOpen: (entry: Entry) => void
@@ -45,16 +48,16 @@ export type CardProps = {
  *  card is being renamed so the write-in-place field keeps focus. */
 function Shell({
   entry,
+  root,
+  path,
+  dragEntries,
   selected,
   onSelect,
   onOpen,
   renaming,
   children,
   padding,
-}: Omit<
-  CardProps,
-  'root' | 'path' | 'renamePending' | 'onRenameSubmit' | 'onRenameCancel'
-> & {
+}: Omit<CardProps, 'renamePending' | 'onRenameSubmit' | 'onRenameCancel'> & {
   children: ReactNode
   padding?: string | number
 }) {
@@ -69,19 +72,36 @@ function Shell({
     }
   }
 
+  const drag = useDraggableEntry({
+    root,
+    path,
+    entry,
+    dragEntries,
+    disabled: renaming,
+  })
+  const drop = useDroppableFolder({
+    root,
+    dir: path ? `${path}/${entry.name}` : entry.name,
+    disabled: !entry.is_dir,
+  })
+
   return (
     <MantineCard
+      ref={mergeRefs(drag.setNodeRef, drop.setNodeRef)}
       className={classes.card}
-      role="button"
-      tabIndex={0}
       data-name={entry.name}
       data-selected={selected || undefined}
       data-dimmed={entry.name.startsWith('.') || undefined}
+      data-dragging={drag.isDragging || undefined}
+      data-drop-active={drop.dropActive || undefined}
+      data-drop-invalid={drop.dropInvalid || undefined}
       onClick={(event) => !renaming && onSelect(entry, event)}
       onDoubleClick={() => !renaming && onOpen(entry)}
       onKeyDown={handleKeyDown}
       padding={padding}
       w="100%"
+      {...drag.attributes}
+      {...drag.listeners}
     >
       {children}
     </MantineCard>

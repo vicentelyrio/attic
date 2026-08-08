@@ -17,7 +17,7 @@
 .markdownBody :global(h1),
 .markdownBody :global(h2),
 .markdownBody :global(h3) {
-  margin: 0 0 6px;
+  margin: 0 0 calc(var(--mantine-spacing-xs) * 0.6);
   color: var(--mantine-color-dark-0);
   font-weight: 600;
   line-height: 1.25;
@@ -39,12 +39,12 @@
 .markdownBody :global(ul),
 .markdownBody :global(ol),
 .markdownBody :global(blockquote) {
-  margin: 0 0 6px;
+  margin: 0 0 calc(var(--mantine-spacing-xs) * 0.6);
 }
 
 .markdownBody :global(ul),
 .markdownBody :global(ol) {
-  padding-left: 16px;
+  padding-left: var(--mantine-spacing-md);
 }
 
 .markdownBody :global(a) {
@@ -52,7 +52,7 @@
 }
 
 .markdownBody :global(code) {
-  padding: 1px 4px;
+  padding: 1px calc(var(--mantine-spacing-xs) * 0.4);
   border-radius: 3px;
   background-color: var(--mantine-color-dark-5);
   font-family: var(--mantine-font-family-monospace);
@@ -60,8 +60,8 @@
 }
 
 .markdownBody :global(pre) {
-  margin: 0 0 6px;
-  padding: 8px;
+  margin: 0 0 calc(var(--mantine-spacing-xs) * 0.6);
+  padding: calc(var(--mantine-spacing-xs) * 0.8);
   border-radius: 4px;
   overflow: hidden;
   background-color: var(--mantine-color-dark-8);
@@ -73,7 +73,7 @@
 }
 
 .markdownBody :global(blockquote) {
-  padding-left: 8px;
+  padding-left: calc(var(--mantine-spacing-xs) * 0.8);
   border-left: 2px solid var(--mantine-color-dark-4);
   color: var(--mantine-color-dark-2);
 }
@@ -85,5 +85,5 @@
 .markdownBody :global(hr) {
   border: none;
   border-top: 1px solid var(--mantine-color-dark-5);
-  margin: 8px 0;
+  margin: calc(var(--mantine-spacing-xs) * 0.8) 0;
 }

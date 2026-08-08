@@ -449,6 +449,55 @@ type RootTranslation = {
 			 */
 			generic: string
 		}
+		dnd: {
+			/**
+			 * M​o​v​e​ ​i​t​e​m​s
+			 */
+			confirmTitle: string
+			/**
+			 * M​o​v​e​ ​“​{​n​a​m​e​}​”​ ​f​r​o​m​ ​{​f​r​o​m​}​ ​t​o​ ​{​t​o​}​?
+			 * @param {string} from
+			 * @param {string} name
+			 * @param {string} to
+			 */
+			moveOne: RequiredParams<'from' | 'name' | 'to'>
+			/**
+			 * M​o​v​e​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s​ ​f​r​o​m​ ​{​f​r​o​m​}​ ​t​o​ ​{​t​o​}​?
+			 * @param {number} count
+			 * @param {string} from
+			 * @param {string} to
+			 */
+			moveMany: RequiredParams<'count' | 'from' | 'to'>
+			/**
+			 * D​o​n​’​t​ ​a​s​k​ ​a​g​a​i​n
+			 */
+			dontAskAgain: string
+			/**
+			 * M​o​v​e
+			 */
+			move: string
+			/**
+			 * M​o​v​e​d​ ​“​{​n​a​m​e​}​”​ ​t​o​ ​{​t​o​}​.
+			 * @param {string} name
+			 * @param {string} to
+			 */
+			movedOne: RequiredParams<'name' | 'to'>
+			/**
+			 * M​o​v​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s​ ​t​o​ ​{​t​o​}​.
+			 * @param {number} count
+			 * @param {string} to
+			 */
+			movedMany: RequiredParams<'count' | 'to'>
+			/**
+			 * C​o​u​l​d​n​’​t​ ​m​o​v​e​ ​{​c​o​u​n​t​|​n​}​ ​{​{​i​t​e​m​|​i​t​e​m​s​}​}​.
+			 * @param {number} count
+			 */
+			moveFailed: RequiredParams<'count|n'>
+			/**
+			 * U​n​d​o
+			 */
+			undo: string
+		}
 	}
 	menu: {
 		/**
@@ -723,6 +772,10 @@ type RootTranslation = {
 		 * C​a​n​c​e​l​ ​t​r​a​n​s​f​e​r
 		 */
 		cancelTransfer: string
+		/**
+		 * U​n​d​o​ ​m​o​v​e
+		 */
+		undo: string
 		/**
 		 * {​c​o​u​n​t​}​s​ ​l​e​f​t
 		 * @param {number} count
@@ -1696,6 +1749,44 @@ export type TranslationFunctions = {
 			 */
 			generic: () => LocalizedString
 		}
+		dnd: {
+			/**
+			 * Move items
+			 */
+			confirmTitle: () => LocalizedString
+			/**
+			 * Move “{name}” from {from} to {to}?
+			 */
+			moveOne: (arg: { from: string, name: string, to: string }) => LocalizedString
+			/**
+			 * Move {count} items from {from} to {to}?
+			 */
+			moveMany: (arg: { count: number, from: string, to: string }) => LocalizedString
+			/**
+			 * Don’t ask again
+			 */
+			dontAskAgain: () => LocalizedString
+			/**
+			 * Move
+			 */
+			move: () => LocalizedString
+			/**
+			 * Moved “{name}” to {to}.
+			 */
+			movedOne: (arg: { name: string, to: string }) => LocalizedString
+			/**
+			 * Moved {count} items to {to}.
+			 */
+			movedMany: (arg: { count: number, to: string }) => LocalizedString
+			/**
+			 * Couldn’t move {count|n} {{item|items}}.
+			 */
+			moveFailed: (arg: { count: number }) => LocalizedString
+			/**
+			 * Undo
+			 */
+			undo: () => LocalizedString
+		}
 	}
 	menu: {
 		/**
@@ -1956,6 +2047,10 @@ export type TranslationFunctions = {
 		 * Cancel transfer
 		 */
 		cancelTransfer: () => LocalizedString
+		/**
+		 * Undo move
+		 */
+		undo: () => LocalizedString
 		/**
 		 * {count}s left
 		 */

@@ -102,6 +102,8 @@ function Index() {
           ) : (
             <List
               data={entries}
+              root={root}
+              path={path}
               onOpen={open}
               selected={selected}
               onSelect={onSelect}

@@ -33,6 +33,29 @@
   opacity: 0.45;
 }
 
+.card[data-dragging] {
+  opacity: 0.4;
+}
+
+.card[data-drop-active] {
+  border-color: var(--mantine-color-indigo-5);
+  box-shadow: 0 0 0 2px var(--mantine-color-indigo-5);
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-indigo-6) 20%,
+    var(--mantine-color-dark-6)
+  );
+}
+
+.card[data-drop-invalid] {
+  border-color: var(--mantine-color-red-5);
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-color-red-6) 12%,
+    var(--mantine-color-dark-6)
+  );
+}
+
 .preview {
   border-bottom: 1px solid var(--mantine-color-dark-5);
 }
