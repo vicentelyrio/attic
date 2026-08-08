@@ -4,19 +4,20 @@ import { useDragPayload } from './drag-context'
 import { canAcceptDrop } from './helpers'
 import type { DropPayload } from './types'
 
-/** Drop target for a folder — a row/card, breadcrumb, or sidebar entry. */
 export function useDroppableFolder({
+  scope,
   root,
   dir,
   disabled,
 }: {
+  scope: string
   root: string
   dir: string
   disabled?: boolean
 }) {
   const drag = useDragPayload()
   const { setNodeRef, isOver } = useDroppable({
-    id: `folder:${root}:${dir}`,
+    id: `folder:${scope}:${root}:${dir}`,
     disabled,
     data: { root, dir } satisfies DropPayload,
   })

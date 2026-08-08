@@ -41,7 +41,7 @@ export function List({
     [data, selected],
   )
 
-  const drop = useDroppableFolder({ root, dir: path })
+  const drop = useDroppableFolder({ scope: 'background', root, dir: path })
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: background deselect on the scroll area

@@ -4,8 +4,6 @@ import type { Entry } from '@domain'
 
 import type { DragPayload } from './types'
 
-/** Drag source for a file/folder row or card. When the entry is part of the
- *  current multi-selection, dragging it carries the whole selection along. */
 export function useDraggableEntry({
   root,
   path,

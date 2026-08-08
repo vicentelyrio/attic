@@ -5,7 +5,6 @@ export function parentDir(path: string): string {
   return i === -1 ? '' : path.slice(0, i)
 }
 
-/** Last path segment for display, or the root name when at its top. */
 export function folderLabel(root: string, dir: string): string {
   if (!dir) return root
   const i = dir.lastIndexOf('/')
@@ -17,8 +16,6 @@ export function basename(path: string): string {
   return i === -1 ? path : path.slice(i + 1)
 }
 
-/** Rejects drops that are no-ops (already in the target folder) or that
- *  would move a folder into itself or one of its own descendants. */
 export function canAcceptItem(item: DragItem, target: DropPayload): boolean {
   const parent = parentDir(item.path)
 

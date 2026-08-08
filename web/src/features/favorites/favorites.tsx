@@ -20,7 +20,11 @@ function FavoriteItem({
 }) {
   const { LL } = useI18nContext()
   const navigate = useNavigate()
-  const drop = useDroppableFolder({ root: favorite.root, dir: favorite.path })
+  const drop = useDroppableFolder({
+    scope: 'favorite',
+    root: favorite.root,
+    dir: favorite.path,
+  })
 
   const { blinking } = useHoverNavigate(drop.dropActive, () => {
     navigate({

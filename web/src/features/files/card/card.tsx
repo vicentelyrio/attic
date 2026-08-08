@@ -80,6 +80,7 @@ function Shell({
     disabled: renaming,
   })
   const drop = useDroppableFolder({
+    scope: 'row',
     root,
     dir: path ? `${path}/${entry.name}` : entry.name,
     disabled: !entry.is_dir,

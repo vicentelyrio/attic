@@ -17,7 +17,7 @@ function dotColor(usedPercent: number) {
 
 function DriveItem({ root }: { root: Root }) {
   const usedPercent = root.total > 0 ? (root.used / root.total) * 100 : 0
-  const drop = useDroppableFolder({ root: root.name, dir: '' })
+  const drop = useDroppableFolder({ scope: 'driver', root: root.name, dir: '' })
 
   return (
     <div

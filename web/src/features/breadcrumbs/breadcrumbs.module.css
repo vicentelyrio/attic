@@ -14,8 +14,9 @@
   display: inline-flex;
   align-items: center;
   border-radius: var(--mantine-radius-sm);
-  padding: var(--mantine-spacing-xs);
-  margin: calc(var(--mantine-spacing-xs) * -1);
+  padding: var(--mantine-spacing-xs) calc(var(--mantine-spacing-xs) * 0.3);
+  margin: calc(var(--mantine-spacing-xs) * -1)
+    calc(var(--mantine-spacing-xs) * -0.3);
 }
 
 .dropTarget[data-drop-active] {

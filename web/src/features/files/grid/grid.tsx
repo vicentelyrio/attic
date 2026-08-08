@@ -59,7 +59,7 @@ export function Grid({
     onRenameCancel: rename.cancel,
   })
 
-  const drop = useDroppableFolder({ root, dir: path })
+  const drop = useDroppableFolder({ scope: 'background', root, dir: path })
 
   return (
     <Box

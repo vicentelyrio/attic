@@ -4,9 +4,6 @@ import type { Job, JobStatus } from '@domain'
 
 const SETTLED: JobStatus[] = ['done', 'failed', 'canceled']
 
-/** Resolves once the job reaches a terminal status. Reads from the ['jobs']
- *  query cache, which the always-mounted Transfers dock keeps polling — so
- *  this adds no extra requests of its own. */
 export function waitForJob(qc: QueryClient, id: string): Promise<JobStatus> {
   return new Promise((resolve) => {
     const check = () => {

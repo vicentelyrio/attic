@@ -33,6 +33,7 @@ function CrumbLink({
 }) {
   const navigate = useNavigate()
   const drop = useDroppableFolder({
+    scope: 'crumb',
     root,
     dir: crumb.target,
     disabled: isLast,
