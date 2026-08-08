@@ -16,6 +16,7 @@ import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 import { downloadUrl, type Entry } from '@domain'
 
 import { FilePlaceholder, PdfPreview, previewStrategies } from '../../card'
+import { useImageFit } from './use-image-fit'
 import classes from './preview-stage.module.css'
 
 const PDF_FULLSCREEN_WIDTH = 1600
@@ -28,6 +29,7 @@ export type PreviewStageProps = {
   onPrev: () => void
   onNext: () => void
   onToggleZoom: () => void
+  onImageLoad: (fitScale: number) => void
   canNavigate: boolean
 }
 
@@ -69,15 +71,45 @@ function PdfStage({ zoom, children }: { zoom: number; children: ReactNode }) {
   )
 }
 
+function ImageStage({
+  src,
+  name,
+  zoom,
+  onToggleZoom,
+  onImageLoad,
+}: {
+  src: string
+  name: string
+  zoom: number
+  onToggleZoom: () => void
+  onImageLoad: (fitScale: number) => void
+}) {
+  const handleLoad = useImageFit(onImageLoad)
+
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: keyboard zoom is handled globally via Space
+    <img
+      className={classes.image}
+      src={src}
+      alt={name}
+      data-zoomed={zoom !== 1 || undefined}
+      style={{ transform: `scale(${zoom})` }}
+      onClick={onToggleZoom}
+      onLoad={handleLoad}
+    />
+  )
+}
+
 function StageContent({
   entry,
   root,
   path,
   zoom,
   onToggleZoom,
+  onImageLoad,
 }: Pick<
   PreviewStageProps,
-  'entry' | 'root' | 'path' | 'zoom' | 'onToggleZoom'
+  'entry' | 'root' | 'path' | 'zoom' | 'onToggleZoom' | 'onImageLoad'
 >) {
   const { category } = fileKind(entry.name)
   const filePath = path ? `${path}/${entry.name}` : entry.name
@@ -85,14 +117,12 @@ function StageContent({
 
   if (category === 'image') {
     return (
-      // biome-ignore lint/a11y/useKeyWithClickEvents: keyboard zoom is handled globally via Space
-      <img
-        className={classes.image}
+      <ImageStage
         src={src}
-        alt={entry.name}
-        data-zoomed={zoom !== 1 || undefined}
-        style={{ transform: `scale(${zoom})` }}
-        onClick={onToggleZoom}
+        name={entry.name}
+        zoom={zoom}
+        onToggleZoom={onToggleZoom}
+        onImageLoad={onImageLoad}
       />
     )
   }
@@ -156,6 +186,7 @@ export function PreviewStage({
   onPrev,
   onNext,
   onToggleZoom,
+  onImageLoad,
   canNavigate,
 }: PreviewStageProps) {
   const { LL } = useI18nContext()
@@ -181,6 +212,7 @@ export function PreviewStage({
         path={path}
         zoom={zoom}
         onToggleZoom={onToggleZoom}
+        onImageLoad={onImageLoad}
       />
 
       {canNavigate && (

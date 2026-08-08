@@ -52,27 +52,25 @@ export function FilePreview({
   )
 
   const [zoom, setZoom] = useState(1)
+  const [fitScale, setFitScale] = useState(1)
   const [infoOpen, setInfoOpen] = useState(true)
 
   const category = fileKind(entry.name).category
   const zoomable = category === 'image' || category === 'pdf'
   const canNavigate = total > 1
 
-  const goPrev = useCallback(() => {
-    setZoom(1)
-    onPrev()
-  }, [onPrev])
+  const onImageLoad = useCallback((scale: number) => {
+    const clamped = clampZoom(scale)
+    setFitScale(clamped)
+    setZoom(clamped)
+  }, [])
 
-  const goNext = useCallback(() => {
-    setZoom(1)
-    onNext()
-  }, [onNext])
-
-  const toggleZoom = () => zoomable && setZoom((z) => (z === 1 ? 2 : 1))
+  const toggleZoom = () =>
+    zoomable && setZoom((z) => (Math.abs(z - fitScale) < 0.01 ? 1 : fitScale))
 
   useHotkeys([
-    ['ArrowLeft', goPrev],
-    ['ArrowRight', goNext],
+    ['ArrowLeft', onPrev],
+    ['ArrowRight', onNext],
     ['i', () => setInfoOpen((v) => !v)],
     ['Escape', onClose],
     [
@@ -80,7 +78,7 @@ export function FilePreview({
       (e: KeyboardEvent) => {
         if (!zoomable) return
         e.preventDefault()
-        setZoom((z) => (z === 1 ? 2 : 1))
+        toggleZoom()
       },
       { preventDefault: false },
     ],
@@ -110,9 +108,10 @@ export function FilePreview({
               root={root}
               path={path}
               zoom={zoom}
-              onPrev={goPrev}
-              onNext={goNext}
+              onPrev={onPrev}
+              onNext={onNext}
               onToggleZoom={toggleZoom}
+              onImageLoad={onImageLoad}
               canNavigate={canNavigate}
             />
             <PreviewHints />
