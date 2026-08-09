@@ -7,6 +7,8 @@ pub struct Config {
     pub roots_dir: PathBuf,
     #[serde(default = "default_db_path")]
     pub db_path: PathBuf,
+    #[serde(default = "default_thumbs_dir")]
+    pub thumbs_dir: PathBuf,
     #[serde(default = "default_max_upload_bytes")]
     pub max_upload_bytes: u64,
     pub auth: Option<AuthConfig>,
@@ -32,6 +34,10 @@ impl AuthConfig {
 
 fn default_db_path() -> PathBuf {
     PathBuf::from("attic.db")
+}
+
+fn default_thumbs_dir() -> PathBuf {
+    PathBuf::from("thumbs")
 }
 
 fn default_max_upload_bytes() -> u64 {

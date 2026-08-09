@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react'
 
-import { fileKind, isTextFile, tabularDelimiter } from '@infrastructure'
+import {
+  fileExt,
+  fileKind,
+  isTextFile,
+  tabularDelimiter,
+} from '@infrastructure'
 
-import { downloadUrl, type Entry } from '@domain'
+import { downloadUrl, type Entry, thumbnailUrl } from '@domain'
 
 import { AudioPreview } from './audio'
 import { CodePreview } from './code'
@@ -21,14 +26,8 @@ export type PreviewContext = {
 }
 
 export type PreviewStrategy = {
-  /** True if this strategy handles the entry. First match wins. */
   match: (entry: Entry) => boolean
-  /** Renders the preview element for the entry. */
   render: (ctx: PreviewContext) => ReactNode
-  /**
-   * Whether the preview fetches or decodes on mount and should be deferred
-   * until scrolled near the viewport. Defaults to true.
-   */
   heavy?: boolean
 }
 
@@ -46,7 +45,11 @@ export const previewStrategies: PreviewStrategy[] = [
     heavy: false,
     render: ({ entry, root, path }) => {
       const filePath = path ? `${path}/${entry.name}` : entry.name
-      return <ImagePreview entry={entry} src={downloadUrl(root, filePath)} />
+      const src =
+        fileExt(entry.name) === 'svg'
+          ? downloadUrl(root, filePath)
+          : thumbnailUrl(root, filePath)
+      return <ImagePreview entry={entry} src={src} />
     },
   },
   {

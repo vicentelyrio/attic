@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use sqlx::SqlitePool;
-use tokio::sync::Notify;
+use tokio::sync::{Notify, Semaphore};
 
 use crate::auth::rate_limit::RateLimiter;
 use crate::config::{AuthConfig, Config};
@@ -27,6 +27,8 @@ pub struct AppState {
     pub login_limiter: Arc<RateLimiter>,
     pub register_limiter: Arc<RateLimiter>,
     pub max_upload_bytes: u64,
+    pub thumbs_dir: PathBuf,
+    pub thumbnail_semaphore: Arc<Semaphore>,
 }
 
 fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
@@ -65,6 +67,13 @@ fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
     roots
 }
 
+fn prepare_thumbs_dir(thumbs_dir: &Path) -> PathBuf {
+    std::fs::create_dir_all(thumbs_dir)
+        .unwrap_or_else(|e| panic!("cannot create thumbs_dir '{}': {}", thumbs_dir.display(), e));
+    std::fs::canonicalize(thumbs_dir)
+        .unwrap_or_else(|e| panic!("thumbs_dir '{}' is unusable: {}", thumbs_dir.display(), e))
+}
+
 impl AppState {
     pub async fn new(config: Config) -> Self {
         let auth = config.auth.clone().unwrap_or_else(|| {
@@ -72,6 +81,7 @@ impl AppState {
         });
 
         let roots = discover_roots(&config.roots_dir);
+        let thumbs_dir = prepare_thumbs_dir(&config.thumbs_dir);
 
         let pool = crate::db::connect(&config.db_path).await;
         crate::auth::store::seed_owner_if_empty(&pool, &auth).await;
@@ -88,6 +98,12 @@ impl AppState {
                 REGISTRATION_WINDOW,
             )),
             max_upload_bytes: config.max_upload_bytes,
+            thumbs_dir,
+            thumbnail_semaphore: Arc::new(Semaphore::new(
+                std::thread::available_parallelism()
+                    .map(|n| n.get())
+                    .unwrap_or(4),
+            )),
         }
     }
 }

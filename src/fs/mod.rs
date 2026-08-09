@@ -4,6 +4,7 @@ mod mutate;
 mod resolve;
 mod roots;
 mod search;
+mod thumbnail;
 mod upload;
 
 use std::path::PathBuf;
@@ -87,6 +88,7 @@ pub fn routes() -> Router<AppState> {
         .route("/api/list", get(listing::list_dir))
         .route("/api/search", get(search::search))
         .route("/api/download", get(download::download))
+        .route("/api/thumbnail", get(thumbnail::thumbnail))
         .route("/api/upload", post(upload::upload))
         .route("/api/mkdir", post(mutate::mkdir))
         .route("/api/mkdirp", post(mutate::mkdir_path))
