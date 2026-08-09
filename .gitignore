@@ -1,5 +1,6 @@
 /target
 /roots
+/thumbs
 node_modules
 dist
 .env

@@ -7,6 +7,9 @@ max_upload_bytes = 53687091200
 # the folder. Add drives by mounting them in docker-compose.yml — no edits here.
 roots_dir = "/data/roots"
 
+# On-demand generated thumbnail cache, kept under the same /data volume.
+thumbs_dir = "/data/thumbs"
+
 [auth]
 owner_username = "admin"
 secure_cookies = false

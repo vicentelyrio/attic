@@ -6,7 +6,11 @@ export function downloadUrl(root: string, path: string, dl = false): string {
   return `/api/download?${params}`
 }
 
-// An <input> only reports files, so empty folders are invisible to it.
+export function thumbnailUrl(root: string, path: string): string {
+  const params = new URLSearchParams({ root, path })
+  return `/api/thumbnail?${params}`
+}
+
 export function pickFiles(list: FileList | File[] | null): Picked {
   if (!list) return { files: [], dirs: [] }
   return {
@@ -22,8 +26,6 @@ function fileOf(entry: FileSystemFileEntry): Promise<File> {
   return new Promise((resolve, reject) => entry.file(resolve, reject))
 }
 
-// readEntries hands back one batch at a time and signals the end with an empty
-// one — a single call silently truncates directories past ~100 entries.
 function readAll(
   reader: FileSystemDirectoryReader,
 ): Promise<FileSystemEntry[]> {
@@ -51,7 +53,7 @@ async function walk(entry: FileSystemEntry, parent: string, out: Picked) {
   const children = await readAll(
     (entry as FileSystemDirectoryEntry).createReader(),
   )
-  // Only leaves need recording — creating one creates its ancestors too.
+
   if (children.length === 0) {
     out.dirs.push(rel)
     return
@@ -60,8 +62,6 @@ async function walk(entry: FileSystemEntry, parent: string, out: Picked) {
 }
 
 export async function pickDropped(dt: DataTransfer): Promise<Picked> {
-  // `items` is only readable during the event dispatch, so the entries have to
-  // be taken before the first await — the list is emptied out from under us.
   const entries = Array.from(dt.items)
     .filter((it) => it.kind === 'file')
     .map((it) => it.webkitGetAsEntry())

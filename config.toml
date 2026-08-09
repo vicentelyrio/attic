@@ -12,6 +12,9 @@ max_upload_bytes = 53687091200
 # Created on startup if missing.
 roots_dir = "./roots"
 
+# On-demand generated thumbnail cache. Created on startup if missing.
+thumbs_dir = "./thumbs"
+
 [auth]
 owner_username = "homelab"
 # The owner password hash is a secret and lives in the (gitignored) .env file as
