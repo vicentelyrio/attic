@@ -27,7 +27,10 @@ pub struct AppState {
     pub login_limiter: Arc<RateLimiter>,
     pub register_limiter: Arc<RateLimiter>,
     pub max_upload_bytes: u64,
-    pub thumbs_dir: PathBuf,
+    // `None` when thumbs_dir couldn't be created/written at startup — the
+    // thumbnail endpoint then answers 503 instead of taking the whole server
+    // down over a cache directory problem.
+    pub thumbs_dir: Option<PathBuf>,
     pub thumbnail_semaphore: Arc<Semaphore>,
 }
 
@@ -67,11 +70,28 @@ fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
     roots
 }
 
-fn prepare_thumbs_dir(thumbs_dir: &Path) -> PathBuf {
-    std::fs::create_dir_all(thumbs_dir)
-        .unwrap_or_else(|e| panic!("cannot create thumbs_dir '{}': {}", thumbs_dir.display(), e));
-    std::fs::canonicalize(thumbs_dir)
-        .unwrap_or_else(|e| panic!("thumbs_dir '{}' is unusable: {}", thumbs_dir.display(), e))
+/// Unlike `discover_roots`, failure here must not take the server down —
+/// thumbnails are a nice-to-have on top of file browsing, not a prerequisite
+/// for it, and an unwritable cache directory (e.g. a restrictive deployment
+/// that wasn't updated to grant it) shouldn't turn into a total outage.
+fn prepare_thumbs_dir(thumbs_dir: &Path) -> Option<PathBuf> {
+    if let Err(e) = std::fs::create_dir_all(thumbs_dir) {
+        tracing::error!(
+            "thumbnails disabled: cannot create thumbs_dir '{}': {e}",
+            thumbs_dir.display()
+        );
+        return None;
+    }
+    match std::fs::canonicalize(thumbs_dir) {
+        Ok(dir) => Some(dir),
+        Err(e) => {
+            tracing::error!(
+                "thumbnails disabled: thumbs_dir '{}' is unusable: {e}",
+                thumbs_dir.display()
+            );
+            None
+        }
+    }
 }
 
 impl AppState {
@@ -99,11 +119,7 @@ impl AppState {
             )),
             max_upload_bytes: config.max_upload_bytes,
             thumbs_dir,
-            thumbnail_semaphore: Arc::new(Semaphore::new(
-                std::thread::available_parallelism()
-                    .map(|n| n.get())
-                    .unwrap_or(4),
-            )),
+            thumbnail_semaphore: Arc::new(Semaphore::new(config.thumbnail_concurrency.max(1))),
         }
     }
 }
