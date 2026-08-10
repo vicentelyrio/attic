@@ -10,6 +10,10 @@ roots_dir = "/data/roots"
 # On-demand generated thumbnail cache, kept under the same /data volume.
 thumbs_dir = "/data/thumbs"
 
+# Max thumbnails decoded/resized/encoded at once. Raise only as high as the
+# container's actual CPU/memory limits allow — see docs/config.toml comment.
+thumbnail_concurrency = 2
+
 [auth]
 owner_username = "admin"
 secure_cookies = false

@@ -9,6 +9,12 @@ pub struct Config {
     pub db_path: PathBuf,
     #[serde(default = "default_thumbs_dir")]
     pub thumbs_dir: PathBuf,
+    // Not derived from the host's CPU count: `available_parallelism` reads
+    // the machine's core count, not the container's cgroup quota, so on a
+    // throttled container it would size this far past what can actually run
+    // and thrash the box generating thumbnails for even a small folder.
+    #[serde(default = "default_thumbnail_concurrency")]
+    pub thumbnail_concurrency: usize,
     #[serde(default = "default_max_upload_bytes")]
     pub max_upload_bytes: u64,
     pub auth: Option<AuthConfig>,
@@ -38,6 +44,10 @@ fn default_db_path() -> PathBuf {
 
 fn default_thumbs_dir() -> PathBuf {
     PathBuf::from("thumbs")
+}
+
+fn default_thumbnail_concurrency() -> usize {
+    2
 }
 
 fn default_max_upload_bytes() -> u64 {

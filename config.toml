@@ -15,6 +15,12 @@ roots_dir = "./roots"
 # On-demand generated thumbnail cache. Created on startup if missing.
 thumbs_dir = "./thumbs"
 
+# Max thumbnails decoded/resized/encoded at once. Each one is CPU- and
+# memory-heavy in proportion to the source image's megapixels, not its file
+# size, so raise this only as high as the box (or container quota) can
+# actually run concurrently. Defaults to 2 when omitted.
+thumbnail_concurrency = 2
+
 [auth]
 owner_username = "homelab"
 # The owner password hash is a secret and lives in the (gitignored) .env file as

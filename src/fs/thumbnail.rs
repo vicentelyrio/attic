@@ -22,6 +22,11 @@ const JPEG_QUALITY: u8 = 82;
 // Above this, a card thumbnail isn't worth decoding a full-res original for;
 // the browser falls back to the file-type placeholder instead.
 const MAX_SOURCE_BYTES: u64 = 100 * 1024 * 1024;
+// Decoded memory scales with megapixels, not file size — a small but
+// highly-compressed file can still decode to a huge pixel buffer. 100MP
+// covers real photos (a 45MP mirrorless frame is ~45MP) with headroom while
+// still bounding worst-case memory per concurrent decode.
+const MAX_SOURCE_PIXELS: u64 = 100_000_000;
 
 #[derive(Deserialize)]
 pub(super) struct ThumbnailQuery {
@@ -35,6 +40,10 @@ pub(super) async fn thumbnail(
     Query(q): Query<ThumbnailQuery>,
     req: Request<Body>,
 ) -> Result<Response, StatusCode> {
+    let thumbs_dir = state
+        .thumbs_dir
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let path = resolve_within_root(&state.roots, &q.root, &q.path)?;
 
     let meta = tokio::fs::metadata(&path)
@@ -54,7 +63,7 @@ pub(super) async fn thumbnail(
         .map(|d| d.as_secs())
         .unwrap_or(0);
 
-    let cached = cache_path(&state.thumbs_dir, &q.root, &q.path, mtime, TARGET_LONG_EDGE);
+    let cached = cache_path(thumbs_dir, &q.root, &q.path, mtime, TARGET_LONG_EDGE);
 
     if tokio::fs::metadata(&cached).await.is_err() {
         let _permit = state
@@ -76,6 +85,7 @@ pub(super) async fn thumbnail(
                         tracing::warn!("thumbnail decode failed for '{}': {err}", path.display());
                         StatusCode::UNSUPPORTED_MEDIA_TYPE
                     }
+                    GenerateError::TooManyPixels => StatusCode::PAYLOAD_TOO_LARGE,
                     GenerateError::Io(e) => {
                         internal(&format!("generate thumbnail for '{}'", path.display()), e)
                     }
@@ -125,6 +135,7 @@ fn part_path(dst: &Path) -> PathBuf {
 #[derive(Debug)]
 enum GenerateError {
     Image(image::ImageError),
+    TooManyPixels,
     Io(std::io::Error),
 }
 
@@ -144,6 +155,15 @@ impl From<std::io::Error> for GenerateError {
 /// place — `dst` never exists half-written, so a concurrent reader never sees
 /// a truncated cache file.
 fn generate(src: &Path, dst: &Path, target: u32) -> Result<(), GenerateError> {
+    // Cheap header-only read to reject huge pixel counts before the actual
+    // decode allocates a full-resolution buffer for them.
+    let (w, h) = ImageReader::open(src)?
+        .with_guessed_format()?
+        .into_dimensions()?;
+    if (w as u64) * (h as u64) > MAX_SOURCE_PIXELS {
+        return Err(GenerateError::TooManyPixels);
+    }
+
     let img = ImageReader::open(src)?.with_guessed_format()?.decode()?;
     let resized = img.resize(target, target, image::imageops::FilterType::Triangle);
     let rgb = resized.to_rgb8();
