@@ -143,6 +143,12 @@ const en = {
     },
   },
 
+  sort: {
+    sortBy: 'Sort by',
+    ascending: 'Ascending',
+    descending: 'Descending',
+  },
+
   menu: {
     openInNewTab: 'Open in New Tab',
     quickLook: 'Quick Look',

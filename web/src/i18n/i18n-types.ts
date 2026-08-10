@@ -499,6 +499,20 @@ type RootTranslation = {
 			undo: string
 		}
 	}
+	sort: {
+		/**
+		 * S​o​r​t​ ​b​y
+		 */
+		sortBy: string
+		/**
+		 * A​s​c​e​n​d​i​n​g
+		 */
+		ascending: string
+		/**
+		 * D​e​s​c​e​n​d​i​n​g
+		 */
+		descending: string
+	}
 	menu: {
 		/**
 		 * O​p​e​n​ ​i​n​ ​N​e​w​ ​T​a​b
@@ -1787,6 +1801,20 @@ export type TranslationFunctions = {
 			 */
 			undo: () => LocalizedString
 		}
+	}
+	sort: {
+		/**
+		 * Sort by
+		 */
+		sortBy: () => LocalizedString
+		/**
+		 * Ascending
+		 */
+		ascending: () => LocalizedString
+		/**
+		 * Descending
+		 */
+		descending: () => LocalizedString
 	}
 	menu: {
 		/**

@@ -144,6 +144,12 @@ const es = {
     },
   },
 
+  sort: {
+    sortBy: 'Ordenar por',
+    ascending: 'Ascendente',
+    descending: 'Descendente',
+  },
+
   menu: {
     openInNewTab: 'Abrir en una pestaña nueva',
     quickLook: 'Vista rápida',

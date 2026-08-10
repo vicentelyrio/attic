@@ -1,10 +1,17 @@
 import { useMemo, useRef } from 'react'
 
 import { useI18nContext } from '@i18n'
-import type { SelectMods } from '@infrastructure'
+import {
+  type SelectMods,
+  type SortField,
+  type SortState,
+  toggleSortField,
+} from '@infrastructure'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
 import { Table } from '@mantine/core'
+
+import { CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react'
 
 import type { Entry } from '@domain'
 
@@ -23,6 +30,8 @@ export type ListProps = {
   onSelect: (name: string, mods: SelectMods) => void
   onClearSelection: () => void
   rename: RenameControls
+  sort: SortState
+  onSortChange: (sort: SortState) => void
 }
 
 const ROW_ESTIMATE = 44
@@ -36,8 +45,43 @@ export function List({
   onSelect,
   onClearSelection,
   rename,
+  sort,
+  onSortChange,
 }: ListProps) {
   const { LL } = useI18nContext()
+
+  const sortIcon = (field: SortField) =>
+    sort.field === field &&
+    (sort.direction === 'asc' ? (
+      <CaretUpIcon className={classes.sortIcon} weight="bold" />
+    ) : (
+      <CaretDownIcon className={classes.sortIcon} weight="bold" />
+    ))
+
+  const sortableHead = (
+    field: SortField,
+    label: string,
+    className?: string,
+  ) => (
+    <Table.Th
+      className={[classes.head, classes.sortable, className]
+        .filter(Boolean)
+        .join(' ')}
+      onClick={() => onSortChange(toggleSortField(sort, field))}
+      aria-sort={
+        sort.field === field
+          ? sort.direction === 'asc'
+            ? 'ascending'
+            : 'descending'
+          : undefined
+      }
+    >
+      <span className={classes.headLabel}>
+        {label}
+        {sortIcon(field)}
+      </span>
+    </Table.Th>
+  )
 
   const selectedEntries = useMemo(
     () => data?.filter((e) => selected.has(e.name)) ?? [],
@@ -81,12 +125,10 @@ export function List({
         </colgroup>
         <Table.Thead className={classes.thead}>
           <Table.Tr>
-            <Table.Th className={classes.head}>{LL.common.name()}</Table.Th>
-            <Table.Th className={`${classes.head} ${classes.sizeCol}`}>
-              {LL.common.size()}
-            </Table.Th>
-            <Table.Th className={classes.head}>{LL.common.kind()}</Table.Th>
-            <Table.Th className={classes.head}>{LL.common.modified()}</Table.Th>
+            {sortableHead('name', LL.common.name())}
+            {sortableHead('size', LL.common.size(), classes.sizeCol)}
+            {sortableHead('kind', LL.common.kind())}
+            {sortableHead('modified', LL.common.modified())}
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

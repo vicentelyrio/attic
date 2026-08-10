@@ -143,6 +143,12 @@ const ptBR = {
     },
   },
 
+  sort: {
+    sortBy: 'Ordenar por',
+    ascending: 'Crescente',
+    descending: 'Decrescente',
+  },
+
   menu: {
     openInNewTab: 'Abrir em nova aba',
     quickLook: 'Visualização rápida',

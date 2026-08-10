@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 
 import {
+  sortEntries,
   useDetailPanel,
   useFullscreenPreview,
   useSelection,
   useShowHidden,
+  useSort,
   useViewMode,
 } from '@infrastructure'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
@@ -36,13 +38,19 @@ function Index() {
   const { data } = useDirectory(root, path)
   const [view, setView] = useViewMode()
   const [showHidden, setShowHidden] = useShowHidden()
+  const [sort, setSort] = useSort()
 
   const all = data?.entries
 
-  const entries = useMemo(
+  const visible = useMemo(
     () =>
       showHidden ? all : all?.filter((entry) => !entry.name.startsWith('.')),
     [all, showHidden],
+  )
+
+  const entries = useMemo(
+    () => (visible ? sortEntries(visible, sort) : visible),
+    [visible, sort],
   )
 
   const hiddenCount = useMemo(
@@ -75,7 +83,14 @@ function Index() {
   return (
     <Flex flex={1} mih={0}>
       <Stack flex={1} mih={0}>
-        <Header root={root} path={path} view={view} onViewChange={setView} />
+        <Header
+          root={root}
+          path={path}
+          view={view}
+          onViewChange={setView}
+          sort={sort}
+          onSortChange={setSort}
+        />
         <ContextMenu
           entries={entries ?? []}
           root={root}
@@ -109,6 +124,8 @@ function Index() {
               onSelect={onSelect}
               onClearSelection={clear}
               rename={rename}
+              sort={sort}
+              onSortChange={setSort}
             />
           )}
         </ContextMenu>
