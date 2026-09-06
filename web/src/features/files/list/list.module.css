@@ -45,6 +45,29 @@
   background-color: var(--mantine-color-dark-7);
 }
 
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  color: var(--mantine-color-dark-1);
+}
+
+.headLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sizeCol .headLabel {
+  justify-content: flex-end;
+}
+
+.sortIcon {
+  color: var(--mantine-color-indigo-4);
+}
+
 .row,
 .selected {
   cursor: default;
