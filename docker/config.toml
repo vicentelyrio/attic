@@ -14,6 +14,10 @@ thumbs_dir = "/data/thumbs"
 # container's actual CPU/memory limits allow — see docs/config.toml comment.
 thumbnail_concurrency = 2
 
+# Max video thumbnails (ffmpeg frame extraction) running at once — kept low
+# since each is a whole ffmpeg process, not just a resize.
+video_thumbnail_concurrency = 1
+
 [auth]
 owner_username = "admin"
 secure_cookies = false

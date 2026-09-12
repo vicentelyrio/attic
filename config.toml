@@ -21,6 +21,11 @@ thumbs_dir = "./thumbs"
 # actually run concurrently. Defaults to 2 when omitted.
 thumbnail_concurrency = 2
 
+# Max video thumbnails (ffmpeg frame extraction) running at once, separate
+# from thumbnail_concurrency since each is a whole ffmpeg process — heavier,
+# and slower to fail, than an image resize. Defaults to 1 when omitted.
+video_thumbnail_concurrency = 1
+
 [auth]
 owner_username = "homelab"
 # The owner password hash is a secret and lives in the (gitignored) .env file as

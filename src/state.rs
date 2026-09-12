@@ -32,6 +32,7 @@ pub struct AppState {
     // down over a cache directory problem.
     pub thumbs_dir: Option<PathBuf>,
     pub thumbnail_semaphore: Arc<Semaphore>,
+    pub video_thumbnail_semaphore: Arc<Semaphore>,
 }
 
 fn discover_roots(roots_dir: &Path) -> HashMap<String, PathBuf> {
@@ -120,6 +121,9 @@ impl AppState {
             max_upload_bytes: config.max_upload_bytes,
             thumbs_dir,
             thumbnail_semaphore: Arc::new(Semaphore::new(config.thumbnail_concurrency.max(1))),
+            video_thumbnail_semaphore: Arc::new(Semaphore::new(
+                config.video_thumbnail_concurrency.max(1),
+            )),
         }
     }
 }
