@@ -2,6 +2,7 @@
    events stay enabled so hover can trigger playback; clicks still bubble to the
    card for select/open. */
 .video {
+  position: relative;
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -10,6 +11,8 @@
 }
 
 .videoEl {
+  position: absolute;
+  inset: 0;
   display: block;
   height: 100%;
   width: 100%;

@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM debian:trixie-slim
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
+    && apt-get install -y --no-install-recommends ca-certificates ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /usr/local/bin/attic /usr/local/bin/attic
