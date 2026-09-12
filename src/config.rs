@@ -15,6 +15,13 @@ pub struct Config {
     // and thrash the box generating thumbnails for even a small folder.
     #[serde(default = "default_thumbnail_concurrency")]
     pub thumbnail_concurrency: usize,
+    // Video thumbnails run a full ffmpeg process per request (much heavier
+    // than an image resize, and vulnerable to slow-seeking files whose index
+    // sits at the end of the file), so they get their own — smaller — cap,
+    // separate from `thumbnail_concurrency`, so a run of slow video probes
+    // can't starve image thumbnails behind the same permits.
+    #[serde(default = "default_video_thumbnail_concurrency")]
+    pub video_thumbnail_concurrency: usize,
     #[serde(default = "default_max_upload_bytes")]
     pub max_upload_bytes: u64,
     pub auth: Option<AuthConfig>,
@@ -48,6 +55,10 @@ fn default_thumbs_dir() -> PathBuf {
 
 fn default_thumbnail_concurrency() -> usize {
     2
+}
+
+fn default_video_thumbnail_concurrency() -> usize {
+    1
 }
 
 fn default_max_upload_bytes() -> u64 {

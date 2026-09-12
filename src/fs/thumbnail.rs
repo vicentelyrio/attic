@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use std::time::UNIX_EPOCH;
+use std::time::{Duration, UNIX_EPOCH};
 
 use axum::{
     body::Body,
@@ -34,6 +34,10 @@ const MAX_SOURCE_PIXELS: u64 = 100_000_000;
 // Matches the `#t=` fallback the web client used to seek to; kept as the
 // server-side poster frame so a likely-black first frame is avoided.
 const POSTER_TIME_SECS: &str = "0.5";
+// Bounds one ffmpeg run so a pathological file (corrupt stream, exotic codec,
+// slow network mount) can't sit on a video-thumbnail permit indefinitely and
+// starve every other video behind it in the queue.
+const VIDEO_TIMEOUT: Duration = Duration::from_secs(10);
 
 const VIDEO_EXTENSIONS: &[&str] = &[
     "mp4", "m4v", "mov", "mkv", "avi", "webm", "flv", "wmv", "mpg", "mpeg", "3gp",
@@ -90,8 +94,12 @@ pub(super) async fn thumbnail(
     let cached = cache_path(thumbs_dir, &q.root, &q.path, mtime, TARGET_LONG_EDGE);
 
     if tokio::fs::metadata(&cached).await.is_err() {
-        let _permit = state
-            .thumbnail_semaphore
+        let semaphore = if is_video {
+            &state.video_thumbnail_semaphore
+        } else {
+            &state.thumbnail_semaphore
+        };
+        let _permit = semaphore
             .acquire()
             .await
             .map_err(|e| internal("acquire thumbnail semaphore", e))?;
@@ -127,6 +135,13 @@ pub(super) async fn thumbnail(
                 GenerateError::FfmpegFailed(stderr) => {
                     tracing::warn!("ffmpeg failed for '{}': {stderr}", path.display());
                     StatusCode::UNSUPPORTED_MEDIA_TYPE
+                }
+                GenerateError::Timeout => {
+                    tracing::warn!(
+                        "ffmpeg timed out generating thumbnail for '{}'",
+                        path.display()
+                    );
+                    StatusCode::SERVICE_UNAVAILABLE
                 }
             })?;
         }
@@ -181,6 +196,10 @@ enum GenerateError {
     Ffmpeg(std::io::Error),
     /// ffmpeg ran but exited non-zero (unsupported codec, corrupt file, ...).
     FfmpegFailed(String),
+    /// ffmpeg didn't finish within `VIDEO_TIMEOUT`; the child is killed
+    /// (`kill_on_drop`) rather than left to run to completion in the
+    /// background.
+    Timeout,
 }
 
 impl From<image::ImageError> for GenerateError {
@@ -241,16 +260,23 @@ async fn generate_video(src: &Path, dst: &Path, target: u32) -> Result<(), Gener
     let scale =
         format!("scale='min({target},iw)':'min({target},ih)':force_original_aspect_ratio=decrease");
 
-    let output = tokio::process::Command::new("ffmpeg")
+    let mut command = tokio::process::Command::new("ffmpeg");
+    command
+        .kill_on_drop(true)
         .arg("-y")
         .args(["-ss", POSTER_TIME_SECS])
         .arg("-i")
         .arg(src)
         .args(["-frames:v", "1", "-vf", &scale, "-q:v", "4", "-f", "image2"])
-        .arg(&part)
-        .output()
-        .await
-        .map_err(GenerateError::Ffmpeg)?;
+        .arg(&part);
+
+    let output = match tokio::time::timeout(VIDEO_TIMEOUT, command.output()).await {
+        Ok(result) => result.map_err(GenerateError::Ffmpeg)?,
+        Err(_) => {
+            let _ = tokio::fs::remove_file(&part).await;
+            return Err(GenerateError::Timeout);
+        }
+    };
 
     if !output.status.success() {
         let _ = tokio::fs::remove_file(&part).await;
