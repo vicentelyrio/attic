@@ -54,7 +54,18 @@ export const previewStrategies: PreviewStrategy[] = [
   },
   {
     match: (entry) => isCategory(entry.name, 'video'),
-    render: (ctx) => <VideoPreview {...ctx} />,
+    heavy: false,
+    render: ({ entry, root, path }) => {
+      const filePath = path ? `${path}/${entry.name}` : entry.name
+      return (
+        <VideoPreview
+          entry={entry}
+          root={root}
+          path={path}
+          poster={thumbnailUrl(root, filePath)}
+        />
+      )
+    },
   },
   {
     match: (entry) => isCategory(entry.name, 'audio'),

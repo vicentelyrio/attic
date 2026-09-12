@@ -22,11 +22,29 @@ const JPEG_QUALITY: u8 = 82;
 // Above this, a card thumbnail isn't worth decoding a full-res original for;
 // the browser falls back to the file-type placeholder instead.
 const MAX_SOURCE_BYTES: u64 = 100 * 1024 * 1024;
+// Videos are legitimately much larger than photos; ffmpeg only seeks and
+// decodes a single frame rather than loading the whole file, so the cap here
+// just guards against absurd inputs, not memory use.
+const MAX_VIDEO_SOURCE_BYTES: u64 = 4 * 1024 * 1024 * 1024;
 // Decoded memory scales with megapixels, not file size — a small but
 // highly-compressed file can still decode to a huge pixel buffer. 100MP
 // covers real photos (a 45MP mirrorless frame is ~45MP) with headroom while
 // still bounding worst-case memory per concurrent decode.
 const MAX_SOURCE_PIXELS: u64 = 100_000_000;
+// Matches the `#t=` fallback the web client used to seek to; kept as the
+// server-side poster frame so a likely-black first frame is avoided.
+const POSTER_TIME_SECS: &str = "0.5";
+
+const VIDEO_EXTENSIONS: &[&str] = &[
+    "mp4", "m4v", "mov", "mkv", "avi", "webm", "flv", "wmv", "mpg", "mpeg", "3gp",
+];
+
+fn is_video(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|e| VIDEO_EXTENSIONS.contains(&e.to_ascii_lowercase().as_str()))
+        .unwrap_or(false)
+}
 
 #[derive(Deserialize)]
 pub(super) struct ThumbnailQuery {
@@ -52,7 +70,13 @@ pub(super) async fn thumbnail(
     if meta.is_dir() {
         return Err(StatusCode::BAD_REQUEST);
     }
-    if meta.len() > MAX_SOURCE_BYTES {
+    let is_video = is_video(&path);
+    let max_bytes = if is_video {
+        MAX_VIDEO_SOURCE_BYTES
+    } else {
+        MAX_SOURCE_BYTES
+    };
+    if meta.len() > max_bytes {
         return Err(StatusCode::PAYLOAD_TOO_LARGE);
     }
 
@@ -77,19 +101,34 @@ pub(super) async fn thumbnail(
         if tokio::fs::metadata(&cached).await.is_err() {
             let src = path.clone();
             let dst = cached.clone();
-            tokio::task::spawn_blocking(move || generate(&src, &dst, TARGET_LONG_EDGE))
-                .await
-                .map_err(|e| internal("thumbnail generation task", e))?
-                .map_err(|e| match e {
-                    GenerateError::Image(err) => {
-                        tracing::warn!("thumbnail decode failed for '{}': {err}", path.display());
-                        StatusCode::UNSUPPORTED_MEDIA_TYPE
-                    }
-                    GenerateError::TooManyPixels => StatusCode::PAYLOAD_TOO_LARGE,
-                    GenerateError::Io(e) => {
-                        internal(&format!("generate thumbnail for '{}'", path.display()), e)
-                    }
-                })?;
+            let result = if is_video {
+                generate_video(&src, &dst, TARGET_LONG_EDGE).await
+            } else {
+                tokio::task::spawn_blocking(move || generate(&src, &dst, TARGET_LONG_EDGE))
+                    .await
+                    .map_err(|e| internal("thumbnail generation task", e))?
+            };
+            result.map_err(|e| match e {
+                GenerateError::Image(err) => {
+                    tracing::warn!("thumbnail decode failed for '{}': {err}", path.display());
+                    StatusCode::UNSUPPORTED_MEDIA_TYPE
+                }
+                GenerateError::TooManyPixels => StatusCode::PAYLOAD_TOO_LARGE,
+                GenerateError::Io(e) => {
+                    internal(&format!("generate thumbnail for '{}'", path.display()), e)
+                }
+                GenerateError::Ffmpeg(e) => {
+                    tracing::warn!(
+                        "ffmpeg unavailable for video thumbnail '{}': {e}",
+                        path.display()
+                    );
+                    StatusCode::SERVICE_UNAVAILABLE
+                }
+                GenerateError::FfmpegFailed(stderr) => {
+                    tracing::warn!("ffmpeg failed for '{}': {stderr}", path.display());
+                    StatusCode::UNSUPPORTED_MEDIA_TYPE
+                }
+            })?;
         }
     }
 
@@ -137,6 +176,11 @@ enum GenerateError {
     Image(image::ImageError),
     TooManyPixels,
     Io(std::io::Error),
+    /// ffmpeg missing or failed to spawn — thumbnails are a nice-to-have, so
+    /// this degrades to a placeholder instead of tearing down the request.
+    Ffmpeg(std::io::Error),
+    /// ffmpeg ran but exited non-zero (unsupported codec, corrupt file, ...).
+    FfmpegFailed(String),
 }
 
 impl From<image::ImageError> for GenerateError {
@@ -179,6 +223,45 @@ fn generate(src: &Path, dst: &Path, target: u32) -> Result<(), GenerateError> {
         file.sync_all()?;
     }
     std::fs::rename(&part, dst)?;
+    Ok(())
+}
+
+/// Extracts a single frame at `POSTER_TIME_SECS` via the `ffmpeg` binary,
+/// scaled down and JPEG-encoded, into a `.part` sidecar renamed into place —
+/// same crash-safety shape as [`generate`]. Runs as a child process rather
+/// than a blocking task since it isn't CPU-bound on this side.
+async fn generate_video(src: &Path, dst: &Path, target: u32) -> Result<(), GenerateError> {
+    if let Some(parent) = dst.parent() {
+        tokio::fs::create_dir_all(parent)
+            .await
+            .map_err(GenerateError::Io)?;
+    }
+
+    let part = part_path(dst);
+    let scale =
+        format!("scale='min({target},iw)':'min({target},ih)':force_original_aspect_ratio=decrease");
+
+    let output = tokio::process::Command::new("ffmpeg")
+        .arg("-y")
+        .args(["-ss", POSTER_TIME_SECS])
+        .arg("-i")
+        .arg(src)
+        .args(["-frames:v", "1", "-vf", &scale, "-q:v", "4", "-f", "image2"])
+        .arg(&part)
+        .output()
+        .await
+        .map_err(GenerateError::Ffmpeg)?;
+
+    if !output.status.success() {
+        let _ = tokio::fs::remove_file(&part).await;
+        return Err(GenerateError::FfmpegFailed(
+            String::from_utf8_lossy(&output.stderr).into_owned(),
+        ));
+    }
+
+    tokio::fs::rename(&part, dst)
+        .await
+        .map_err(GenerateError::Io)?;
     Ok(())
 }
 
